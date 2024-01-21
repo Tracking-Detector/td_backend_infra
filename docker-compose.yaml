@@ -67,8 +67,10 @@ services:
     command: server ~ --address ':9000' --console-address ':9001'
     networks:
       - app-network
+
   rabbitmq:
     image: "rabbitmq:management"
+    container_name: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
@@ -111,6 +113,7 @@ services:
   # microservices
   requests:
     restart: unless-stopped
+    container_name: requests
     build: 
       context: .
       dockerfile: ./microservices/functions/requests/Dockerfile
@@ -138,6 +141,7 @@ services:
 
   download:
     restart: unless-stopped
+    container_name: download
     build:
       context: .
       dockerfile: ./microservices/functions/download/Dockerfile
@@ -165,6 +169,7 @@ services:
   
   users:
     restart: unless-stopped
+    container_name: users
     build:
       context: .
       dockerfile: ./microservices/functions/users/Dockerfile
@@ -192,6 +197,7 @@ services:
 
   dispatch:
     restart: unless-stopped
+    container_name: dispatch
     build:
       context: .
       dockerfile: ./microservices/functions/dispatcher/Dockerfile
@@ -221,6 +227,7 @@ services:
 
   export:
     restart: unless-stopped
+    container_name: export
     build:
       context: .
       dockerfile: ./microservices/functions/export/Dockerfile
