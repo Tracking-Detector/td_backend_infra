@@ -1,0 +1,102 @@
+version: '3.3'
+
+networks:
+  app-network:
+    driver: bridge
+volumes:
+  mongo_storage:
+  authelia_data:
+  minio_data:
+
+services:
+  # api gateway
+  traefik:
+    container_name: traefik
+    image: traefik:v2.9
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.api.entrypoints=http'
+      - 'traefik.http.routers.api.service=api@internal'
+      - 'traefik.http.routers.api.tls=false'
+      - 'traefik.http.routers.api.tls.options=default'
+      # - 'traefik.http.routers.api.middlewares=authelia@docker'
+      
+    depends_on:
+      - mongo-express
+    command:
+      - '--api'
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedByDefault=false'
+      - '--log=true'
+      - '--log.level=DEBUG'
+    networks:
+      - app-network
+
+  # infra
+  db:
+    image: mongo:4.4.18
+    restart: unless-stopped
+    container_name: db
+    environment:
+      - MONGO_INITDB_DATABASE=tracking-detector
+    volumes:
+      - mongo_storage:/data/db
+    networks:
+      - app-network
+
+  minio:
+    restart: unless-stopped
+    image: minio/minio
+    container_name: minio
+    volumes:
+      - minio_data:/data
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.minio.rule=Host(`minio.localhost`)'
+      - "traefik.http.services.minio.loadbalancer.server.port=9001"
+      # - 'traefik.http.routers.minio.middlewares=authelia@docker'  
+    environment:
+      MINIO_ROOT_USER: useruser
+      MINIO_ROOT_PASSWORD: passwordpassword
+    command: server ~ --address ':9000' --console-address ':9001'
+    networks:
+      - app-network
+
+
+  # ui
+  mongo-express:
+    container_name: mongo-express
+    restart: unless-stopped
+    image: mongo-express:latest
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://db:27017/tracking-detector
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+      - ME_CONFIG_BASICAUTH=false
+      - ME_CONFIG_SITE_BASEURL=/mongo
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.mongo-express.rule=(Host(`app.localhost`) && PathPrefix(`/mongo`))' 
+      - "traefik.http.services.mongo-express.loadbalancer.server.port=8081"
+    depends_on:
+      - db
+    networks:
+      - app-network
+  monit:
+    container_name: monit
+    image: pottava/docker-webui
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.monit.rule=Host(`docker.localhost`)' 
+      - "traefik.http.services.monit.loadbalancer.server.port=9000"
+    environment:
+      - DOCKER_HOST
+    networks:
+      - app-network
