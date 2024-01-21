@@ -24,6 +24,7 @@ services:
       - 'traefik.http.routers.api.service=api@internal'
       - 'traefik.http.routers.api.tls=false'
       - 'traefik.http.routers.api.tls.options=default'
+      - "traefik.http.middlewares.stripapi.stripprefix.prefixes=/api"
       # - 'traefik.http.routers.api.middlewares=authelia@docker'
       
     depends_on:
@@ -58,7 +59,7 @@ services:
       - minio_data:/data
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.minio.rule=Host(`minio.localhost`)'
+      - 'traefik.http.routers.minio.rule=Host(`minio.${DOMAIN}`)'
       - "traefik.http.services.minio.loadbalancer.server.port=9001"
       # - 'traefik.http.routers.minio.middlewares=authelia@docker'  
     environment:
@@ -90,7 +91,7 @@ services:
       - ME_CONFIG_SITE_BASEURL=/mongo
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.mongo-express.rule=(Host(`app.localhost`) && PathPrefix(`/mongo`))' 
+      - 'traefik.http.routers.mongo-express.rule=(Host(`app.${DOMAIN}`) && PathPrefix(`/mongo`))' 
       - "traefik.http.services.mongo-express.loadbalancer.server.port=8081"
     depends_on:
       - db
@@ -103,7 +104,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.monit.rule=Host(`docker.localhost`)' 
+      - 'traefik.http.routers.monit.rule=Host(`docker.${DOMAIN}`)' 
       - "traefik.http.services.monit.loadbalancer.server.port=9000"
     environment:
       - DOCKER_HOST
@@ -134,7 +135,8 @@ services:
     labels:
       - microservice=requests
       - 'traefik.enable=true'
-      - 'traefik.http.routers.requests.rule=(Host(`app.localhost`) && PathPrefix(`/api/requests`))' 
+      - 'traefik.http.routers.requests.rule=(Host(`app.${DOMAIN}`) && PathPrefix(`/api/requests`))' 
+      - 'traefik.http.routers.requests.middlewares=stripapi@docker'
       - "traefik.http.services.requests.loadbalancer.server.port=8081"
     networks:
       - app-network
@@ -162,7 +164,8 @@ services:
     labels:
       - microservice=download
       - 'traefik.enable=true'
-      - 'traefik.http.routers.download.rule=(Host(`app.localhost`) && PathPrefix(`/api/transfer`))' 
+      - 'traefik.http.routers.download.rule=(Host(`app.${DOMAIN}`) && PathPrefix(`/api/transfer`))' 
+      - 'traefik.http.routers.download.middlewares=stripapi@docker'
       - "traefik.http.services.download.loadbalancer.server.port=8081"
     networks:
       - app-network
@@ -190,8 +193,9 @@ services:
     labels:
       - microservice=users
       - 'traefik.enable=true'
-      - 'traefik.http.routers.download.rule=(Host(`app.localhost`) && PathPrefix(`/api/users`))' 
-      - "traefik.http.services.download.loadbalancer.server.port=8081"
+      - 'traefik.http.routers.users.rule=(Host(`app.${DOMAIN}`) && PathPrefix(`/api/users`))' 
+      - 'traefik.http.routers.users.middlewares=stripapi@docker'
+      - "traefik.http.services.users.loadbalancer.server.port=8081"
     networks:
       - app-network
 
@@ -220,8 +224,9 @@ services:
     labels:
       - microservice=dispatch
       - 'traefik.enable=true'
-      - 'traefik.http.routers.dispatch.rule=(Host(`app.localhost`) && PathPrefix(`/api/dispatch`))' 
+      - 'traefik.http.routers.dispatch.rule=(Host(`app.${DOMAIN}`) && PathPrefix(`/api/dispatch`))' 
       - "traefik.http.services.dispatch.loadbalancer.server.port=8081"
+      - 'traefik.http.routers.dispatch.middlewares=stripapi@docker'
     networks:
       - app-network
 

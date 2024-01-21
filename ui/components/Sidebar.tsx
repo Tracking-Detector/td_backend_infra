@@ -26,22 +26,23 @@ const Sidebar = ({children}: ISideBar) => {
                         <RxDashboard size={20}/>
                     </div>
                 </Link>
-                <Link href="/dashboard">
+                <Link href="/dashboard/statistic">
                     <div className="bg-gray-100 hover:bg-gray-200 transition-colors my-3 text-black p-3 rounded-lg inline-block">
                         <IoIosStats size={20}/>
                     </div>
                 </Link>
-                <Link href="/dashboard">
+                <Link href="/dashboard/models">
                     <div className="bg-gray-100 hover:bg-gray-200 transition-colors my-3 text-black p-3 rounded-lg inline-block">
                         <GiArtificialIntelligence size={20}/>
                     </div>
                 </Link>
+                <span className="border-b-[1px] border-gray-200 w-full p-1"></span>
                 <Link href="/dashboard">
                     <div className="bg-gray-100 hover:bg-gray-200 transition-colors my-3 text-black p-3 rounded-lg inline-block">
                         <SiMinio size={20}/>
                     </div>
                 </Link>
-                <Link href="/dashboard">
+                <Link href="/mongo">
                     <div className="bg-gray-100 hover:bg-gray-200 transition-colors my-3 text-black p-3 rounded-lg inline-block">
                         <DiMongodb size={20}/>
                     </div>
