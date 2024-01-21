@@ -1,0 +1,7 @@
+minio
+pymongo
+pandas
+tensorflowjs
+scikit-learn
+pika
+jaxlib==0.4.11

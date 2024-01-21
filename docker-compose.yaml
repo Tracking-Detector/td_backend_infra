@@ -62,9 +62,16 @@ services:
       - "traefik.http.services.minio.loadbalancer.server.port=9001"
       # - 'traefik.http.routers.minio.middlewares=authelia@docker'  
     environment:
-      MINIO_ROOT_USER: useruser
-      MINIO_ROOT_PASSWORD: passwordpassword
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_PRIVATE_KEY}
     command: server ~ --address ':9000' --console-address ':9001'
+    networks:
+      - app-network
+  rabbitmq:
+    image: "rabbitmq:management"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
     networks:
       - app-network
 
@@ -98,5 +105,141 @@ services:
       - "traefik.http.services.monit.loadbalancer.server.port=9000"
     environment:
       - DOCKER_HOST
+    networks:
+      - app-network
+
+  # microservices
+  requests:
+    restart: unless-stopped
+    build: 
+      context: .
+      dockerfile: ./microservices/functions/requests/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+    labels:
+      - microservice=requests
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.requests.rule=(Host(`app.localhost`) && PathPrefix(`/api/requests`))' 
+      - "traefik.http.services.requests.loadbalancer.server.port=8081"
+    networks:
+      - app-network
+
+  download:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./microservices/functions/download/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+    labels:
+      - microservice=download
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.download.rule=(Host(`app.localhost`) && PathPrefix(`/api/transfer`))' 
+      - "traefik.http.services.download.loadbalancer.server.port=8081"
+    networks:
+      - app-network
+  
+  users:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./microservices/functions/users/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+    labels:
+      - microservice=users
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.download.rule=(Host(`app.localhost`) && PathPrefix(`/api/users`))' 
+      - "traefik.http.services.download.loadbalancer.server.port=8081"
+    networks:
+      - app-network
+
+  dispatch:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./microservices/functions/dispatcher/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+      - MODELS_COLLECTION=${MODELS_COLLECTION}
+    depends_on:
+      - minio
+      - db
+      - rabbitmq
+    labels:
+      - microservice=dispatch
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.dispatch.rule=(Host(`app.localhost`) && PathPrefix(`/api/dispatch`))' 
+      - "traefik.http.services.dispatch.loadbalancer.server.port=8081"
+    networks:
+      - app-network
+
+  export:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./microservices/functions/export/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+      - rabbitmq
+    labels:
+      - microservice=export
     networks:
       - app-network
