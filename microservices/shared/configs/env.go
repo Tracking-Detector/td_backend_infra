@@ -20,6 +20,10 @@ func EnvTrainingRunCollection() string {
 	return os.Getenv("TRAINING_RUNS_COLLECTION")
 }
 
+func EnvExporterCollection() string {
+	return os.Getenv("EXPORTER_COLLECTION")
+}
+
 func EnvMinIoURI() string {
 	return os.Getenv("MINIO_URI")
 }

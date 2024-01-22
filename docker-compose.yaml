@@ -160,6 +160,7 @@ services:
       - USER_COLLECTION=${USER_COLLECTION}
       - REQUEST_COLLECTION=${REQUEST_COLLECTION}
       - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
       - MINIO_URI=${MINIO_URI}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
@@ -191,6 +192,7 @@ services:
       - USER_COLLECTION=${USER_COLLECTION}
       - REQUEST_COLLECTION=${REQUEST_COLLECTION}
       - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
       - MINIO_URI=${MINIO_URI}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
@@ -222,6 +224,7 @@ services:
       - USER_COLLECTION=${USER_COLLECTION}
       - REQUEST_COLLECTION=${REQUEST_COLLECTION}
       - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
       - MINIO_URI=${MINIO_URI}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
@@ -253,6 +256,7 @@ services:
       - USER_COLLECTION=${USER_COLLECTION}
       - REQUEST_COLLECTION=${REQUEST_COLLECTION}
       - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
       - MINIO_URI=${MINIO_URI}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
@@ -284,6 +288,7 @@ services:
       - USER_COLLECTION=${USER_COLLECTION}
       - REQUEST_COLLECTION=${REQUEST_COLLECTION}
       - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
       - MINIO_URI=${MINIO_URI}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
@@ -306,6 +311,33 @@ services:
     networks:
       - app-network
 
+  exporter:
+    restart: unless-stopped
+    container_name: exporter
+    build:
+      context: .
+      dockerfile: ./microservices/functions/exporter/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+      - rabbitmq
+    labels:
+      - microservice=exporter
+    networks:
+      - app-network
+  
   export:
     restart: unless-stopped
     container_name: export
@@ -317,6 +349,7 @@ services:
       - USER_COLLECTION=${USER_COLLECTION}
       - REQUEST_COLLECTION=${REQUEST_COLLECTION}
       - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
       - MINIO_URI=${MINIO_URI}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
@@ -329,6 +362,12 @@ services:
       - rabbitmq
     labels:
       - microservice=export
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.dispatch.rule=(Host(`dashboard.${DOMAIN}`) && PathPrefix(`/api/export`))' 
+      - "traefik.http.services.dispatch.loadbalancer.server.port=8081"
+      - "traefik.http.routers.dispatch.entrypoints=websecure"
+      - "traefik.http.routers.dispatch.tls.certresolver=myresolver"
+      - 'traefik.http.routers.dispatch.middlewares=authelia@docker,stripapi@docker'
     networks:
       - app-network
   
