@@ -7,6 +7,7 @@ import (
 type ExporterRepository interface {
 	Save(ctx context.Context, p *Exporter) error
 	FindByID(ctx context.Context, id string) (*Exporter, error)
+	FindByName(ctx context.Context, name string) (*Exporter, error)
 	FindAll(ctx context.Context) ([]*Exporter, error)
 	InTransaction(ctx context.Context, fn func(context.Context) error) error
 }

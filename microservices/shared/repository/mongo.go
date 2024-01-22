@@ -47,6 +47,10 @@ func (r *MongoExporterRepository) FindAll(ctx context.Context) ([]*models.Export
 	return mongostore.FindAllExporter(ctx, r.db)
 }
 
+func (r *MongoExporterRepository) FindByName(ctx context.Context, name string) (*models.Exporter, error) {
+	return mongostore.FindExporterByName(ctx, r.db, name)
+}
+
 func (r *MongoExporterRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {
 	return inMongoTransaction(ctx, r.db, fn)
 }

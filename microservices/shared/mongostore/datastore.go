@@ -53,6 +53,14 @@ func FindAllExporter(ctx context.Context, db *mongo.Database) ([]*models.Exporte
 	return exporter, err
 }
 
+func FindExporterByName(ctx context.Context, db *mongo.Database, name string) (*models.Exporter, error) {
+	exporter := new(models.Exporter)
+	err := db.Collection(configs.EnvExporterCollection()).FindOne(ctx, bson.M{
+		"name": name,
+	}).Decode(exporter)
+	return exporter, err
+}
+
 func SaveExporter(ctx context.Context, db *mongo.Database, p *models.Exporter) error {
 	opts := options.FindOneAndReplace().SetUpsert(true)
 	var doc bson.M
