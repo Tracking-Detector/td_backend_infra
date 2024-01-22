@@ -23,7 +23,7 @@ const (
 	URL
 	Success
 	RequestHeaders
-	Label
+	Tracker
 )
 
 type DocumentIdExtractor func(string) ([]int, error)
@@ -40,11 +40,12 @@ type TypeExtractor func(string) ([]int, error)
 type URLExtractor func(string) ([]int, error)
 type SuccessExtractor func(string) ([]int, error)
 type RequestHeadersExtractor func([]map[string]string) ([]int, error)
-type LabelExtractor func([]models.RequestDataLabel) ([]int, error)
+type TrackerExtractor func(bool) ([]int, error)
 
 type Extractor struct {
 	name                       string
 	description                string
+	dimensions                 []int
 	query                      bson.M
 	sequence                   []ExtractorTypes
 	documentIdExtractor        DocumentIdExtractor
@@ -61,13 +62,14 @@ type Extractor struct {
 	urlExtractor               URLExtractor
 	successExtractor           SuccessExtractor
 	requestHeadersExtractor    RequestHeadersExtractor
-	labelExtractor             LabelExtractor
+	trackerExtractor           TrackerExtractor
 }
 
-func NewExtractor(name string, description string) *Extractor {
+func NewExtractor(name string, description string, dimensions []int) *Extractor {
 	return &Extractor{
 		sequence:    make([]ExtractorTypes, 0),
 		name:        name,
+		dimensions:  dimensions,
 		description: description,
 		query:       bson.M{},
 	}
@@ -79,6 +81,10 @@ func (e *Extractor) Query() bson.M {
 
 func (e *Extractor) GetName() string {
 	return e.name
+}
+
+func (e *Extractor) GetDimensions() []int {
+	return e.dimensions
 }
 
 func (e *Extractor) GetDescription() string {
@@ -201,15 +207,15 @@ func (e *Extractor) RequestHeaders(extractor RequestHeadersExtractor) {
 	}
 }
 
-func (e *Extractor) Labels(extractor LabelExtractor) {
-	e.labelExtractor = extractor
-	e.sequence = append(e.sequence, Label)
+func (e *Extractor) Tracker(extractor TrackerExtractor) {
+	e.trackerExtractor = extractor
+	e.sequence = append(e.sequence, Tracker)
 	e.query["labels"] = bson.M{
 		"$exists": true,
 	}
 }
 
-func (e *Extractor) Encode(requestData models.RequestData) ([]int, error) {
+func (e *Extractor) Encode(requestData models.ReducedRequestData) ([]int, error) {
 	encoding := make([]int, 0)
 	var err error
 	var val []int
@@ -243,8 +249,8 @@ func (e *Extractor) Encode(requestData models.RequestData) ([]int, error) {
 			val, err = e.successExtractor(requestData.URL)
 		case RequestHeaders:
 			val, err = e.requestHeadersExtractor(requestData.RequestHeaders)
-		case Label:
-			val, err = e.labelExtractor(requestData.Labels)
+		case Tracker:
+			val, err = e.trackerExtractor(requestData.Tracker)
 		}
 		if err != nil {
 			return nil, err

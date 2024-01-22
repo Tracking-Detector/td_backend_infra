@@ -2,7 +2,6 @@ package configs
 
 import (
 	"context"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -13,9 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectDB() *mongo.Client {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+func ConnectDB(ctx context.Context) *mongo.Client {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(EnvMongoURI()))
 	if err != nil {
 		log.Fatal(err)
@@ -46,13 +43,14 @@ func ConnectMinio() *minio.Client {
 	return minioClient
 }
 
-var DB *mongo.Client = ConnectDB()
-
-var MINIO *minio.Client = ConnectMinio()
-
 func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
 	collection := client.Database("tracking-detector").Collection(collectionName)
 	return collection
+}
+
+func GetDatabase(client *mongo.Client) *mongo.Database {
+	db := client.Database("tracking-detector")
+	return db
 }
 
 func VerifyBucketExists(ctx context.Context, client *minio.Client, bucketName string) {

@@ -1,0 +1,35 @@
+package models
+
+import (
+	"context"
+)
+
+type ExporterRepository interface {
+	Save(ctx context.Context, p *Exporter) error
+	FindByID(ctx context.Context, id string) (*Exporter, error)
+	FindAll(ctx context.Context) ([]*Exporter, error)
+	InTransaction(ctx context.Context, fn func(context.Context) error) error
+}
+
+type RequestRepository interface {
+	Save(ctx context.Context, c *RequestData) error
+	FindByID(ctx context.Context, id string) (*RequestData, error)
+	InsertMany(ctx context.Context, requests []*RequestData) error
+	CountDocuments(ctx context.Context, url string) (int64, error)
+	FindAllFilteredByUrlPaged(ctx context.Context, url string, page, pageSize int) ([]*RequestData, error)
+	InTransaction(ctx context.Context, fn func(context.Context) error) error
+}
+
+type TrainingRunRepository interface {
+	FindAll(ctx context.Context) ([]*TrainingRun, error)
+	FindByModelName(ctx context.Context, modelName string) ([]*TrainingRun, error)
+	InTransaction(ctx context.Context, fn func(context.Context) error) error
+}
+
+type UserRepository interface {
+	Save(ctx context.Context, c *TrainingRun) error
+	FindByID(ctx context.Context, trainingRunID string) (*UserData, error)
+	FindByKey(ctx context.Context, key string) (*UserData, error)
+	FindAll(ctx context.Context) (*[]Exporter, error)
+	InTransaction(ctx context.Context, fn func(context.Context) error) error
+}

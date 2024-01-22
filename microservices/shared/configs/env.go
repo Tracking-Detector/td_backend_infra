@@ -24,6 +24,10 @@ func EnvExporterCollection() string {
 	return os.Getenv("EXPORTER_COLLECTION")
 }
 
+func EnvExporterRunsCollection() string {
+	return os.Getenv("EXPORTER_RUNS_COLLECTION")
+}
+
 func EnvMinIoURI() string {
 	return os.Getenv("MINIO_URI")
 }
