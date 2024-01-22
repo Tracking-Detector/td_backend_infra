@@ -1,5 +1,5 @@
 #!/bin/bash
-CONFIG_FOLDER=test-config
+CONFIG_FOLDER=config
 
 
 # Function to generate random string
@@ -7,18 +7,22 @@ generate_random_string() {
     docker run --rm authelia/authelia:latest authelia crypto rand --length 128 --charset alphanumeric | awk '{print $3}'
 }
 
+generate_random_string_32() {
+    docker run --rm authelia/authelia:latest authelia crypto rand --length 32 --charset alphanumeric | awk '{print $3}'
+}
+
 # Function to generate random password
 generate_random_password() {
     local password=$(docker run authelia/authelia:latest authelia crypto rand --length 72 --charset rfc3986 | awk '{print $NF}') 
-    echo "        # Password for digest: $password"
+    echo "      # Password for digest: $password"
     local digest=$(docker run authelia/authelia:latest authelia crypto hash generate pbkdf2 --variant sha512 --password "$password" | awk '{print $NF}')
-    echo "        secret: $digest"
+    echo "      secret: $digest"
 }
 
 # Function to generate Argon2 password hash
 generate_password_hash() {
     local password=$1
-    local digest=$(docker run authelia/authelia:latest authelia crypto hash generate argon2 --password "$password")
+    local digest=$(docker run authelia/authelia:latest authelia crypto hash generate argon2 --password "$password" | awk '{print $NF}')
     echo "$digest"
 }
 
@@ -31,6 +35,7 @@ generate_rsa_key_pair() {
 # Generate .env file
 generate_env_file() {
     local domain=$1
+    read -p "Enter email for LetsEncrypt Certificate: " email
     echo "# mongo"
     echo "MONGO_URI=mongodb://db:27017/tracking-detector"
     echo "USER_COLLECTION=users"
@@ -40,16 +45,17 @@ generate_env_file() {
     echo ""
     echo "# minio"
     echo "MINIO_URI=minio:9000"
-    echo "MINIO_ACCESS_KEY=adminadmin"
-    echo "MINIO_PRIVATE_KEY=password123"
+    echo "MINIO_ACCESS_KEY=$(generate_random_string_32)"
+    echo "MINIO_PRIVATE_KEY=$(generate_random_string_32)"
     echo "EXPORT_BUCKET_NAME=exports"
     echo "MODEL_BUCKET_NAME=models"
     echo ""
     echo "# admin"
-    echo "ADMIN_API_KEY=$(generate_random_string)"
+    echo "ADMIN_API_KEY=$(generate_random_string_32)"
     echo ""
     echo "DOMAIN=$domain"
     echo "CONFIG_FOLDER=$CONFIG_FOLDER"
+    echo "EMAIL=$email"
 }
 
 # Generate Authelia config
@@ -108,33 +114,33 @@ generate_authelia_config() {
     echo "    hmac_secret: $(generate_random_string)"
     echo "    issuer_private_key: |"
     sed 's/^/      /' private.pem
-    echo "     clients:"
-    echo "      - id: portainer"
-    echo "        description: Portainer"
+    echo "    clients:"
+    echo "    - id: portainer"
+    echo "      description: Portainer"
     generate_random_password 
-    echo "        public: false"
-    echo "        authorization_policy: two_factor"
-    echo "        redirect_uris:"
-    echo "          - https://portainer.$domain"
-    echo "        scopes:"
-    echo "          - openid"
-    echo "          - profile"
-    echo "          - groups"
-    echo "          - email"
-    echo "        userinfo_signing_algorithm: none"
-    echo "      - id: minio"
-    echo "        description: MinIO"
+    echo "      public: false"
+    echo "      authorization_policy: two_factor"
+    echo "      redirect_uris:"
+    echo "        - https://portainer.$domain"
+    echo "      scopes:"
+    echo "        - openid"
+    echo "        - profile"
+    echo "        - groups"
+    echo "        - email"
+    echo "      userinfo_signing_algorithm: none"
+    echo "    - id: minio"
+    echo "      description: MinIO"
     generate_random_password  
-    echo "        public: false"
-    echo "        authorization_policy: two_factor"
-    echo "        redirect_uris:"
-    echo "          - https://minio.$domain/apps/oidc_login/oidc"
-    echo "        scopes:"
-    echo "          - openid"
-    echo "          - profile"
-    echo "          - email"
-    echo "          - groups"
-    echo "        userinfo_signing_algorithm: none"
+    echo "      public: false"
+    echo "      authorization_policy: two_factor"
+    echo "      redirect_uris:"
+    echo "        - https://minio.$domain/apps/oidc_login/oidc"
+    echo "      scopes:"
+    echo "        - openid"
+    echo "        - profile"
+    echo "        - email"
+    echo "        - groups"
+    echo "      userinfo_signing_algorithm: none"
 }
 
 # Generate users_database.yml
@@ -155,7 +161,7 @@ generate_users_database() {
         local password_hash=$(generate_password_hash "$password")
         echo "  $username:"
         echo "    disabled: false"
-        echo "    displayname: \"$displayname\""
+        echo "    displayname: $displayname"
         echo "    password: $password_hash  # Password: $password"
         echo "    email: $email"
         echo "    groups:"
@@ -168,7 +174,7 @@ main() {
     rm -f .test-env
     rm -rf ./$CONFIG_FOLDER
     read -p "Enter domain (e.g., tracking-detector.duckdns.org): " domain
-    generate_env_file "$domain" > .test-env
+    generate_env_file "$domain" > .env
     mkdir $CONFIG_FOLDER
     generate_rsa_key_pair > /dev/null
     generate_authelia_config "$domain" > ./$CONFIG_FOLDER/configuration.yml
