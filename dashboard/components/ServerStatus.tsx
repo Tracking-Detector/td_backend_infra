@@ -7,6 +7,8 @@ const ServerStatus = () => {
             <StatusBadge endpoint="/api/requests/health" serviceName="Requests"></StatusBadge>
             <StatusBadge endpoint="/api/users/health" serviceName="Users"></StatusBadge>
             <StatusBadge endpoint="/api/dispatch/health" serviceName="Dispatch"></StatusBadge>
+            <StatusBadge endpoint="/api/transfer/health" serviceName="Download"></StatusBadge>
+            <StatusBadge endpoint="/api/training-runs/health" serviceName="Runs"></StatusBadge>
         </div>
     </section>
 }

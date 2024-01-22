@@ -5,13 +5,13 @@ FROM node:20-alpine as builder
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the container
-COPY ./ui/package*.json ./
+COPY ./dashboard/package*.json ./
 
 # Install dependencies
 RUN npm ci
 
 # Copy the rest of the application code
-COPY ./ui /app/
+COPY ./dashboard /app/
 
 # Build the Next.js application
 RUN npm run build

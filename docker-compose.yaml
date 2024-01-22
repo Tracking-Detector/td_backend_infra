@@ -7,8 +7,8 @@ networks:
     external: true
 volumes:
   mongo_storage:
-  authelia_data:
   minio_data:
+  portainer_data:
 
 services:
   # api gateway
@@ -24,11 +24,11 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)'
+      - 'traefik.http.routers.traefik.middlewares=authelia@docker'
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
       - "traefik.http.middlewares.stripapi.stripprefix.prefixes=/api"
-    #   # - 'traefik.http.routers.api.middlewares=authelia@docker'
     depends_on:
       - mongo-express
     command:
@@ -44,7 +44,28 @@ services:
       - '--log.level=DEBUG'
     networks:
       - app-network
-
+  # auth
+  authelia:
+    image: authelia/authelia
+    container_name: authelia
+    volumes:
+      - ./${CONFIG_FOLDER}:/config
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.authelia.rule=Host(`auth.${DOMAIN}`)'
+      - 'traefik.http.routers.authelia.entrypoints=websecure'
+      - 'traefik.http.routers.authelia.tls=true'
+      - 'traefik.http.routers.authelia.tls.certresolver=myresolver'
+      - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://auth.${DOMAIN}'
+      - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+    restart: unless-stopped
+    expose:
+      - 9091
+    environment:
+      - TZ=Europe/Berlin
+    networks:
+      - app-network
   # infra
   db:
     image: mongo:4.4.18
@@ -69,7 +90,7 @@ services:
       - "traefik.http.services.minio.loadbalancer.server.port=9001"
       - "traefik.http.routers.minio.entrypoints=websecure"
       - "traefik.http.routers.minio.tls.certresolver=myresolver"
-      # - 'traefik.http.routers.minio.middlewares=authelia@docker'  
+      - 'traefik.http.routers.minio.middlewares=authelia@docker'  
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_PRIVATE_KEY}
@@ -99,27 +120,31 @@ services:
       - ME_CONFIG_SITE_BASEURL=/mongo
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.mongo-express.rule=(Host(`${DOMAIN}`) && PathPrefix(`/mongo`))' 
+      - 'traefik.http.routers.mongo-express.rule=(Host(`dashboard.${DOMAIN}`) && PathPrefix(`/mongo`))' 
       - "traefik.http.services.mongo-express.loadbalancer.server.port=8081"
       - "traefik.http.routers.mongo-express.entrypoints=websecure"
       - "traefik.http.routers.mongo-express.tls.certresolver=myresolver"
+      - 'traefik.http.routers.mongo-express.middlewares=authelia@docker'  
     depends_on:
       - db
     networks:
       - app-network
-  monit:
-    container_name: monit
-    image: pottava/docker-webui
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    command: -H unix:///var/run/docker.sock
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      # if you want to persist settings, add the data volume mapping below
+      - portainer_data:/data
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.monit.rule=Host(`docker.${DOMAIN}`)' 
-      - "traefik.http.services.monit.loadbalancer.server.port=9000"
-      - "traefik.http.routers.monit.entrypoints=websecure"
-      - "traefik.http.routers.monit.tls.certresolver=myresolver"
-    environment:
-      - DOCKER_HOST
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN}`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.routers.portainer.tls.certresolver=myresolver"
     networks:
       - app-network
 
@@ -147,14 +172,13 @@ services:
     labels:
       - microservice=requests
       - 'traefik.enable=true'
-      - 'traefik.http.routers.requests.rule=(Host(`app.${DOMAIN}`) && PathPrefix(`/api/requests`))' 
-      - 'traefik.http.routers.requests.middlewares=stripapi@docker'
+      - 'traefik.http.routers.requests.rule=(Host(`dashboard.${DOMAIN}`) && PathPrefix(`/api/requests`))' 
       - "traefik.http.services.requests.loadbalancer.server.port=8081"
       - "traefik.http.routers.requests.entrypoints=websecure"
       - "traefik.http.routers.requests.tls.certresolver=myresolver"
+      - 'traefik.http.routers.requests.middlewares=authelia@docker,stripapi@docker' 
     networks:
       - app-network
-      - web
 
   download:
     restart: unless-stopped
@@ -179,11 +203,11 @@ services:
     labels:
       - microservice=download
       - 'traefik.enable=true'
-      - 'traefik.http.routers.download.rule=(Host(`${DOMAIN}`) && PathPrefix(`/api/transfer`))' 
-      - 'traefik.http.routers.download.middlewares=stripapi@docker'
+      - 'traefik.http.routers.download.rule=(Host(`dashboard.${DOMAIN}`) && PathPrefix(`/api/transfer`))' 
       - "traefik.http.services.download.loadbalancer.server.port=8081"
       - "traefik.http.routers.download.entrypoints=websecure"
       - "traefik.http.routers.download.tls.certresolver=myresolver"
+      - 'traefik.http.routers.download.middlewares=authelia@docker,stripapi@docker' 
     networks:
       - app-network
   
@@ -210,11 +234,42 @@ services:
     labels:
       - microservice=users
       - 'traefik.enable=true'
-      - 'traefik.http.routers.users.rule=(Host(`${DOMAIN}`) && PathPrefix(`/api/users`))' 
-      - 'traefik.http.routers.users.middlewares=stripapi@docker'
+      - 'traefik.http.routers.users.rule=(Host(`dashboard.${DOMAIN}`) && PathPrefix(`/api/users`))' 
       - "traefik.http.services.users.loadbalancer.server.port=8081"
       - "traefik.http.routers.users.entrypoints=websecure"
       - "traefik.http.routers.users.tls.certresolver=myresolver"
+      - 'traefik.http.routers.users.middlewares=authelia@docker,stripapi@docker' 
+    networks:
+      - app-network
+
+  training-runs:
+    restart: unless-stopped
+    container_name: training-runs
+    build:
+      context: .
+      dockerfile: ./microservices/functions/training-runs/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+    labels:
+      - microservice=users
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.training-runs.rule=(Host(`dashboard.${DOMAIN}`) && PathPrefix(`/api/training-runs`))' 
+      - "traefik.http.services.training-runs.loadbalancer.server.port=8081"
+      - "traefik.http.routers.training-runs.entrypoints=websecure"
+      - "traefik.http.routers.training-runs.tls.certresolver=myresolver"
+      - 'traefik.http.routers.training-runs.middlewares=authelia@docker,stripapi@docker' 
     networks:
       - app-network
 
@@ -243,11 +298,11 @@ services:
     labels:
       - microservice=dispatch
       - 'traefik.enable=true'
-      - 'traefik.http.routers.dispatch.rule=(Host(`${DOMAIN}`) && PathPrefix(`/api/dispatch`))' 
+      - 'traefik.http.routers.dispatch.rule=(Host(`dashboard.${DOMAIN}`) && PathPrefix(`/api/dispatch`))' 
       - "traefik.http.services.dispatch.loadbalancer.server.port=8081"
-      - 'traefik.http.routers.dispatch.middlewares=stripapi@docker'
       - "traefik.http.routers.dispatch.entrypoints=websecure"
       - "traefik.http.routers.dispatch.tls.certresolver=myresolver"
+      - 'traefik.http.routers.dispatch.middlewares=authelia@docker,stripapi@docker' 
     networks:
       - app-network
 
@@ -277,18 +332,36 @@ services:
     networks:
       - app-network
   
-  ui:
+  public:
     restart: unless-stopped
-    container_name: ui
+    container_name: public
     build:
       context: .
-      dockerfile: ./ui/Dockerfile
+      dockerfile: ./public/Dockerfile
     labels:
-      - microservice=ui
+      - microservice=public
       - 'traefik.enable=true'
-      - 'traefik.http.routers.ui.rule=Host(`${DOMAIN}`)' 
-      - "traefik.http.services.ui.loadbalancer.server.port=3000"
-      - "traefik.http.routers.ui.entrypoints=websecure"
-      - "traefik.http.routers.ui.tls.certresolver=myresolver"
+      - 'traefik.http.routers.public.rule=Host(`${DOMAIN}`)' 
+      - "traefik.http.services.public.loadbalancer.server.port=3000"
+      - "traefik.http.routers.public.entrypoints=websecure"
+      - "traefik.http.routers.public.tls.certresolver=myresolver"
+      - 'traefik.http.routers.public.middlewares=authelia@docker' 
+    networks:
+      - app-network
+  
+  dashboard:
+    restart: unless-stopped
+    container_name: dashboard
+    build:
+      context: .
+      dockerfile: ./dashboard/Dockerfile
+    labels:
+      - microservice=dashboard
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.dashboard.rule=Host(`dashboard.${DOMAIN}`)' 
+      - "traefik.http.services.dashboard.loadbalancer.server.port=3000"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+      - 'traefik.http.routers.dashboard.middlewares=authelia@docker' 
     networks:
       - app-network

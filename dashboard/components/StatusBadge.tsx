@@ -16,7 +16,7 @@ const StatusBadge = ({endpoint, serviceName}: IStatusBade) => {
                 setError(true)
             }
         })
-    }, [])
+    }, [endpoint, serviceName])
     return <Link href={endpoint} className="bg-white hover:bg-purple-300 transition-colors rounded-lg w-40 h-full flex align-baseline gap-4 px-4 py-4">
      {error ? <MdOutlineError size={30} className="text-red-700"/> : <FaCheckCircle size={30} className="text-green-700"/>}
      {serviceName}
