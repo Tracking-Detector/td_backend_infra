@@ -142,3 +142,44 @@ func FindAllTrainingRunsByModelName(ctx context.Context, db *mongo.Database, mod
 	}, nil, trainingRuns)
 	return trainingRuns, err
 }
+
+func SaveUser(ctx context.Context, db *mongo.Database, p *models.UserData) error {
+	opts := options.FindOneAndReplace().SetUpsert(true)
+	var doc bson.M
+	err := db.Collection(configs.EnvUserCollection()).FindOneAndReplace(ctx, bson.D{{Key: "email", Value: p.Email}}, p, opts).Decode(&doc)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
+	}
+	return nil
+}
+
+func DeleteUserByID(ctx context.Context, db *mongo.Database, id string) error {
+	objId, _ := primitive.ObjectIDFromHex(id)
+	_, err := db.Collection(configs.EnvUserCollection()).DeleteOne(ctx, bson.M{
+		"_id": objId,
+	}, nil)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
+	}
+	return nil
+}
+
+func FindAllUsers(ctx context.Context, db *mongo.Database) ([]*models.UserData, error) {
+	var users []*models.UserData
+	err := FindAll(ctx, db.Collection(configs.EnvUserCollection()), bson.M{}, nil, users)
+	return users, err
+}
+
+func FindUserByID(ctx context.Context, db *mongo.Database, id string) (*models.UserData, error) {
+	p := new(models.UserData)
+	err := FindByID(ctx, db.Collection(configs.EnvUserCollection()), id, p)
+	return p, err
+}
+
+func FindUserByEmail(ctx context.Context, db *mongo.Database, email string) (*models.UserData, error) {
+	user := new(models.UserData)
+	err := db.Collection(configs.EnvUserCollection()).FindOne(ctx, bson.M{
+		"email": email,
+	}).Decode(user)
+	return user, err
+}

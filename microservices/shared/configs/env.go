@@ -28,6 +28,10 @@ func EnvExporterRunsCollection() string {
 	return os.Getenv("EXPORTER_RUNS_COLLECTION")
 }
 
+func EnvAdminEmail() string {
+	return os.Getenv("EMAIL")
+}
+
 func EnvMinIoURI() string {
 	return os.Getenv("MINIO_URI")
 }

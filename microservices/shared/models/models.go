@@ -95,16 +95,6 @@ type UserData struct {
 	Key   string             `bson:"key"`
 }
 
-type CreateUserData struct {
-	Email string `bson:"email"`
-}
-
-type UserDataRepresentation struct {
-	Id    primitive.ObjectID `json:"_id" bson:"_id"`
-	Email string             `json:"email" bson:"email"`
-	Role  Role               `json:"role" bson:"role"`
-}
-
 // Request
 type RequestDataLabel struct {
 	IsLabeled bool   `json:"isLabeled"  validate:"required"`

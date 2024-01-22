@@ -106,3 +106,37 @@ func (r *MongoTrainingRunsRepository) FindByModelName(ctx context.Context, model
 func (r *MongoTrainingRunsRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {
 	return inMongoTransaction(ctx, r.db, fn)
 }
+
+type MongoUserRepository struct {
+	db *mongo.Database
+}
+
+func NewMongoUserRepository(db *mongo.Database) *MongoUserRepository {
+	return &MongoUserRepository{
+		db: db,
+	}
+}
+
+func (r *MongoUserRepository) Save(ctx context.Context, m *models.UserData) error {
+	return mongostore.SaveUser(ctx, r.db, m)
+}
+
+func (r *MongoUserRepository) DeleteUserByID(ctx context.Context, id string) error {
+	return mongostore.DeleteUserByID(ctx, r.db, id)
+}
+
+func (r *MongoUserRepository) FindAll(ctx context.Context) ([]*models.UserData, error) {
+	return mongostore.FindAllUsers(ctx, r.db)
+}
+
+func (r *MongoUserRepository) FindUserByID(ctx context.Context, id string) (*models.UserData, error) {
+	return mongostore.FindUserByID(ctx, r.db, id)
+}
+
+func (r *MongoUserRepository) FindUserByEmail(ctx context.Context, email string) (*models.UserData, error) {
+	return mongostore.FindUserByEmail(ctx, r.db, email)
+}
+
+func (r *MongoUserRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {
+	return inMongoTransaction(ctx, r.db, fn)
+}

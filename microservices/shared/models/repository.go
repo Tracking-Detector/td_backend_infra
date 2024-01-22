@@ -27,9 +27,10 @@ type TrainingRunRepository interface {
 }
 
 type UserRepository interface {
-	Save(ctx context.Context, c *TrainingRun) error
-	FindByID(ctx context.Context, trainingRunID string) (*UserData, error)
-	FindByKey(ctx context.Context, key string) (*UserData, error)
-	FindAll(ctx context.Context) (*[]Exporter, error)
+	Save(ctx context.Context, c *UserData) error
+	DeleteUserByID(ctx context.Context, id string) error
+	FindUserByID(ctx context.Context, id string) (*UserData, error)
+	FindUserByEmail(ctx context.Context, email string) (*UserData, error)
+	FindAll(ctx context.Context) ([]*UserData, error)
 	InTransaction(ctx context.Context, fn func(context.Context) error) error
 }
