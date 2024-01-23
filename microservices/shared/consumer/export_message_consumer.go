@@ -105,12 +105,14 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 		log.Errorf("Exporter does not exist: %v", err)
 		return
 	}
-
+	// TODO write jobs into mongodb
 	switch exporter.Type {
 	case models.IN_SERVICE:
 		inServiceExport := job.NewInternalExportJob(exporter, reducer, dataset, c.requestRepo, c.storageService)
 		err = inServiceExport.Execute()
-
+	case models.JS:
+		jsExport := job.NewExternalExportJob(exporter, reducer, dataset, c.requestRepo, c.storageService)
+		err = jsExport.Execute()
 	}
 	if err != nil {
 		log.Errorf("Job finished with an error: %v", err)

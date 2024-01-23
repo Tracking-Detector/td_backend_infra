@@ -52,6 +52,10 @@ func EnvModelBucketName() string {
 	return os.Getenv("MODEL_BUCKET_NAME")
 }
 
+func EnvExtractorBucketName() string {
+	return os.Getenv("EXTRACTOR_BUCKET_NAME")
+}
+
 func EnvAdminApiKey() string {
 	return os.Getenv("ADMIN_API_KEY")
 }
