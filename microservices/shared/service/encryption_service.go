@@ -9,6 +9,7 @@ import (
 type IEncryptionService interface {
 	GenerateApiKey() (string, string, error)
 	HashPassword(password string) (string, error)
+	CompareHashAndPassword(hash, pw string) bool
 }
 
 type EncryptionService struct {
@@ -33,4 +34,12 @@ func (s *EncryptionService) HashPassword(password string) (string, error) {
 		}).Fatal("Could not generate Hash for Password")
 	}
 	return string(hash), nil
+}
+
+func (s *EncryptionService) CompareHashAndPassword(hash, pw string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(pw), []byte(hash))
+	if err != nil {
+		return false
+	}
+	return true
 }

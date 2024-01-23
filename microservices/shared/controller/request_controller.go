@@ -10,7 +10,6 @@ import (
 	"tds/shared/service"
 
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type RequestController struct {
@@ -76,7 +75,6 @@ func (rc *RequestController) CreateRequestData(c *fiber.Ctx) error {
 	if err := c.BodyParser(&requestData); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(response.NewErrorResponse(err.Error()))
 	}
-	requestData.Id = primitive.NewObjectID()
 	if err := rc.requestService.SaveRequest(c.Context(), requestData); err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(response.NewErrorResponse(err.Error()))
 	}

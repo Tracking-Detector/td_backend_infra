@@ -15,6 +15,16 @@ const (
 	HUMAN        ReduceType = "Human"
 )
 
+func IsValidReduceType(input string) bool { // TODO make this some kind if service
+	validReduceTypes := []ReduceType{OR, AND, EASY_PRIVACY, EASY_LIST, HUMAN}
+	for _, rt := range validReduceTypes {
+		if ReduceType(input) == rt {
+			return true
+		}
+	}
+	return false
+}
+
 func orFunction(labels []models.RequestDataLabel) bool {
 	isTracking := false
 	for _, label := range labels {

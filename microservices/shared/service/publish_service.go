@@ -9,8 +9,8 @@ import (
 )
 
 type IPublishService interface {
-	EnqueueTrainingJob(modelName string, dataSetName string)
-	EnqueueExportJob(exportName string, reducer string)
+	EnqueueTrainingJob(modelId string, exporterId string, reducer string)
+	EnqueueExportJob(exportId string, reducer string)
 }
 
 type PublishService struct {
@@ -55,8 +55,8 @@ func NewPublishService() *PublishService {
 	}
 }
 
-func (s *PublishService) EnqueueTrainingJob(modelName string, dataSetName string) {
-	job := messages.NewJob("train_model", []string{modelName, dataSetName})
+func (s *PublishService) EnqueueTrainingJob(modelId string, exporterId string, reducer string) {
+	job := messages.NewJob("train_model", []string{modelId, exporterId, reducer})
 	message, err := job.Serialize()
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -78,8 +78,8 @@ func (s *PublishService) EnqueueTrainingJob(modelName string, dataSetName string
 	}
 }
 
-func (s *PublishService) EnqueueExportJob(exportName string, reducer string) {
-	job := messages.NewJob("export", []string{exportName, reducer})
+func (s *PublishService) EnqueueExportJob(exporterId string, reducer string) {
+	job := messages.NewJob("export", []string{exporterId, reducer})
 	message, err := job.Serialize()
 	if err != nil {
 		log.WithFields(log.Fields{

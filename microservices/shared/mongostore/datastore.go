@@ -12,8 +12,7 @@ import (
 )
 
 func FindByID(ctx context.Context, coll *mongo.Collection, id string, m interface{}) error {
-	objId, _ := primitive.ObjectIDFromHex(id)
-	res := coll.FindOne(ctx, bson.M{"_id": objId})
+	res := coll.FindOne(ctx, bson.M{"_id": id})
 	if err := res.Err(); err != nil {
 		return err
 	}
@@ -74,7 +73,7 @@ func SaveExporter(ctx context.Context, db *mongo.Database, p *models.Exporter) e
 func SaveRequest(ctx context.Context, db *mongo.Database, p *models.RequestData) error {
 	opts := options.FindOneAndReplace().SetUpsert(true)
 	var doc bson.M
-	err := db.Collection(configs.EnvRequestCollection()).FindOneAndReplace(ctx, bson.D{{Key: "_id", Value: p.Id}}, p, opts).Decode(&doc)
+	err := db.Collection(configs.EnvRequestCollection()).FindOneAndReplace(ctx, bson.D{{Key: "_id", Value: p.ID}}, p, opts).Decode(&doc)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return err
 	}
@@ -85,6 +84,45 @@ func FindRequestByID(ctx context.Context, db *mongo.Database, id string) (*model
 	p := new(models.RequestData)
 	err := FindByID(ctx, db.Collection(configs.EnvRequestCollection()), id, p)
 	return p, err
+}
+
+func StreamRequestsByDataset(ctx context.Context, db *mongo.Database, dataset string) (<-chan *models.RequestData, <-chan error) {
+	resultChannel := make(chan *models.RequestData)
+	errorChannel := make(chan error)
+	go func() {
+		defer close(resultChannel)
+		defer close(errorChannel)
+		filter := bson.M{}
+		if dataset != "" {
+			filter = bson.M{
+				"dataset": dataset,
+			}
+		}
+		// Set up the cursor to traverse the entire collection
+		opts := options.Find().SetCursorType(options.TailableAwait)
+		cursor, err := db.Collection(configs.EnvRequestCollection()).Find(ctx, filter, opts)
+		if err != nil {
+			errorChannel <- err
+			return
+		}
+		defer cursor.Close(ctx)
+
+		for cursor.Next(ctx) {
+			var requestData models.RequestData
+			if err := cursor.Decode(&requestData); err != nil {
+				errorChannel <- err
+				return
+			}
+
+			resultChannel <- &requestData
+		}
+
+		if err := cursor.Err(); err != nil {
+			errorChannel <- err
+		}
+	}()
+
+	return resultChannel, errorChannel
 }
 
 func InsertManyRequests(ctx context.Context, db *mongo.Database, requests []*models.RequestData) error {

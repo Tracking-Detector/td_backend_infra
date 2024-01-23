@@ -2,7 +2,6 @@ package models
 
 import (
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // Exporter
@@ -14,33 +13,35 @@ const (
 )
 
 type Exporter struct {
-	Id                   primitive.ObjectID `bson:"_id,omitempty"`
-	Name                 string             `bson:"name"`
-	Description          string             `bson:"description"`
-	Dimensions           []int              `bson:"dimensions"`
-	Type                 RunType            `bson:"type"`
-	ExportScriptLocation *string            `bson:"location"`
+	ID                   string  `bson:"_id,omitempty"`
+	Name                 string  `bson:"name"`
+	Description          string  `bson:"description"`
+	Dimensions           []int   `bson:"dimensions"`
+	Type                 RunType `bson:"type"`
+	ExportScriptLocation *string `bson:"location"`
 }
 
 // Model
 type Model struct {
-	Id          primitive.ObjectID `json:"_id" bson:"_id"`
-	Name        string             `json:"name" bson:"name"`
-	Description string             `json:"description" bson:"description"`
-	Dims        []int              `json:"dims" bson:"dims"`
+	ID               string `json:"_id" bson:"_id"`
+	Name             string `json:"name" bson:"name"`
+	Description      string `json:"description" bson:"description"`
+	Dims             []int  `json:"dims" bson:"dims"`
+	TensorflowLayers bson.D `json:"tfLayers" bson:"tfLayers"`
 }
 
 // TrainingRun
 type TrainingRun struct {
-	Id              primitive.ObjectID `json:"_id,omitempty"`
-	Name            string             `json:"name"`
-	DataSet         string             `json:"dataSet"`
-	Time            string             `json:"time"`
-	F1Train         float64            `json:"f1Train"`
-	F1Test          float64            `json:"f1Test"`
-	TrainingHistory bson.M             `json:"trainingHistory"`
-	BatchSize       int                `json:"batchSize"`
-	Epochs          int                `json:"epochs"`
+	ID              string  `json:"_id,omitempty"`
+	ModelId         string  `json:"modelId"`
+	Name            string  `json:"name"`
+	DataSet         string  `json:"dataSet"`
+	Time            string  `json:"time"`
+	F1Train         float64 `json:"f1Train"`
+	F1Test          float64 `json:"f1Test"`
+	TrainingHistory bson.M  `json:"trainingHistory"`
+	BatchSize       int     `json:"batchSize"`
+	Epochs          int     `json:"epochs"`
 }
 
 // User
@@ -52,10 +53,10 @@ const (
 )
 
 type UserData struct {
-	Id    primitive.ObjectID `bson:"_id,omitempty"`
-	Role  Role               `bson:"role"`
-	Email string             `bson:"email"`
-	Key   string             `bson:"key"`
+	ID    string `bson:"_id,omitempty"`
+	Role  Role   `bson:"role"`
+	Email string `bson:"email"`
+	Key   string `bson:"key"`
 }
 
 // Request
@@ -85,7 +86,7 @@ type RequestDataResponse struct {
 }
 
 type RequestData struct {
-	Id                primitive.ObjectID  `json:"_id" bson:"_id,omitempty"`
+	ID                string              `json:"_id" bson:"_id,omitempty"`
 	DocumentId        string              `json:"documentId" bson:"documentId"`
 	DocumentLifecycle string              `json:"documentLifecycle" bson:"documentLifecycle"`
 	FrameId           int                 `json:"frameId" bson:"frameId"`
@@ -101,6 +102,7 @@ type RequestData struct {
 	RequestHeaders    []map[string]string `json:"requestHeaders" bson:"requestHeaders"`
 	Response          RequestDataResponse `json:"response" bson:"response"`
 	Success           bool                `json:"success" bson:"success"`
+	Dataset           string              `json:"dataset" bson:"dataset"`
 	Labels            []RequestDataLabel  `json:"labels" bson:"labels" validate:"required"`
 }
 

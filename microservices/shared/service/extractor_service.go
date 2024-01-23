@@ -9,7 +9,8 @@ import (
 type IExporterService interface {
 	GetAllExporter(ctx context.Context) ([]*models.Exporter, error)
 	InitInCodeExports(ctx context.Context)
-	IsValidExporter(ctx context.Context, exporter string) bool
+	IsValidExporter(ctx context.Context, identifier string) bool
+	FindByID(ctx context.Context, id string) (*models.Exporter, error)
 }
 
 type ExporterService struct {
@@ -39,9 +40,13 @@ func (s *ExporterService) InitInCodeExports(ctx context.Context) {
 }
 
 func (s *ExporterService) IsValidExporter(ctx context.Context, exporter string) bool {
-	_, err := s.extractorRepo.FindByName(ctx, exporter)
+	_, err := s.extractorRepo.FindByID(ctx, exporter)
 	if err != nil {
 		return false
 	}
 	return true
+}
+
+func (s *ExporterService) FindByID(ctx context.Context, id string) (*models.Exporter, error) {
+	return s.extractorRepo.FindByID(ctx, id)
 }
