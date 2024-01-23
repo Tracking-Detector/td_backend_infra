@@ -120,7 +120,7 @@ func (r *MongoTrainingRunsRepository) DeleteMultipleByModelID(ctx context.Contex
 }
 
 func (r *MongoTrainingRunsRepository) DeleteByID(ctx context.Context, id string) error {
-	return mongostore.DeleteModelByID(ctx, r.db, id)
+	return mongostore.DeleteTrainingRunById(ctx, r.db, id)
 }
 
 func (r *MongoTrainingRunsRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {

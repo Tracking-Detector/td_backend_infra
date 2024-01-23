@@ -34,7 +34,7 @@ func (dc *DispatchController) DispatchExportJob(c *fiber.Ctx) error {
 	if !isValid {
 		return c.Status(http.StatusNotFound).JSON(response.NewErrorResponse("The extractor for the given id does not exist."))
 	}
-	dc.publishService.EnqueueExportJob(exporterId, reducer)
+	dc.publishService.EnqueueExportJob(exporterId, reducer, "") // TODO make dataset an option
 	return c.Status(http.StatusCreated).JSON(response.NewSuccessResponse("The export has been dispatched."))
 }
 

@@ -10,7 +10,7 @@ import (
 
 type IPublishService interface {
 	EnqueueTrainingJob(modelId string, exporterId string, reducer string)
-	EnqueueExportJob(exportId string, reducer string)
+	EnqueueExportJob(exporterId string, reducer string, dataset string)
 }
 
 type PublishService struct {
@@ -78,8 +78,8 @@ func (s *PublishService) EnqueueTrainingJob(modelId string, exporterId string, r
 	}
 }
 
-func (s *PublishService) EnqueueExportJob(exporterId string, reducer string) {
-	job := messages.NewJob("export", []string{exporterId, reducer})
+func (s *PublishService) EnqueueExportJob(exporterId string, reducer string, dataset string) {
+	job := messages.NewJob("export", []string{exporterId, reducer, dataset})
 	message, err := job.Serialize()
 	if err != nil {
 		log.WithFields(log.Fields{

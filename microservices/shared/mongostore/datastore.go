@@ -19,6 +19,28 @@ func FindByID(ctx context.Context, coll *mongo.Collection, id string, m interfac
 	return res.Decode(m)
 }
 
+func FindByName(ctx context.Context, coll *mongo.Collection, name string, m interface{}) error {
+	res := coll.FindOne(ctx, bson.M{"name": name})
+	if err := res.Err(); err != nil {
+		return err
+	}
+	return res.Decode(m)
+}
+
+func DeleteByID(ctx context.Context, coll *mongo.Collection, id string) error {
+	_, err := coll.DeleteOne(ctx, bson.M{
+		"_id": id,
+	})
+	return err
+}
+
+func DeleteAllBy(ctx context.Context, coll *mongo.Collection, key string, value string) error {
+	_, err := coll.DeleteMany(ctx, bson.M{
+		key: value,
+	})
+	return err
+}
+
 func CountDocuments(ctx context.Context, coll *mongo.Collection, filter bson.M) (int64, error) {
 	return coll.CountDocuments(ctx, filter)
 }
@@ -54,9 +76,7 @@ func FindAllExporter(ctx context.Context, db *mongo.Database) ([]*models.Exporte
 
 func FindExporterByName(ctx context.Context, db *mongo.Database, name string) (*models.Exporter, error) {
 	exporter := new(models.Exporter)
-	err := db.Collection(configs.EnvExporterCollection()).FindOne(ctx, bson.M{
-		"name": name,
-	}).Decode(exporter)
+	err := FindByName(ctx, db.Collection(configs.EnvExporterCollection()), name, exporter)
 	return exporter, err
 }
 
@@ -189,6 +209,22 @@ func FindAllTrainingRunsByModelName(ctx context.Context, db *mongo.Database, mod
 	return trainingRuns, err
 }
 
+func FindAllByModelId(ctx context.Context, db *mongo.Database, modelId string) ([]*models.TrainingRun, error) {
+	var trainingRuns []*models.TrainingRun
+	err := FindAll(ctx, db.Collection(configs.EnvTrainingRunCollection()), bson.M{
+		"modelId": modelId,
+	}, nil, trainingRuns)
+	return trainingRuns, err
+}
+
+func DeleteTrainingRunById(ctx context.Context, db *mongo.Database, id string) error {
+	return DeleteByID(ctx, db.Collection(configs.EnvTrainingRunCollection()), id)
+}
+
+func DeleteTrainingRunsByModelId(ctx context.Context, db *mongo.Database, modelId string) error {
+	return DeleteAllBy(ctx, db.Collection(configs.EnvTrainingRunCollection()), "modelId", modelId)
+}
+
 func SaveUser(ctx context.Context, db *mongo.Database, p *models.UserData) error {
 	opts := options.FindOneAndReplace().SetUpsert(true)
 	var doc bson.M
@@ -228,4 +264,36 @@ func FindUserByEmail(ctx context.Context, db *mongo.Database, email string) (*mo
 		"email": email,
 	}).Decode(user)
 	return user, err
+}
+
+func SaveModel(ctx context.Context, db *mongo.Database, model *models.Model) error {
+	opts := options.FindOneAndReplace().SetUpsert(true)
+	var doc bson.M
+	err := db.Collection(configs.EnvModelCollection()).FindOneAndReplace(ctx, bson.D{{Key: "name", Value: model.Name}}, model, opts).Decode(&doc)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
+	}
+	return nil
+}
+
+func DeleteModelByID(ctx context.Context, db *mongo.Database, id string) error {
+	return DeleteByID(ctx, db.Collection(configs.EnvModelCollection()), id)
+}
+
+func FindModelByID(ctx context.Context, db *mongo.Database, id string) (*models.Model, error) {
+	p := new(models.Model)
+	err := FindByID(ctx, db.Collection(configs.EnvModelCollection()), id, p)
+	return p, err
+}
+
+func FindModelByName(ctx context.Context, db *mongo.Database, name string) (*models.Model, error) {
+	p := new(models.Model)
+	err := FindByName(ctx, db.Collection(configs.EnvModelCollection()), name, p)
+	return p, err
+}
+
+func FindAllModels(ctx context.Context, db *mongo.Database) ([]*models.Model, error) {
+	var models []*models.Model
+	err := FindAll(ctx, db.Collection(configs.EnvUserCollection()), bson.M{}, nil, models)
+	return models, err
 }

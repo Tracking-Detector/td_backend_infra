@@ -1,9 +1,11 @@
 package consumer
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
+	"tds/shared/job"
 	"tds/shared/messages"
 	"tds/shared/models"
 	"tds/shared/service"
@@ -87,12 +89,31 @@ func (c *ExportMessageConsumer) Consume() {
 }
 
 func (c *ExportMessageConsumer) handleMessage(msg []byte) {
-	job, err := messages.DeserializeJob(string(msg))
+	ctx := context.TODO()
+	jobValue, err := messages.DeserializeJob(string(msg))
 	if err != nil {
 		log.Errorf("Failed to deserialize job: %v", err)
 		return
 	}
-	exporterId := job.Args[0]
-	reducer := job.Args[1]
+	exporterId := jobValue.Args[0]
+	reducer := jobValue.Args[1]
+	dataset := jobValue.Args[2]
+
+	exporter, err := c.exporterService.FindByID(ctx, exporterId)
+
+	if err != nil || exporter == nil {
+		log.Errorf("Exporter does not exist: %v", err)
+		return
+	}
+
+	switch exporter.Type {
+	case models.IN_SERVICE:
+		inServiceExport := job.NewInternalExportJob(exporter, reducer, dataset, c.requestRepo, c.storageService)
+		err = inServiceExport.Execute()
+
+	}
+	if err != nil {
+		log.Errorf("Job finished with an error: %v", err)
+	}
 
 }
