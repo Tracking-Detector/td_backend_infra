@@ -51,6 +51,7 @@ generate_env_file() {
     echo "MINIO_PRIVATE_KEY=$(generate_random_string_32)"
     echo "EXPORT_BUCKET_NAME=exports"
     echo "MODEL_BUCKET_NAME=models"
+    echo "EXTRACTOR_BUCKET_NAME=extractors"
     echo ""
     echo "# admin"
     echo "ADMIN_API_KEY=$(generate_random_string_32)"
