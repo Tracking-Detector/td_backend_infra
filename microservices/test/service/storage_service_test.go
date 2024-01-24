@@ -109,3 +109,96 @@ func (suite *StorageServiceTest) TestPutObject_Error() {
 	suite.minioAdapter.AssertCalled(suite.T(), "PutObject", mock.Anything, "bucketName", "fileName", mock.Anything, int64(0), mock.AnythingOfType("minio.PutObjectOptions"))
 	suite.Error(err)
 }
+
+func (suite *StorageServiceTest) TestGetObject_Success() {
+	// given
+	fileName := "example.js"
+	file, err := os.Open("../resources/example.js")
+	suite.minioAdapter.On("GetObject", mock.Anything, "bucketName", fileName, mock.AnythingOfType("minio.GetObjectOptions")).Return(file, nil)
+
+	// when
+	result, err := suite.storageService.GetObject(context.Background(), "bucketName", fileName)
+
+	// then
+	suite.minioAdapter.AssertCalled(suite.T(), "GetObject", mock.Anything, "bucketName", fileName, mock.AnythingOfType("minio.GetObjectOptions"))
+	suite.NoError(err)
+
+	// Validate that result is a non-nil implementation of io.ReadSeekCloser
+	suite.NotNil(result)
+	_, isReadSeekCloser := result.(io.ReadSeekCloser)
+	suite.True(isReadSeekCloser)
+
+	// Cleanup: Close the file
+	file.Close()
+}
+
+func (suite *StorageServiceTest) TestGetObject_Error() {
+	// given
+	suite.minioAdapter.On("GetObject", mock.Anything, "bucketName", "fileURI", mock.AnythingOfType("minio.GetObjectOptions")).Return(nil, errors.New("Get object error"))
+
+	// when
+	result, err := suite.storageService.GetObject(context.Background(), "bucketName", "fileURI")
+
+	// then
+	suite.minioAdapter.AssertCalled(suite.T(), "GetObject", mock.Anything, "bucketName", "fileURI", mock.AnythingOfType("minio.GetObjectOptions"))
+	suite.Error(err)
+	suite.Nil(result)
+}
+
+func (suite *StorageServiceTest) TestGetBucketStructure_Success() {
+	// given
+	objects := []minio.ObjectInfo{
+		{Key: "dir1/file1.txt"},
+		{Key: "dir2/subdir/file2.txt"},
+		{Key: "dir1/file3.txt"},
+	}
+
+	suite.minioAdapter.On("ListObjects", mock.Anything, "bucketName", mock.AnythingOfType("minio.ListObjectsOptions")).Return(suite.createChan(objects))
+
+	// when
+	result, err := suite.storageService.GetBucketStructure("bucketName", "")
+
+	// then
+	suite.minioAdapter.AssertCalled(suite.T(), "ListObjects", mock.Anything, "bucketName", mock.AnythingOfType("minio.ListObjectsOptions"))
+	suite.NoError(err)
+
+	// Validate the structure
+	suite.Equal(map[string]interface{}{
+		"dir1": map[string]interface{}{
+			"file1.txt": map[string]interface{}{},
+			"file3.txt": map[string]interface{}{},
+		},
+		"dir2": map[string]interface{}{
+			"subdir": map[string]interface{}{
+				"file2.txt": map[string]interface{}{},
+			},
+		},
+	}, result)
+}
+
+func (suite *StorageServiceTest) TestGetBucketStructure_ListObjectsError() {
+	// given
+	objects := []minio.ObjectInfo{
+		{Err: errors.New("Error")},
+		{Key: "dir2/subdir/file2.txt"},
+		{Key: "dir1/file3.txt"},
+	}
+	suite.minioAdapter.On("ListObjects", mock.Anything, "bucketName", mock.AnythingOfType("minio.ListObjectsOptions")).Return(suite.createChan(objects))
+
+	// when
+	result, err := suite.storageService.GetBucketStructure("bucketName", "")
+
+	// then
+	suite.minioAdapter.AssertCalled(suite.T(), "ListObjects", mock.Anything, "bucketName", mock.AnythingOfType("minio.ListObjectsOptions"))
+	suite.Error(err)
+	suite.Nil(result)
+}
+
+func (suite *StorageServiceTest) createChan(infos []minio.ObjectInfo) <-chan minio.ObjectInfo {
+	objectsCh := make(chan minio.ObjectInfo, len(infos))
+	for _, obj := range infos {
+		objectsCh <- obj
+	}
+	defer close(objectsCh)
+	return objectsCh
+}

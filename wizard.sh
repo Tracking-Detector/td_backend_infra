@@ -38,6 +38,7 @@ generate_env_file() {
     read -p "Enter email for LetsEncrypt Certificate: " email
     echo "# mongo"
     echo "MONGO_URI=mongodb://db:27017/tracking-detector"
+    echo "DB_NAME=tracking-detector"
     echo "USER_COLLECTION=users"
     echo "REQUEST_COLLECTION=requests"
     echo "TRAINING_RUNS_COLLECTION=training-runs"
