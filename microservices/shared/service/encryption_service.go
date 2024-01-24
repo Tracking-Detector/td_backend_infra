@@ -37,7 +37,7 @@ func (s *EncryptionService) HashPassword(password string) (string, error) {
 }
 
 func (s *EncryptionService) CompareHashAndPassword(hash, pw string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(pw), []byte(hash))
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))
 	if err != nil {
 		return false
 	}

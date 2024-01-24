@@ -8,6 +8,10 @@ func EnvMongoURI() string {
 	return os.Getenv("MONGO_URI")
 }
 
+func EnvDBName() string {
+	return os.Getenv("DB_NAME")
+}
+
 func EnvRequestCollection() string {
 	return os.Getenv("REQUEST_COLLECTION")
 }

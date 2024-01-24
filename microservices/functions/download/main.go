@@ -5,6 +5,7 @@ import (
 	"tds/shared/configs"
 	"tds/shared/controller"
 	"tds/shared/service"
+	"tds/shared/storage"
 	"tds/shared/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,7 +15,9 @@ import (
 
 func main() {
 	ctx := context.TODO()
-	storageService := service.NewMinIOStorageServic()
+	minioClient := configs.ConnectMinio()
+	minioStorageAdapter := storage.NewMinIOStorageAdapter(minioClient)
+	storageService := service.NewMinIOStorageService(minioStorageAdapter)
 	storageService.VerifyBucketExists(ctx, configs.EnvExportBucketName())
 	storageService.VerifyBucketExists(ctx, configs.EnvModelBucketName())
 	downloadController := controller.NewDownloadController(storageService)

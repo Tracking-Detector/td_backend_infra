@@ -6,10 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"tds/shared/configs"
+	"tds/shared/storage"
 
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -22,24 +21,12 @@ type IStorageService interface {
 }
 
 type MinIOStorageService struct {
-	client *minio.Client
+	client storage.IStorageClientAdater
 }
 
-func NewMinIOStorageServic() *MinIOStorageService {
-	minioClient, err := minio.New(configs.EnvMinIoURI(), &minio.Options{
-		Creds:  credentials.NewStaticV4(configs.EnvMinIoAccessKey(), configs.EnvMinIoPrivateKey(), ""),
-		Secure: false,
-	})
-	if err != nil {
-		log.WithFields(log.Fields{
-			"service": "MinIOStorageService",
-		}).Fatalln(err)
-	}
-	log.WithFields(log.Fields{
-		"service": "MinIOStorageService",
-	}).Info("Successfully connected to MinIO.")
+func NewMinIOStorageService(client storage.IStorageClientAdater) *MinIOStorageService {
 	return &MinIOStorageService{
-		client: minioClient,
+		client: client,
 	}
 }
 
