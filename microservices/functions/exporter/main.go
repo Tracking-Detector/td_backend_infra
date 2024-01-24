@@ -27,7 +27,7 @@ func main() {
 	exporterService := service.NewExporterService(exporterRepo)
 	internalExportJob := job.NewInternalExportJob(requestRepo, storageService)
 	externalExportJob := job.NewExternalExportJob(requestRepo, storageService)
-	exportConsumer := consumer.NewExportMessageConsumer(internalExportJob, externalExportJob, rabbitMqAdapter, requestRepo, storageService, exporterService)
+	exportConsumer := consumer.NewExportMessageConsumer(internalExportJob, externalExportJob, rabbitMqAdapter, exporterService)
 	exportConsumer.Consume()
 	select {}
 }
