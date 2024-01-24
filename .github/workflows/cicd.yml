@@ -11,12 +11,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
+      - name: Setup Go 1.20.0
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.20
-          env: |
-            GO111MODULE=on
-
+          go-version: '1.20.0'
+      - name: Install dependencies
+        working-directory: ./microservices
+        run: go get .
       - name: Run tests
-        run: go test ./microservices/test/...
+        working-directory: ./microservices
+        run: go test ./test/...
