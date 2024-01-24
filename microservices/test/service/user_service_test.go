@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"os"
-	"tds/mocks"
 	"tds/shared/models"
 	"tds/shared/service"
+	"tds/test/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/mock"

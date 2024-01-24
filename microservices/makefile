@@ -1,2 +1,2 @@
 mocks:
-	mockery --all --output=mocks --dir=shared 
+	mockery --all --output=test/mocks --dir=shared

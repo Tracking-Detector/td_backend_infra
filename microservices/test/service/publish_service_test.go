@@ -2,9 +2,9 @@ package service_test
 
 import (
 	"os"
-	"tds/mocks"
 	"tds/shared/messages"
 	"tds/shared/service"
+	"tds/test/mocks"
 	"testing"
 
 	"github.com/streadway/amqp"

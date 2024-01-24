@@ -2,9 +2,10 @@ package service_test
 
 import (
 	"context"
-	"tds/mocks"
+
 	"tds/shared/models"
 	"tds/shared/service"
+	"tds/test/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/suite"

@@ -3,9 +3,9 @@ package service_test
 import (
 	"context"
 	"errors"
-	"tds/mocks"
 	"tds/shared/models"
 	"tds/shared/service"
+	"tds/test/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/mock"

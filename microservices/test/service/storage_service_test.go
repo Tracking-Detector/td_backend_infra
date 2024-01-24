@@ -5,8 +5,8 @@ import (
 	"errors"
 	"io"
 	"os"
-	"tds/mocks"
 	"tds/shared/service"
+	"tds/test/mocks"
 	"testing"
 
 	"github.com/minio/minio-go/v7"
