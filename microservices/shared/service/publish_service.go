@@ -1,7 +1,9 @@
 package service
 
 import (
+	"tds/shared/configs"
 	"tds/shared/messages"
+	"tds/shared/queue"
 
 	log "github.com/sirupsen/logrus"
 
@@ -14,44 +16,12 @@ type IPublishService interface {
 }
 
 type PublishService struct {
-	rabbitConn *amqp.Connection
-	rabbitCh   *amqp.Channel
+	queueAdapter queue.IQueueChannelAdapter
 }
 
-func NewPublishService() *PublishService {
-	rabbitConn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/") // TODO put into .env
-	if err != nil {
-		log.WithFields(log.Fields{
-			"service": "PublishService",
-			"error":   err.Error(),
-		}).Fatalf("Failed to connect to RabbitMQ: %v", err)
-	}
-	rabbitCh, err := rabbitConn.Channel()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"service": "PublishService",
-			"error":   err.Error(),
-		}).Fatalf("Failed to open Channel: %v", err)
-	}
-	_, err = rabbitCh.QueueDeclare("exports", true, false, false, false, nil)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"service": "PublishService",
-			"error":   err.Error(),
-		}).Fatalf("Failed to declare an exports queue: %v", err)
-	}
-
-	_, err = rabbitCh.QueueDeclare("training", true, false, false, false, nil)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"service": "PublishService",
-			"error":   err.Error(),
-		}).Fatalf("Failed to declare a training queue: %v", err)
-	}
-
+func NewPublishService(queueAdapter queue.IQueueChannelAdapter) *PublishService {
 	return &PublishService{
-		rabbitConn: rabbitConn,
-		rabbitCh:   rabbitCh,
+		queueAdapter: queueAdapter,
 	}
 }
 
@@ -65,7 +35,7 @@ func (s *PublishService) EnqueueTrainingJob(modelId string, exporterId string, r
 		}).Error("Error serializing job.")
 		return
 	}
-	err = s.rabbitCh.Publish("", "training", false, false, amqp.Publishing{
+	err = s.queueAdapter.Publish("", configs.EnvTrainQueueName(), false, false, amqp.Publishing{
 		ContentType:  "text/plain",
 		Body:         []byte(message),
 		DeliveryMode: amqp.Persistent,
@@ -88,9 +58,10 @@ func (s *PublishService) EnqueueExportJob(exporterId string, reducer string, dat
 		}).Error("Error serializing job.")
 		return
 	}
-	err = s.rabbitCh.Publish("", "exports", false, false, amqp.Publishing{
-		ContentType: "text/plain",
-		Body:        []byte(message),
+	err = s.queueAdapter.Publish("", configs.EnvExportQueueName(), false, false, amqp.Publishing{
+		ContentType:  "text/plain",
+		Body:         []byte(message),
+		DeliveryMode: amqp.Persistent,
 	})
 	if err != nil {
 		log.WithFields(log.Fields{

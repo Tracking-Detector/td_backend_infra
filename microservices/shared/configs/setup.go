@@ -4,6 +4,7 @@ import (
 	"context"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/streadway/amqp"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -41,6 +42,39 @@ func ConnectMinio() *minio.Client {
 		"service": "Setup",
 	}).Info("Successfully connected to MinIO.")
 	return minioClient
+}
+
+func ConnectRabbitMQ() *amqp.Channel {
+	rabbitConn, err := amqp.Dial("amqp://" + EnvMQUser() + ":" + EnvMQPassword() + "@rabbitmq:5672/")
+	if err != nil {
+		log.WithFields(log.Fields{
+			"service": "setup",
+			"error":   err.Error(),
+		}).Fatalf("Failed to connect to RabbitMQ: %v", err)
+	}
+	rabbitCh, err := rabbitConn.Channel()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"service": "setup",
+			"error":   err.Error(),
+		}).Fatalf("Failed to open Channel: %v", err)
+	}
+	_, err = rabbitCh.QueueDeclare(EnvExportQueueName(), true, false, false, false, nil)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"service": "setup",
+			"error":   err.Error(),
+		}).Fatalf("Failed to declare an exports queue: %v", err)
+	}
+
+	_, err = rabbitCh.QueueDeclare(EnvTrainQueueName(), true, false, false, false, nil)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"service": "setup",
+			"error":   err.Error(),
+		}).Fatalf("Failed to declare a training queue: %v", err)
+	}
+	return rabbitCh
 }
 
 func GetDatabase(client *mongo.Client) *mongo.Database {

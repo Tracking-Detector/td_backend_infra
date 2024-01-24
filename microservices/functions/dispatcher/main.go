@@ -4,6 +4,7 @@ import (
 	"context"
 	"tds/shared/configs"
 	"tds/shared/controller"
+	"tds/shared/queue"
 	"tds/shared/repository"
 	"tds/shared/service"
 	"tds/shared/utils"
@@ -18,7 +19,9 @@ func main() {
 	time.Sleep(30 * time.Second)
 	ctx := context.TODO()
 	db := configs.GetDatabase(configs.ConnectDB(ctx))
+	rabbitCh := configs.ConnectRabbitMQ()
 
+	channelAdapter := queue.NewRabbitMQChannelAdapter(rabbitCh)
 	exporterRepo := repository.NewMongoExporterRepository(db)
 	modelRepo := repository.NewMongoModelRepository(db)
 	trainingRunRepo := repository.NewMongoTrainingRunsRepository(db)
@@ -26,7 +29,7 @@ func main() {
 	trainingRunService := service.NewTraingingrunService(trainingRunRepo)
 	exporterService := service.NewExporterService(exporterRepo)
 	modelService := service.NewModelService(modelRepo, trainingRunService)
-	publisherService := service.NewPublishService()
+	publisherService := service.NewPublishService(channelAdapter)
 
 	dispatchController := controller.NewDispatchController(exporterService, publisherService, modelService)
 

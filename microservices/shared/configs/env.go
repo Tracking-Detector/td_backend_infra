@@ -67,3 +67,19 @@ func EnvAdminApiKey() string {
 func EnvModelCollection() string {
 	return os.Getenv("MODELS_COLLECTION")
 }
+
+func EnvMQUser() string {
+	return os.Getenv("MQUSER")
+}
+
+func EnvMQPassword() string {
+	return os.Getenv("MQPASSWORD")
+}
+
+func EnvTrainQueueName() string {
+	return os.Getenv("TRAIN_QUEUE")
+}
+
+func EnvExportQueueName() string {
+	return os.Getenv("EXPORT_QUEUE")
+}
