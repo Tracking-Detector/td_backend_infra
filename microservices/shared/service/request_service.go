@@ -28,11 +28,11 @@ func (s *RequestService) GetRequestById(ctx context.Context, id string) (*models
 }
 
 func (s *RequestService) InsertManyRequests(ctx context.Context, requests []*models.RequestData) error {
-	return s.InsertManyRequests(ctx, requests)
+	return s.requestRepo.InsertMany(ctx, requests)
 }
 
 func (s *RequestService) SaveRequest(ctx context.Context, request *models.RequestData) error {
-	return s.SaveRequest(ctx, request)
+	return s.requestRepo.Save(ctx, request)
 }
 
 func (s *RequestService) GetPagedRequestsFilterdByUrl(ctx context.Context, url string, page, pageSize int) ([]*models.RequestData, error) {
