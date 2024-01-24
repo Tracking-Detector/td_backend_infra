@@ -14,17 +14,17 @@ type IExporterService interface {
 }
 
 type ExporterService struct {
-	extractorRepo models.ExporterRepository
+	exporterRepo models.ExporterRepository
 }
 
 func NewExporterService(extractorRepo models.ExporterRepository) *ExporterService {
 	return &ExporterService{
-		extractorRepo: extractorRepo,
+		exporterRepo: extractorRepo,
 	}
 }
 
 func (s *ExporterService) GetAllExporter(ctx context.Context) ([]*models.Exporter, error) {
-	return s.extractorRepo.FindAll(ctx)
+	return s.exporterRepo.FindAll(ctx)
 }
 
 func (s *ExporterService) InitInCodeExports(ctx context.Context) {
@@ -35,12 +35,12 @@ func (s *ExporterService) InitInCodeExports(ctx context.Context) {
 			Dimensions:  ext.GetDimensions(),
 			Type:        models.IN_SERVICE,
 		}
-		s.extractorRepo.Save(ctx, &exporterData)
+		s.exporterRepo.Save(ctx, &exporterData)
 	}
 }
 
 func (s *ExporterService) IsValidExporter(ctx context.Context, exporter string) bool {
-	_, err := s.extractorRepo.FindByID(ctx, exporter)
+	_, err := s.exporterRepo.FindByID(ctx, exporter)
 	if err != nil {
 		return false
 	}
@@ -48,5 +48,5 @@ func (s *ExporterService) IsValidExporter(ctx context.Context, exporter string) 
 }
 
 func (s *ExporterService) FindByID(ctx context.Context, id string) (*models.Exporter, error) {
-	return s.extractorRepo.FindByID(ctx, id)
+	return s.exporterRepo.FindByID(ctx, id)
 }
