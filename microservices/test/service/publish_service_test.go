@@ -4,7 +4,7 @@ import (
 	"os"
 	"tds/shared/messages"
 	"tds/shared/service"
-	"tds/test/mocks"
+	"tds/test/testsupport/mocks"
 	"testing"
 
 	"github.com/streadway/amqp"

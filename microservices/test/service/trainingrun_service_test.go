@@ -5,7 +5,7 @@ import (
 	"errors"
 	"tds/shared/models"
 	"tds/shared/service"
-	"tds/test/mocks"
+	"tds/test/testsupport/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
