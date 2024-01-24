@@ -76,7 +76,7 @@ func (s *UserService) CreateApiUser(ctx context.Context, email string) (string, 
 		newUser := &models.UserData{
 			Role:  models.CLIENT,
 			Email: email,
-			Key:   string(hash),
+			Key:   hash,
 		}
 		return s.userRepository.Save(ctx, newUser)
 	})
