@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"context"
+	"sync"
 	"tds/shared/configs"
 	"tds/shared/job"
 	"tds/shared/messages"
@@ -17,6 +18,7 @@ type IConsumer interface {
 }
 
 type ExportMessageConsumer struct {
+	Wg                sync.WaitGroup
 	interExportJob    job.IExportJob
 	externalExportJob job.IExportJob
 	queueAdapter      queue.IQueueChannelAdapter
@@ -29,6 +31,7 @@ func NewExportMessageConsumer(interExportJob job.IExportJob, externalExportJob j
 		externalExportJob: externalExportJob,
 		exporterService:   exporterService,
 		queueAdapter:      queueAdapter,
+		Wg:                sync.WaitGroup{},
 	}
 }
 
@@ -45,16 +48,13 @@ func (c *ExportMessageConsumer) Consume() {
 	if err != nil {
 		log.Fatalf("Failed to register a consumer: %v", err)
 	}
-	// TODO how to make this better for testing
-	// stopChan := make(chan os.Signal, 1)
-	// signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
+
 	log.Println("Export ConsumerService started. Waiting for messages...")
 
 	for msg := range msgs {
 		c.handleMessage(msg.Body)
 	}
 
-	// <-stopChan
 	log.Println("Shutting down Export ConsumerService.")
 }
 
@@ -75,6 +75,7 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 		log.Errorf("Exporter does not exist: %v", err)
 		return
 	}
+	c.Wg.Add(1)
 	go func() {
 		switch exporter.Type {
 		case models.IN_SERVICE:
@@ -85,6 +86,7 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 		if err != nil {
 			log.Errorf("Job finished with an error: %v", err)
 		}
+		defer c.Wg.Done()
 	}()
 	// TODO write jobs into mongodb
 

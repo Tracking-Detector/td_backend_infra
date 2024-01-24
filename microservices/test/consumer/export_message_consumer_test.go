@@ -52,6 +52,7 @@ func (suite *ExportConsumerTest) TestConsume_SuccessInternal() {
 	suite.internalJob.On("Execute", exporter, "or", "dataset").Return(nil)
 	// when
 	suite.exportConsumer.Consume()
+	suite.exportConsumer.Wg.Wait()
 	// then
 	time.Sleep(1 * time.Second)
 	suite.queueAdapter.AssertCalled(suite.T(), "Consume", configs.EnvExportQueueName(), "", true, false, false, false, mock.Anything)
@@ -75,11 +76,46 @@ func (suite *ExportConsumerTest) TestConsume_SuccessExternal() {
 	suite.externalJob.On("Execute", exporter, "or", "dataset").Return(nil)
 	// when
 	suite.exportConsumer.Consume()
+	suite.exportConsumer.Wg.Wait()
 	// then
-	time.Sleep(1 * time.Second)
 	suite.queueAdapter.AssertCalled(suite.T(), "Consume", configs.EnvExportQueueName(), "", true, false, false, false, mock.Anything)
 	suite.exporterService.AssertCalled(suite.T(), "FindByID", mock.Anything, "someId")
 	suite.externalJob.AssertCalled(suite.T(), "Execute", exporter, "or", "dataset")
+}
+
+func (suite *ExportConsumerTest) TestConsume_SuccessMultiple() {
+	// given
+	os.Setenv("EXPORT_QUEUE", "export")
+	exporter1 := &models.Exporter{
+		ID:          "someId1",
+		Name:        "someName",
+		Description: "someDescription",
+		Dimensions:  []int{204, 1},
+		Type:        models.IN_SERVICE,
+	}
+	exporter2 := &models.Exporter{
+		ID:          "someId2",
+		Name:        "someName",
+		Description: "someDescription",
+		Dimensions:  []int{204, 1},
+		Type:        models.JS,
+	}
+	jobs := []*messages.JobPayload{messages.NewJob("export", []string{"someId1", "or", "dataset"}),
+		messages.NewJob("export", []string{"someId2", "or", "dataset"})}
+	suite.queueAdapter.On("Consume", configs.EnvExportQueueName(), "", true, false, false, false, mock.Anything).Return(suite.createChan(jobs), nil)
+	suite.exporterService.On("FindByID", mock.Anything, "someId1").Return(exporter1, nil)
+	suite.exporterService.On("FindByID", mock.Anything, "someId2").Return(exporter2, nil)
+	suite.internalJob.On("Execute", exporter1, "or", "dataset").Return(nil)
+	suite.externalJob.On("Execute", exporter2, "or", "dataset").Return(nil)
+	// when
+	suite.exportConsumer.Consume()
+	suite.exportConsumer.Wg.Wait()
+	// then
+	suite.queueAdapter.AssertCalled(suite.T(), "Consume", configs.EnvExportQueueName(), "", true, false, false, false, mock.Anything)
+	suite.exporterService.AssertCalled(suite.T(), "FindByID", mock.Anything, "someId1")
+	suite.exporterService.AssertCalled(suite.T(), "FindByID", mock.Anything, "someId2")
+	suite.internalJob.AssertCalled(suite.T(), "Execute", exporter1, "or", "dataset")
+	suite.externalJob.AssertCalled(suite.T(), "Execute", exporter2, "or", "dataset")
 }
 
 func (suite *ExportConsumerTest) createChan(jobs []*messages.JobPayload) <-chan amqp.Delivery {
