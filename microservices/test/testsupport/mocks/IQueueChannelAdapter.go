@@ -12,6 +12,36 @@ type IQueueChannelAdapter struct {
 	mock.Mock
 }
 
+// Consume provides a mock function with given fields: _a0, consumer, autoAck, exclusive, noLocal, noWait, args
+func (_m *IQueueChannelAdapter) Consume(_a0 string, consumer string, autoAck bool, exclusive bool, noLocal bool, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error) {
+	ret := _m.Called(_a0, consumer, autoAck, exclusive, noLocal, noWait, args)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Consume")
+	}
+
+	var r0 <-chan amqp.Delivery
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, bool, bool, bool, bool, amqp.Table) (<-chan amqp.Delivery, error)); ok {
+		return rf(_a0, consumer, autoAck, exclusive, noLocal, noWait, args)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, bool, bool, bool, bool, amqp.Table) <-chan amqp.Delivery); ok {
+		r0 = rf(_a0, consumer, autoAck, exclusive, noLocal, noWait, args)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan amqp.Delivery)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, bool, bool, bool, bool, amqp.Table) error); ok {
+		r1 = rf(_a0, consumer, autoAck, exclusive, noLocal, noWait, args)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Publish provides a mock function with given fields: exchange, key, mandatory, immediate, msg
 func (_m *IQueueChannelAdapter) Publish(exchange string, key string, mandatory bool, immediate bool, msg amqp.Publishing) error {
 	ret := _m.Called(exchange, key, mandatory, immediate, msg)

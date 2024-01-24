@@ -20,30 +20,24 @@ import (
 )
 
 type IExportJob interface {
-	Execute() error
+	Execute(exporter *models.Exporter, reducer string, dataset string) error
 }
 
 type InteralExportJob struct {
-	exporter       *models.Exporter
-	reducer        string
-	dataset        string
 	requestRepo    models.RequestRepository
 	storageService service.IStorageService
 }
 
-func NewInternalExportJob(exporter *models.Exporter, reducer string, dataset string, requestRepo models.RequestRepository, storageService service.IStorageService) *InteralExportJob {
+func NewInternalExportJob(requestRepo models.RequestRepository, storageService service.IStorageService) *InteralExportJob {
 	return &InteralExportJob{
-		exporter:       exporter,
-		reducer:        reducer,
-		dataset:        dataset,
 		requestRepo:    requestRepo,
 		storageService: storageService,
 	}
 }
 
-func (j *InteralExportJob) Execute() error {
+func (j *InteralExportJob) Execute(exporter *models.Exporter, reducer string, dataset string) error {
 	ctx := context.TODO()
-	extractor, err := j.getCorrectExporter(j.exporter)
+	extractor, err := j.getCorrectExporter(exporter)
 	if err != nil {
 		return err
 	}
@@ -51,7 +45,7 @@ func (j *InteralExportJob) Execute() error {
 	gzipWriter := gzip.NewWriter(pw)
 	defer pw.Close()
 	defer gzipWriter.Close()
-	resultChannel, errorChannel := j.requestRepo.StreamByDataset(ctx, j.dataset)
+	resultChannel, errorChannel := j.requestRepo.StreamByDataset(ctx, dataset)
 	go func() {
 		for {
 			select {
@@ -59,7 +53,7 @@ func (j *InteralExportJob) Execute() error {
 				if !ok {
 					break
 				}
-				reduced := converter.ConvertRequestModel(requestData, converter.ReduceType(j.reducer))
+				reduced := converter.ConvertRequestModel(requestData, converter.ReduceType(reducer))
 				encoded, encodedErr := extractor.Encode(*reduced)
 				if encodedErr != nil {
 					continue
@@ -89,7 +83,7 @@ func (j *InteralExportJob) Execute() error {
 			}
 		}
 	}()
-	return j.storageService.PutObject(ctx, configs.EnvExportBucketName(), j.exporter.Name+"_"+j.reducer+"_"+j.dataset+".csv.gz", pr, -1, "application/gzip")
+	return j.storageService.PutObject(ctx, configs.EnvExportBucketName(), exporter.Name+"_"+reducer+"_"+dataset+".csv.gz", pr, -1, "application/gzip")
 }
 
 func (j *InteralExportJob) getCorrectExporter(exporter *models.Exporter) (*extractor.Extractor, error) {
@@ -102,28 +96,22 @@ func (j *InteralExportJob) getCorrectExporter(exporter *models.Exporter) (*extra
 }
 
 type ExternalExportJob struct {
-	exporter       *models.Exporter
-	reducer        string
-	dataset        string
 	requestRepo    models.RequestRepository
 	storageService service.IStorageService
 }
 
-func NewExternalExportJob(exporter *models.Exporter, reducer string, dataset string, requestRepo models.RequestRepository, storageService service.IStorageService) *ExternalExportJob {
+func NewExternalExportJob(requestRepo models.RequestRepository, storageService service.IStorageService) *ExternalExportJob {
 	return &ExternalExportJob{
-		exporter:       exporter,
-		reducer:        reducer,
-		dataset:        dataset,
 		requestRepo:    requestRepo,
 		storageService: storageService,
 	}
 }
 
-func (j *ExternalExportJob) Execute() error {
+func (j *ExternalExportJob) Execute(exporter *models.Exporter, reducer string, dataset string) error {
 	ctx := context.TODO()
 	// Setup VM
 	vm := otto.New()
-	obj, err := j.storageService.GetObject(ctx, configs.EnvExtractorBucketName(), *j.exporter.ExportScriptLocation)
+	obj, err := j.storageService.GetObject(ctx, configs.EnvExtractorBucketName(), *exporter.ExportScriptLocation)
 	if err != nil {
 		return err
 	}
@@ -140,7 +128,7 @@ func (j *ExternalExportJob) Execute() error {
 	gzipWriter := gzip.NewWriter(pw)
 	defer pw.Close()
 	defer gzipWriter.Close()
-	resultChannel, errorChannel := j.requestRepo.StreamByDataset(ctx, j.dataset)
+	resultChannel, errorChannel := j.requestRepo.StreamByDataset(ctx, dataset)
 	go func() {
 		for {
 			select {
@@ -148,7 +136,7 @@ func (j *ExternalExportJob) Execute() error {
 				if !ok {
 					break
 				}
-				reduced := converter.ConvertRequestModel(requestData, converter.ReduceType(j.reducer))
+				reduced := converter.ConvertRequestModel(requestData, converter.ReduceType(reducer))
 				reducedJson, err := json.Marshal(reduced)
 				if err != nil {
 					continue
@@ -186,6 +174,6 @@ func (j *ExternalExportJob) Execute() error {
 			}
 		}
 	}()
-	return j.storageService.PutObject(ctx, configs.EnvExportBucketName(), j.exporter.Name+"_"+j.reducer+"_"+j.dataset+".csv.gz", pr, -1, "application/gzip")
+	return j.storageService.PutObject(ctx, configs.EnvExportBucketName(), exporter.Name+"_"+reducer+"_"+dataset+".csv.gz", pr, -1, "application/gzip")
 
 }
