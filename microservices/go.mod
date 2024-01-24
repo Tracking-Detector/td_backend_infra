@@ -27,6 +27,9 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/ernesto-jimenez/go-parse-utils v1.1.2 // indirect
+	github.com/ernesto-jimenez/goautomock v0.0.0-20180127103744-b644fce299e8 // indirect
+	github.com/ernesto-jimenez/gogen v0.0.0-20180125220232-d7d4131e6607 // indirect
 	github.com/garyburd/redigo v1.6.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect

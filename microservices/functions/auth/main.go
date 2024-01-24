@@ -1,9 +1,5 @@
 package main
 
-import (
-	"github.com/gofiber/fiber/v2"
-)
-
 // var adminURIs = []string{
 // 	"/api/training-runs",
 // 	"/api/export",
@@ -74,9 +70,9 @@ import (
 // }
 
 func main() {
-	app := fiber.New()
-	// app.Use(logger.New())
-	// app.Use(cors.New())
-	// app.Use(ValidateToken)
-	app.Listen(":8081")
+	// app := fiber.New()
+	// // app.Use(logger.New())
+	// // app.Use(cors.New())
+	// // app.Use(ValidateToken)
+	// app.Listen(":8081")
 }
