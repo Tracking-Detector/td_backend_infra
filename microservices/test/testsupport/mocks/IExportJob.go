@@ -14,18 +14,20 @@ type IExportJob struct {
 }
 
 // Execute provides a mock function with given fields: exporter, reducer, dataset
-func (_m *IExportJob) Execute(exporter *models.Exporter, reducer string, dataset string) error {
+func (_m *IExportJob) Execute(exporter *models.Exporter, reducer string, dataset string) *models.ExportMetrics {
 	ret := _m.Called(exporter, reducer, dataset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Exporter, string, string) error); ok {
+	var r0 *models.ExportMetrics
+	if rf, ok := ret.Get(0).(func(*models.Exporter, string, string) *models.ExportMetrics); ok {
 		r0 = rf(exporter, reducer, dataset)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.ExportMetrics)
+		}
 	}
 
 	return r0

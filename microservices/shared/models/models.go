@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -123,4 +125,21 @@ type ReducedRequestData struct {
 	Response          RequestDataResponse `json:"response" bson:"response"`
 	Success           bool                `json:"success" bson:"success"`
 	Tracker           bool                `json:"tracker" bson:"tracker"`
+}
+
+// Export Metrics
+type ExportMetrics struct {
+	Tracker    int    `json:"tracker" bson:"tracker"`
+	NonTracker int    `json:"nonTracker" bson:"nonTracker"`
+	Total      int    `json:"total" bson:"total"`
+	Error      string `json:"error" bson:"error"`
+}
+
+type ExportRun struct {
+	ID           string         `json:"_id" bson:"_id,omitempty"`
+	ExporterId   string         `json:"exporterId" bson:"exporterId"`
+	ExporterName string         `json:"exporterName" bson:"exporterName"`
+	Metrics      *ExportMetrics `json:"metrics" bson:"metrics"`
+	Start        time.Time      `json:"start" bson:"start"`
+	End          time.Time      `json:"end" bson:"end"`
 }

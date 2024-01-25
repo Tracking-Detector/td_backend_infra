@@ -5,8 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
-	"io/ioutil"
+	"sync"
 
 	"strings"
 	"tds/shared/configs"
@@ -20,73 +21,97 @@ import (
 )
 
 type IExportJob interface {
-	Execute(exporter *models.Exporter, reducer string, dataset string) error
+	Execute(exporter *models.Exporter, reducer string, dataset string) *models.ExportMetrics
 }
 
-type InteralExportJob struct {
+type InternalExportJob struct {
+	Wg             sync.WaitGroup
 	requestRepo    models.RequestRepository
 	storageService service.IStorageService
 }
 
-func NewInternalExportJob(requestRepo models.RequestRepository, storageService service.IStorageService) *InteralExportJob {
-	return &InteralExportJob{
+func NewInternalExportJob(requestRepo models.RequestRepository, storageService service.IStorageService) *InternalExportJob {
+	return &InternalExportJob{
 		requestRepo:    requestRepo,
 		storageService: storageService,
+		Wg:             sync.WaitGroup{},
 	}
 }
 
-func (j *InteralExportJob) Execute(exporter *models.Exporter, reducer string, dataset string) error {
+func (j *InternalExportJob) Execute(exporter *models.Exporter, reducer string, dataset string) *models.ExportMetrics {
 	ctx := context.TODO()
 	extractor, err := j.getCorrectExporter(exporter)
 	if err != nil {
-		return err
+		return &models.ExportMetrics{
+			Error: err.Error(),
+		}
 	}
+
 	pr, pw := io.Pipe()
 	gzipWriter := gzip.NewWriter(pw)
-	defer pw.Close()
-	defer gzipWriter.Close()
-	resultChannel, errorChannel := j.requestRepo.StreamByDataset(ctx, dataset)
+
+	resultChannel, _ := j.requestRepo.StreamByDataset(ctx, dataset)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	tracker := 0
+	nonTracker := 0
+	total := 0
+	// Concurrently handle writing to gzip writer
 	go func() {
-		for {
-			select {
-			case requestData, ok := <-resultChannel:
-				if !ok {
-					break
-				}
-				reduced := converter.ConvertRequestModel(requestData, converter.ReduceType(reducer))
-				encoded, encodedErr := extractor.Encode(*reduced)
-				if encodedErr != nil {
-					continue
-				}
-				arr, err := json.Marshal(encoded)
-				if err != nil {
-					log.WithFields(log.Fields{
-						"service": "InternalExportJob",
-						"error":   err.Error(),
-					}).Error("Could not convert int[] to string.")
-					continue
-				}
-				data := strings.Trim(string(arr), "[]") + "\n"
-				if _, err := gzipWriter.Write([]byte(data)); err != nil {
-					log.WithFields(log.Fields{
-						"service": "InternalExportJob",
-						"error":   err.Error(),
-					}).Error("Failed to write to gzip writer.")
-					break
-				}
-			case err, ok := <-errorChannel:
-				if !ok {
-					break
-				}
-				// Handle the error
-				log.Println("Error:", err)
+		defer pw.Close()
+		defer gzipWriter.Close()
+		defer wg.Done()
+
+		for requestData := range resultChannel {
+			reduced := converter.ConvertRequestModel(requestData, converter.ReduceType(reducer))
+			encoded, encodedErr := extractor.Encode(*reduced)
+
+			if encodedErr != nil {
+				continue
 			}
+			arr, err := json.Marshal(encoded)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"service": "InternalExportJob",
+					"error":   err.Error(),
+				}).Error("Could not convert int[] to string.")
+				continue
+			}
+
+			data := strings.Trim(string(arr), "[]") + "\n"
+
+			if _, err := gzipWriter.Write([]byte(data)); err != nil {
+				log.WithFields(log.Fields{
+					"service": "InternalExportJob",
+					"error":   err.Error(),
+				}).Error("Failed to write to gzip writer.")
+				fmt.Println("In gzipError")
+				break // Break the loop if there's an error writing to the gzip writer
+			}
+			if reduced.Tracker {
+				tracker = tracker + 1
+			} else {
+				nonTracker = nonTracker + 1
+			}
+			total = total + 1
 		}
 	}()
-	return j.storageService.PutObject(ctx, configs.EnvExportBucketName(), exporter.Name+"_"+reducer+"_"+dataset+".csv.gz", pr, -1, "application/gzip")
+	err = j.storageService.PutObject(ctx, configs.EnvExportBucketName(), exporter.Name+"_"+reducer+"_"+dataset+".csv.gz", pr, -1, "application/gzip")
+	wg.Wait()
+	if err != nil {
+		return &models.ExportMetrics{
+			Error: err.Error(),
+		}
+	}
+	return &models.ExportMetrics{
+		Total:      total,
+		Tracker:    tracker,
+		NonTracker: nonTracker,
+	}
 }
 
-func (j *InteralExportJob) getCorrectExporter(exporter *models.Exporter) (*extractor.Extractor, error) {
+func (j *InternalExportJob) getCorrectExporter(exporter *models.Exporter) (*extractor.Extractor, error) {
 	for _, ext := range extractor.EXTRACTORS {
 		if ext.GetName() == exporter.Name {
 			return &ext, nil
@@ -107,73 +132,81 @@ func NewExternalExportJob(requestRepo models.RequestRepository, storageService s
 	}
 }
 
-func (j *ExternalExportJob) Execute(exporter *models.Exporter, reducer string, dataset string) error {
+func (j *ExternalExportJob) Execute(exporter *models.Exporter, reducer string, dataset string) *models.ExportMetrics {
 	ctx := context.TODO()
-	// Setup VM
 	vm := otto.New()
 	obj, err := j.storageService.GetObject(ctx, configs.EnvExtractorBucketName(), *exporter.ExportScriptLocation)
+	_, err = vm.Run(obj)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return &models.ExportMetrics{
+			Error: err.Error(),
+		}
 	}
-	buff, err := ioutil.ReadAll(obj)
-	if err != nil {
-		return err
-	}
-	extractorScript := string(buff)
-	_, err = vm.Run(extractorScript)
-	if err != nil {
-		return err
-	}
+
 	pr, pw := io.Pipe()
 	gzipWriter := gzip.NewWriter(pw)
-	defer pw.Close()
-	defer gzipWriter.Close()
-	resultChannel, errorChannel := j.requestRepo.StreamByDataset(ctx, dataset)
+
+	resultChannel, _ := j.requestRepo.StreamByDataset(ctx, dataset)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	tracker := 0
+	nonTracker := 0
+	total := 0
+	// Concurrently handle writing to gzip writer
 	go func() {
-		for {
-			select {
-			case requestData, ok := <-resultChannel:
-				if !ok {
-					break
-				}
-				reduced := converter.ConvertRequestModel(requestData, converter.ReduceType(reducer))
-				reducedJson, err := json.Marshal(reduced)
-				if err != nil {
-					continue
-				}
-				result, err := vm.Call("extract", nil, string(reducedJson))
-				if err != nil {
-					continue
-				}
-				encoded, err := result.Export()
-				if err != nil {
-					return
-				}
-				arr, err := json.Marshal(encoded)
-				if err != nil {
-					log.WithFields(log.Fields{
-						"service": "InternalExportJob",
-						"error":   err.Error(),
-					}).Error("Could not convert int[] to string.")
-					continue
-				}
-				data := strings.Trim(string(arr), "[]") + "\n"
-				if _, err := gzipWriter.Write([]byte(data)); err != nil {
-					log.WithFields(log.Fields{
-						"service": "InternalExportJob",
-						"error":   err.Error(),
-					}).Error("Failed to write to gzip writer.")
-					break
-				}
-			case err, ok := <-errorChannel:
-				if !ok {
-					break
-				}
-				// Handle the error
-				log.Println("Error:", err)
+		defer pw.Close()
+		defer gzipWriter.Close()
+		defer wg.Done()
+
+		for requestData := range resultChannel {
+			reduced := converter.ConvertRequestModel(requestData, converter.ReduceType(reducer))
+			result, err := vm.Call("extract", nil, reduced)
+			if err != nil {
+				continue
 			}
+			encoded, err := result.Export()
+			if err != nil {
+				return
+			}
+			arr, err := json.Marshal(encoded)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"service": "InternalExportJob",
+					"error":   err.Error(),
+				}).Error("Could not convert int[] to string.")
+				continue
+			}
+
+			data := strings.Trim(string(arr), "[]") + "\n"
+
+			if _, err := gzipWriter.Write([]byte(data)); err != nil {
+				log.WithFields(log.Fields{
+					"service": "InternalExportJob",
+					"error":   err.Error(),
+				}).Error("Failed to write to gzip writer.")
+				fmt.Println("In gzipError")
+				break // Break the loop if there's an error writing to the gzip writer
+			}
+			if reduced.Tracker {
+				tracker = tracker + 1
+			} else {
+				nonTracker = nonTracker + 1
+			}
+			total = total + 1
 		}
 	}()
-	return j.storageService.PutObject(ctx, configs.EnvExportBucketName(), exporter.Name+"_"+reducer+"_"+dataset+".csv.gz", pr, -1, "application/gzip")
-
+	err = j.storageService.PutObject(ctx, configs.EnvExportBucketName(), exporter.Name+"_"+reducer+"_"+dataset+".csv.gz", pr, -1, "application/gzip")
+	wg.Wait()
+	if err != nil {
+		return &models.ExportMetrics{
+			Error: err.Error(),
+		}
+	}
+	return &models.ExportMetrics{
+		Total:      total,
+		Tracker:    tracker,
+		NonTracker: nonTracker,
+	}
 }

@@ -77,12 +77,15 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 	}
 	c.Wg.Add(1)
 	go func() {
+		// start := time.Now()
+		// metrics := &models.ExportMetrics{}
 		switch exporter.Type {
 		case models.IN_SERVICE:
-			err = c.interExportJob.Execute(exporter, reducer, dataset)
+			_ = c.interExportJob.Execute(exporter, reducer, dataset)
 		case models.JS:
-			err = c.externalExportJob.Execute(exporter, reducer, dataset)
+			_ = c.externalExportJob.Execute(exporter, reducer, dataset)
 		}
+		// end := time.Now()
 		if err != nil {
 			log.Errorf("Job finished with an error: %v", err)
 		}
