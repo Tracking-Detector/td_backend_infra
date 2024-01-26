@@ -42,6 +42,24 @@ func (_m *RequestRepository) CountDocuments(ctx context.Context, url string) (in
 	return r0, r1
 }
 
+// DeleteAll provides a mock function with given fields: ctx
+func (_m *RequestRepository) DeleteAll(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAll")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // FindAllFilteredByUrlPaged provides a mock function with given fields: ctx, url, page, pageSize
 func (_m *RequestRepository) FindAllFilteredByUrlPaged(ctx context.Context, url string, page int, pageSize int) ([]*models.RequestData, error) {
 	ret := _m.Called(ctx, url, page, pageSize)

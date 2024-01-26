@@ -51,6 +51,10 @@ func (r *MongoExporterRepository) FindByName(ctx context.Context, name string) (
 	return mongostore.FindExporterByName(ctx, r.db, name)
 }
 
+func (r *MongoExporterRepository) DeleteAll(ctx context.Context) error {
+	return mongostore.DeleteAllExporter(ctx, r.db)
+}
+
 func (r *MongoExporterRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {
 	return inMongoTransaction(ctx, r.db, fn)
 }
@@ -89,6 +93,10 @@ func (r *MongoRequestRepository) StreamByDataset(ctx context.Context, dataset st
 	return mongostore.StreamRequestsByDataset(ctx, r.db, dataset)
 }
 
+func (r *MongoRequestRepository) DeleteAll(ctx context.Context) error {
+	return mongostore.DeleteAllRequests(ctx, r.db)
+}
+
 func (r *MongoRequestRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {
 	return inMongoTransaction(ctx, r.db, fn)
 }
@@ -121,6 +129,10 @@ func (r *MongoTrainingRunsRepository) DeleteMultipleByModelID(ctx context.Contex
 
 func (r *MongoTrainingRunsRepository) DeleteByID(ctx context.Context, id string) error {
 	return mongostore.DeleteTrainingRunById(ctx, r.db, id)
+}
+
+func (r *MongoTrainingRunsRepository) DeleteAll(ctx context.Context) error {
+	return mongostore.DeleteAllTrainingRuns(ctx, r.db)
 }
 
 func (r *MongoTrainingRunsRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {
@@ -157,6 +169,10 @@ func (r *MongoUserRepository) FindUserByEmail(ctx context.Context, email string)
 	return mongostore.FindUserByEmail(ctx, r.db, email)
 }
 
+func (r *MongoUserRepository) DeleteAll(ctx context.Context) error {
+	return mongostore.DeleteAllUser(ctx, r.db)
+}
+
 func (r *MongoUserRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {
 	return inMongoTransaction(ctx, r.db, fn)
 }
@@ -189,6 +205,10 @@ func (r *MongoModelRepository) FindByName(ctx context.Context, name string) (*mo
 
 func (r *MongoModelRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {
 	return inMongoTransaction(ctx, r.db, fn)
+}
+
+func (r *MongoModelRepository) DeleteAll(ctx context.Context) error {
+	return mongostore.DeleteAllModels(ctx, r.db)
 }
 
 func (r *MongoModelRepository) FindByID(ctx context.Context, id string) (*models.Model, error) {

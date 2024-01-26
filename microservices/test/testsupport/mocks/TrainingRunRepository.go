@@ -14,6 +14,24 @@ type TrainingRunRepository struct {
 	mock.Mock
 }
 
+// DeleteAll provides a mock function with given fields: ctx
+func (_m *TrainingRunRepository) DeleteAll(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAll")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteByID provides a mock function with given fields: ctx, id
 func (_m *TrainingRunRepository) DeleteByID(ctx context.Context, id string) error {
 	ret := _m.Called(ctx, id)

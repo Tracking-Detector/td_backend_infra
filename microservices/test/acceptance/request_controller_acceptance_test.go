@@ -33,6 +33,7 @@ func (suite *RequestControllerAcceptanceTest) SetupTest() {
 	}()
 	time.Sleep(2 * time.Second)
 	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
+	suite.requestRepo.DeleteAll(suite.ctx)
 }
 
 func (suite *RequestControllerAcceptanceTest) TestHealth_Success() {

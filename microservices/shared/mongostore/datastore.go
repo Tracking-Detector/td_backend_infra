@@ -19,6 +19,11 @@ func FindByID(ctx context.Context, coll *mongo.Collection, id string, m interfac
 	return res.Decode(m)
 }
 
+func DeleteAll(ctx context.Context, coll *mongo.Collection) error {
+	_, err := coll.DeleteMany(ctx, bson.M{})
+	return err
+}
+
 func FindByName(ctx context.Context, coll *mongo.Collection, name string, m interface{}) error {
 	res := coll.FindOne(ctx, bson.M{"name": name})
 	if err := res.Err(); err != nil {
@@ -68,6 +73,10 @@ func FindExporterByID(ctx context.Context, db *mongo.Database, id string) (*mode
 	return p, err
 }
 
+func DeleteAllExporter(ctx context.Context, db *mongo.Database) error {
+	return DeleteAll(ctx, db.Collection(configs.EnvExporterCollection()))
+}
+
 func FindAllExporter(ctx context.Context, db *mongo.Database) ([]*models.Exporter, error) {
 	var exporter []*models.Exporter
 	err := FindAll(ctx, db.Collection(configs.EnvExporterCollection()), bson.M{}, nil, &exporter)
@@ -98,6 +107,10 @@ func SaveRequest(ctx context.Context, db *mongo.Database, p *models.RequestData)
 		return err
 	}
 	return nil
+}
+
+func DeleteAllRequests(ctx context.Context, db *mongo.Database) error {
+	return DeleteAll(ctx, db.Collection(configs.EnvRequestCollection()))
 }
 
 func FindRequestByID(ctx context.Context, db *mongo.Database, id string) (*models.RequestData, error) {
@@ -201,6 +214,10 @@ func FindAllTrainingRuns(ctx context.Context, db *mongo.Database) ([]*models.Tra
 	return trainingRuns, err
 }
 
+func DeleteAllTrainingRuns(ctx context.Context, db *mongo.Database) error {
+	return DeleteAll(ctx, db.Collection(configs.EnvTrainingRunCollection()))
+}
+
 func FindAllTrainingRunsByModelName(ctx context.Context, db *mongo.Database, modelName string) ([]*models.TrainingRun, error) {
 	var trainingRuns []*models.TrainingRun
 	err := FindAll(ctx, db.Collection(configs.EnvTrainingRunCollection()), bson.M{
@@ -252,6 +269,10 @@ func FindAllUsers(ctx context.Context, db *mongo.Database) ([]*models.UserData, 
 	return users, err
 }
 
+func DeleteAllUser(ctx context.Context, db *mongo.Database) error {
+	return DeleteAll(ctx, db.Collection(configs.EnvUserCollection()))
+}
+
 func FindUserByID(ctx context.Context, db *mongo.Database, id string) (*models.UserData, error) {
 	p := new(models.UserData)
 	err := FindByID(ctx, db.Collection(configs.EnvUserCollection()), id, p)
@@ -274,6 +295,10 @@ func SaveModel(ctx context.Context, db *mongo.Database, model *models.Model) err
 		return err
 	}
 	return nil
+}
+
+func DeleteAllModels(ctx context.Context, db *mongo.Database) error {
+	return DeleteAll(ctx, db.Collection(configs.EnvModelCollection()))
 }
 
 func DeleteModelByID(ctx context.Context, db *mongo.Database, id string) error {

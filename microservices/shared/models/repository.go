@@ -9,6 +9,7 @@ type ExporterRepository interface {
 	FindByID(ctx context.Context, id string) (*Exporter, error)
 	FindByName(ctx context.Context, name string) (*Exporter, error)
 	FindAll(ctx context.Context) ([]*Exporter, error)
+	DeleteAll(ctx context.Context) error
 	InTransaction(ctx context.Context, fn func(context.Context) error) error
 }
 
@@ -19,6 +20,7 @@ type RequestRepository interface {
 	InsertMany(ctx context.Context, requests []*RequestData) error
 	CountDocuments(ctx context.Context, url string) (int64, error)
 	FindAllFilteredByUrlPaged(ctx context.Context, url string, page, pageSize int) ([]*RequestData, error)
+	DeleteAll(ctx context.Context) error
 	InTransaction(ctx context.Context, fn func(context.Context) error) error
 }
 
@@ -28,6 +30,7 @@ type TrainingRunRepository interface {
 	FindByModelID(ctx context.Context, modelId string) ([]*TrainingRun, error)
 	DeleteMultipleByModelID(ctx context.Context, id string) error
 	DeleteByID(ctx context.Context, id string) error
+	DeleteAll(ctx context.Context) error
 	InTransaction(ctx context.Context, fn func(context.Context) error) error
 }
 
@@ -37,6 +40,7 @@ type UserRepository interface {
 	FindUserByID(ctx context.Context, id string) (*UserData, error)
 	FindUserByEmail(ctx context.Context, email string) (*UserData, error)
 	FindAll(ctx context.Context) ([]*UserData, error)
+	DeleteAll(ctx context.Context) error
 	InTransaction(ctx context.Context, fn func(context.Context) error) error
 }
 
@@ -46,5 +50,6 @@ type ModelRepository interface {
 	FindAll(ctx context.Context) ([]*Model, error)
 	FindByID(ctx context.Context, id string) (*Model, error)
 	FindByName(ctx context.Context, name string) (*Model, error)
+	DeleteAll(ctx context.Context) error
 	InTransaction(ctx context.Context, fn func(context.Context) error) error
 }
