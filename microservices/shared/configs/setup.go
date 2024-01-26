@@ -45,7 +45,7 @@ func ConnectMinio() *minio.Client {
 }
 
 func ConnectRabbitMQ() *amqp.Channel {
-	rabbitConn, err := amqp.Dial("amqp://" + EnvMQUser() + ":" + EnvMQPassword() + "@rabbitmq:5672/")
+	rabbitConn, err := amqp.Dial(EnvMQURI())
 	if err != nil {
 		log.WithFields(log.Fields{
 			"service": "setup",

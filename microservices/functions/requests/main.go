@@ -1,4 +1,4 @@
-package main
+package requests
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-func main() {
+func Main() {
 	ctx := context.TODO()
 	requestRepo := repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(ctx)))
 	requestService := service.NewRequestService(requestRepo)

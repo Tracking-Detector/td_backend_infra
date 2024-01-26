@@ -68,12 +68,8 @@ func EnvModelCollection() string {
 	return os.Getenv("MODELS_COLLECTION")
 }
 
-func EnvMQUser() string {
-	return os.Getenv("MQUSER")
-}
-
-func EnvMQPassword() string {
-	return os.Getenv("MQPASSWORD")
+func EnvMQURI() string {
+	return os.Getenv("RABBIT_URI")
 }
 
 func EnvTrainQueueName() string {
