@@ -39,7 +39,7 @@ func (suite *ModelServiceTest) TestSave_Success() {
 	}
 	suite.modelRepo.On("Save", mock.Anything, model).Return(nil)
 	// when
-	err := suite.modelService.Save(context.Background(), model)
+	_, err := suite.modelService.Save(context.Background(), model)
 	// then
 
 	suite.NoError(err)
@@ -56,7 +56,7 @@ func (suite *ModelServiceTest) TestSave_Error() {
 	}
 	suite.modelRepo.On("Save", mock.Anything, model).Return(errors.New("error"))
 	// when
-	err := suite.modelService.Save(context.Background(), model)
+	_, err := suite.modelService.Save(context.Background(), model)
 	// then
 	suite.Error(err)
 	suite.modelRepo.AssertCalled(suite.T(), "Save", mock.Anything, model)

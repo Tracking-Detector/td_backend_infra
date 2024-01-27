@@ -242,7 +242,7 @@ func (suite *RequestControllerAcceptanceTest) TestCreateRequest_Success() {
 	// then
 	suite.NoError(err)
 	suite.Equal(http.StatusCreated, resp.StatusCode)
-	count, err := suite.requestRepo.CountDocuments(suite.ctx, "")
+	count, err := suite.requestRepo.Count(suite.ctx)
 	suite.NoError(err)
 	suite.Equal(int64(1), count)
 }

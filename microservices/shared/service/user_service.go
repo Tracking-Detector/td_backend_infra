@@ -35,14 +35,14 @@ func (s *UserService) GetAllUsers(ctx context.Context) ([]*models.UserData, erro
 
 func (s *UserService) DeleteUserByID(ctx context.Context, id string) error {
 	err := s.userRepository.InTransaction(ctx, func(ctx context.Context) error {
-		user, err := s.userRepository.FindUserByID(ctx, id)
+		user, err := s.userRepository.FindByID(ctx, id)
 		if err != nil {
 			return err
 		}
 		if user.Role == models.ADMIN {
 			return errors.New("Cannot delete admin users.")
 		}
-		return s.userRepository.DeleteUserByID(ctx, id)
+		return s.userRepository.DeleteByID(ctx, id)
 	})
 	return err
 }
@@ -55,7 +55,8 @@ func (s *UserService) InitAdmin(ctx context.Context) error {
 		Email: configs.EnvAdminEmail(),
 		Key:   string(hash),
 	}
-	return s.userRepository.Save(ctx, admin)
+	_, err := s.userRepository.Save(ctx, admin)
+	return err
 }
 
 func (s *UserService) CreateApiUser(ctx context.Context, email string) (string, error) {
@@ -68,7 +69,7 @@ func (s *UserService) CreateApiUser(ctx context.Context, email string) (string, 
 		return "", err
 	}
 	err = s.userRepository.InTransaction(ctx, func(ctx context.Context) error {
-		user, _ := s.userRepository.FindUserByEmail(ctx, email)
+		user, _ := s.userRepository.FindByEmail(ctx, email)
 		if user != nil {
 			return errors.New("User with email already registered.")
 		}
@@ -78,7 +79,8 @@ func (s *UserService) CreateApiUser(ctx context.Context, email string) (string, 
 			Email: email,
 			Key:   hash,
 		}
-		return s.userRepository.Save(ctx, newUser)
+		_, err := s.userRepository.Save(ctx, newUser)
+		return err
 	})
 	if err != nil {
 		return "", err

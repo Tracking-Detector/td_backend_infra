@@ -6,7 +6,7 @@ import (
 )
 
 type IModelService interface {
-	Save(ctx context.Context, model *models.Model) error
+	Save(ctx context.Context, model *models.Model) (*models.Model, error)
 	GetAllModels(ctx context.Context) ([]*models.Model, error)
 	GetModelByName(ctx context.Context, name string) (*models.Model, error)
 	DeleteModelByID(ctx context.Context, id string) error
@@ -25,7 +25,7 @@ func NewModelService(modelRepo models.ModelRepository, trainingrunService ITrain
 	}
 }
 
-func (s *ModelService) Save(ctx context.Context, model *models.Model) error {
+func (s *ModelService) Save(ctx context.Context, model *models.Model) (*models.Model, error) {
 	return s.modelRepo.Save(ctx, model)
 }
 

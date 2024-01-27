@@ -14,12 +14,40 @@ type RequestRepository struct {
 	mock.Mock
 }
 
-// CountDocuments provides a mock function with given fields: ctx, url
-func (_m *RequestRepository) CountDocuments(ctx context.Context, url string) (int64, error) {
+// Count provides a mock function with given fields: ctx
+func (_m *RequestRepository) Count(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Count")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CountByUrlLike provides a mock function with given fields: ctx, url
+func (_m *RequestRepository) CountByUrlLike(ctx context.Context, url string) (int64, error) {
 	ret := _m.Called(ctx, url)
 
 	if len(ret) == 0 {
-		panic("no return value specified for CountDocuments")
+		panic("no return value specified for CountByUrlLike")
 	}
 
 	var r0 int64
@@ -60,12 +88,60 @@ func (_m *RequestRepository) DeleteAll(ctx context.Context) error {
 	return r0
 }
 
-// FindAllFilteredByUrlPaged provides a mock function with given fields: ctx, url, page, pageSize
-func (_m *RequestRepository) FindAllFilteredByUrlPaged(ctx context.Context, url string, page int, pageSize int) ([]*models.RequestData, error) {
+// DeleteByID provides a mock function with given fields: ctx, id
+func (_m *RequestRepository) DeleteByID(ctx context.Context, id string) error {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteByID")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// FindAll provides a mock function with given fields: ctx
+func (_m *RequestRepository) FindAll(ctx context.Context) ([]*models.RequestData, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindAll")
+	}
+
+	var r0 []*models.RequestData
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*models.RequestData, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []*models.RequestData); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.RequestData)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FindAllByUrlLikePaged provides a mock function with given fields: ctx, url, page, pageSize
+func (_m *RequestRepository) FindAllByUrlLikePaged(ctx context.Context, url string, page int, pageSize int) ([]*models.RequestData, error) {
 	ret := _m.Called(ctx, url, page, pageSize)
 
 	if len(ret) == 0 {
-		panic("no return value specified for FindAllFilteredByUrlPaged")
+		panic("no return value specified for FindAllByUrlLikePaged")
 	}
 
 	var r0 []*models.RequestData
@@ -138,40 +214,96 @@ func (_m *RequestRepository) InTransaction(ctx context.Context, fn func(context.
 	return r0
 }
 
-// InsertMany provides a mock function with given fields: ctx, requests
-func (_m *RequestRepository) InsertMany(ctx context.Context, requests []*models.RequestData) error {
-	ret := _m.Called(ctx, requests)
-
-	if len(ret) == 0 {
-		panic("no return value specified for InsertMany")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []*models.RequestData) error); ok {
-		r0 = rf(ctx, requests)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// Save provides a mock function with given fields: ctx, c
-func (_m *RequestRepository) Save(ctx context.Context, c *models.RequestData) error {
-	ret := _m.Called(ctx, c)
+// Save provides a mock function with given fields: ctx, entity
+func (_m *RequestRepository) Save(ctx context.Context, entity *models.RequestData) (*models.RequestData, error) {
+	ret := _m.Called(ctx, entity)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.RequestData) error); ok {
-		r0 = rf(ctx, c)
+	var r0 *models.RequestData
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.RequestData) (*models.RequestData, error)); ok {
+		return rf(ctx, entity)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.RequestData) *models.RequestData); ok {
+		r0 = rf(ctx, entity)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.RequestData)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, *models.RequestData) error); ok {
+		r1 = rf(ctx, entity)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SaveAll provides a mock function with given fields: ctx, entity
+func (_m *RequestRepository) SaveAll(ctx context.Context, entity []*models.RequestData) ([]*models.RequestData, error) {
+	ret := _m.Called(ctx, entity)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveAll")
+	}
+
+	var r0 []*models.RequestData
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []*models.RequestData) ([]*models.RequestData, error)); ok {
+		return rf(ctx, entity)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []*models.RequestData) []*models.RequestData); ok {
+		r0 = rf(ctx, entity)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.RequestData)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []*models.RequestData) error); ok {
+		r1 = rf(ctx, entity)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// StreamAll provides a mock function with given fields: ctx
+func (_m *RequestRepository) StreamAll(ctx context.Context) (<-chan *models.RequestData, <-chan error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for StreamAll")
+	}
+
+	var r0 <-chan *models.RequestData
+	var r1 <-chan error
+	if rf, ok := ret.Get(0).(func(context.Context) (<-chan *models.RequestData, <-chan error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) <-chan *models.RequestData); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *models.RequestData)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) <-chan error); ok {
+		r1 = rf(ctx)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(<-chan error)
+		}
+	}
+
+	return r0, r1
 }
 
 // StreamByDataset provides a mock function with given fields: ctx, dataset

@@ -24,7 +24,7 @@ func main() {
 	channelAdapter := queue.NewRabbitMQChannelAdapter(rabbitCh)
 	exporterRepo := repository.NewMongoExporterRepository(db)
 	modelRepo := repository.NewMongoModelRepository(db)
-	trainingRunRepo := repository.NewMongoTrainingRunsRepository(db)
+	trainingRunRepo := repository.NewMongoTrainingRunRepository(db)
 
 	trainingRunService := service.NewTraingingrunService(trainingRunRepo)
 	exporterService := service.NewExporterService(exporterRepo)

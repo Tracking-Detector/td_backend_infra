@@ -14,6 +14,34 @@ type ExporterRepository struct {
 	mock.Mock
 }
 
+// Count provides a mock function with given fields: ctx
+func (_m *ExporterRepository) Count(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Count")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // DeleteAll provides a mock function with given fields: ctx
 func (_m *ExporterRepository) DeleteAll(ctx context.Context) error {
 	ret := _m.Called(ctx)
@@ -25,6 +53,24 @@ func (_m *ExporterRepository) DeleteAll(ctx context.Context) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
 		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteByID provides a mock function with given fields: ctx, id
+func (_m *ExporterRepository) DeleteByID(ctx context.Context, id string) error {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteByID")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -140,22 +186,96 @@ func (_m *ExporterRepository) InTransaction(ctx context.Context, fn func(context
 	return r0
 }
 
-// Save provides a mock function with given fields: ctx, p
-func (_m *ExporterRepository) Save(ctx context.Context, p *models.Exporter) error {
-	ret := _m.Called(ctx, p)
+// Save provides a mock function with given fields: ctx, entity
+func (_m *ExporterRepository) Save(ctx context.Context, entity *models.Exporter) (*models.Exporter, error) {
+	ret := _m.Called(ctx, entity)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Exporter) error); ok {
-		r0 = rf(ctx, p)
+	var r0 *models.Exporter
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Exporter) (*models.Exporter, error)); ok {
+		return rf(ctx, entity)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Exporter) *models.Exporter); ok {
+		r0 = rf(ctx, entity)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Exporter)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, *models.Exporter) error); ok {
+		r1 = rf(ctx, entity)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SaveAll provides a mock function with given fields: ctx, entity
+func (_m *ExporterRepository) SaveAll(ctx context.Context, entity []*models.Exporter) ([]*models.Exporter, error) {
+	ret := _m.Called(ctx, entity)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveAll")
+	}
+
+	var r0 []*models.Exporter
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []*models.Exporter) ([]*models.Exporter, error)); ok {
+		return rf(ctx, entity)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []*models.Exporter) []*models.Exporter); ok {
+		r0 = rf(ctx, entity)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.Exporter)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []*models.Exporter) error); ok {
+		r1 = rf(ctx, entity)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// StreamAll provides a mock function with given fields: ctx
+func (_m *ExporterRepository) StreamAll(ctx context.Context) (<-chan *models.Exporter, <-chan error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for StreamAll")
+	}
+
+	var r0 <-chan *models.Exporter
+	var r1 <-chan error
+	if rf, ok := ret.Get(0).(func(context.Context) (<-chan *models.Exporter, <-chan error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) <-chan *models.Exporter); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *models.Exporter)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) <-chan error); ok {
+		r1 = rf(ctx)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(<-chan error)
+		}
+	}
+
+	return r0, r1
 }
 
 // NewExporterRepository creates a new instance of ExporterRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

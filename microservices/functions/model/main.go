@@ -15,7 +15,7 @@ import (
 
 func main() {
 	ctx := context.TODO()
-	trainingrunRepo := repository.NewMongoTrainingRunsRepository(configs.GetDatabase(configs.ConnectDB(ctx)))
+	trainingrunRepo := repository.NewMongoTrainingRunRepository(configs.GetDatabase(configs.ConnectDB(ctx)))
 	modelRepo := repository.NewMongoModelRepository(configs.GetDatabase(configs.ConnectDB(ctx)))
 	trainingrunService := service.NewTraingingrunService(trainingrunRepo)
 	modelService := service.NewModelService(modelRepo, trainingrunService)

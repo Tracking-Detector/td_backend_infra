@@ -121,21 +121,33 @@ func (_m *IRequestService) InsertManyRequests(ctx context.Context, requests []*m
 }
 
 // SaveRequest provides a mock function with given fields: ctx, request
-func (_m *IRequestService) SaveRequest(ctx context.Context, request *models.RequestData) error {
+func (_m *IRequestService) SaveRequest(ctx context.Context, request *models.RequestData) (*models.RequestData, error) {
 	ret := _m.Called(ctx, request)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SaveRequest")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.RequestData) error); ok {
+	var r0 *models.RequestData
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.RequestData) (*models.RequestData, error)); ok {
+		return rf(ctx, request)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.RequestData) *models.RequestData); ok {
 		r0 = rf(ctx, request)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.RequestData)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, *models.RequestData) error); ok {
+		r1 = rf(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewIRequestService creates a new instance of IRequestService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

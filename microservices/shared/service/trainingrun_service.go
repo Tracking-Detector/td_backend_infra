@@ -36,7 +36,7 @@ func (s *TraingingrunService) FindAllByModelId(ctx context.Context, modelId stri
 }
 
 func (s *TraingingrunService) DeleteAllByModelId(ctx context.Context, id string) error {
-	return s.trainingrunRepo.DeleteMultipleByModelID(ctx, id)
+	return s.trainingrunRepo.DeleteAllByModelID(ctx, id)
 }
 
 func (s *TraingingrunService) DeleteByID(ctx context.Context, id string) error {

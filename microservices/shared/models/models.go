@@ -6,6 +6,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+type BaseModel interface {
+	GetID() string
+	SetID(id string)
+}
+
+type BaseModelName interface {
+	BaseModel
+	GetName() string
+}
+
 // Exporter
 type RunType string
 
@@ -23,6 +33,18 @@ type Exporter struct {
 	ExportScriptLocation *string `bson:"location"`
 }
 
+func (e *Exporter) GetID() string {
+	return e.ID
+}
+
+func (e *Exporter) SetID(id string) {
+	e.ID = id
+}
+
+func (e *Exporter) GetName() string {
+	return e.Name
+}
+
 // Model
 type Model struct {
 	ID               string `json:"_id" bson:"_id"`
@@ -30,6 +52,18 @@ type Model struct {
 	Description      string `json:"description" bson:"description"`
 	Dims             []int  `json:"dims" bson:"dims"`
 	TensorflowLayers bson.D `json:"tfLayers" bson:"tfLayers"`
+}
+
+func (e *Model) GetID() string {
+	return e.ID
+}
+
+func (e *Model) SetID(id string) {
+	e.ID = id
+}
+
+func (e *Model) GetName() string {
+	return e.Name
 }
 
 // TrainingRun
@@ -46,6 +80,18 @@ type TrainingRun struct {
 	Epochs          int     `json:"epochs"`
 }
 
+func (e *TrainingRun) GetID() string {
+	return e.ID
+}
+
+func (e *TrainingRun) SetID(id string) {
+	e.ID = id
+}
+
+func (e *TrainingRun) GetName() string {
+	return e.Name
+}
+
 // User
 type Role string
 
@@ -59,6 +105,14 @@ type UserData struct {
 	Role  Role   `bson:"role"`
 	Email string `bson:"email"`
 	Key   string `bson:"key"`
+}
+
+func (e *UserData) GetID() string {
+	return e.ID
+}
+
+func (e *UserData) SetID(id string) {
+	e.ID = id
 }
 
 // Request
@@ -108,6 +162,14 @@ type RequestData struct {
 	Labels            []RequestDataLabel  `json:"labels" bson:"labels" validate:"required"`
 }
 
+func (e *RequestData) GetID() string {
+	return e.ID
+}
+
+func (e *RequestData) SetID(id string) {
+	e.ID = id
+}
+
 type ReducedRequestData struct {
 	DocumentId        string              `json:"documentId" bson:"documentId"`
 	DocumentLifecycle string              `json:"documentLifecycle" bson:"documentLifecycle"`
@@ -136,10 +198,22 @@ type ExportMetrics struct {
 }
 
 type ExportRun struct {
-	ID           string         `json:"_id" bson:"_id,omitempty"`
-	ExporterId   string         `json:"exporterId" bson:"exporterId"`
-	ExporterName string         `json:"exporterName" bson:"exporterName"`
-	Metrics      *ExportMetrics `json:"metrics" bson:"metrics"`
-	Start        time.Time      `json:"start" bson:"start"`
-	End          time.Time      `json:"end" bson:"end"`
+	ID         string         `json:"_id" bson:"_id,omitempty"`
+	ExporterId string         `json:"exporterId" bson:"exporterId"`
+	Name       string         `json:"name" bson:"name"`
+	Metrics    *ExportMetrics `json:"metrics" bson:"metrics"`
+	Start      time.Time      `json:"start" bson:"start"`
+	End        time.Time      `json:"end" bson:"end"`
+}
+
+func (e *ExportRun) GetID() string {
+	return e.ID
+}
+
+func (e *ExportRun) SetID(id string) {
+	e.ID = id
+}
+
+func (e *ExportRun) GetName() string {
+	return e.Name
 }

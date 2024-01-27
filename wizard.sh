@@ -35,6 +35,7 @@ generate_rsa_key_pair() {
 # Generate .env file
 generate_env_file() {
     local domain=$1
+
     read -p "Enter email for LetsEncrypt Certificate: " email
     echo "# mongo"
     echo "MONGO_URI=mongodb://db:27017/tracking-detector"
@@ -58,8 +59,7 @@ generate_env_file() {
     echo "ADMIN_API_KEY=$(generate_random_string_32)"
     echo ""
     echo "# rabbitmq"
-    echo "MQUSER=$(generate_random_string_32)"
-    echo "MQPASSWORD=$(generate_random_string_32)"
+    echo "RABBIT_URI=amqp://$(generate_random_string_32):$(generate_random_string_32)@rabbitmq:5672/"
     echo "TRAIN_QUEUE=training"
     echo "EXPORT_QUEUE=exports"
     echo ""

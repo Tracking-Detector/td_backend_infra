@@ -95,7 +95,7 @@ func (suite *RequestServiceTest) TestSaveRequest_Success() {
 	}
 	suite.requestRepo.On("Save", mock.Anything, request).Return(nil)
 	// when
-	err := suite.requestService.SaveRequest(context.Background(), request)
+	_, err := suite.requestService.SaveRequest(context.Background(), request)
 	// then
 	suite.NoError(err)
 	suite.requestRepo.AssertCalled(suite.T(), "Save", mock.Anything, request)
@@ -110,7 +110,7 @@ func (suite *RequestServiceTest) TestSaveRequest_Error() {
 	}
 	suite.requestRepo.On("Save", mock.Anything, request).Return(errors.New("error"))
 	// when
-	err := suite.requestService.SaveRequest(context.Background(), request)
+	_, err := suite.requestService.SaveRequest(context.Background(), request)
 	// then
 	suite.Error(err)
 	suite.requestRepo.AssertCalled(suite.T(), "Save", mock.Anything, request)

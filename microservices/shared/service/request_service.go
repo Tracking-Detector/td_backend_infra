@@ -8,7 +8,7 @@ import (
 type IRequestService interface {
 	GetRequestById(ctx context.Context, id string) (*models.RequestData, error)
 	InsertManyRequests(ctx context.Context, requests []*models.RequestData) error
-	SaveRequest(ctx context.Context, request *models.RequestData) error
+	SaveRequest(ctx context.Context, request *models.RequestData) (*models.RequestData, error)
 	GetPagedRequestsFilterdByUrl(ctx context.Context, url string, page, pageSize int) ([]*models.RequestData, error)
 	CountDocumentsForUrlFilter(ctx context.Context, url string) (int64, error)
 }
@@ -28,17 +28,18 @@ func (s *RequestService) GetRequestById(ctx context.Context, id string) (*models
 }
 
 func (s *RequestService) InsertManyRequests(ctx context.Context, requests []*models.RequestData) error {
-	return s.requestRepo.InsertMany(ctx, requests)
+	_, err := s.requestRepo.SaveAll(ctx, requests)
+	return err
 }
 
-func (s *RequestService) SaveRequest(ctx context.Context, request *models.RequestData) error {
+func (s *RequestService) SaveRequest(ctx context.Context, request *models.RequestData) (*models.RequestData, error) {
 	return s.requestRepo.Save(ctx, request)
 }
 
 func (s *RequestService) GetPagedRequestsFilterdByUrl(ctx context.Context, url string, page, pageSize int) ([]*models.RequestData, error) {
-	return s.requestRepo.FindAllFilteredByUrlPaged(ctx, url, page, pageSize)
+	return s.requestRepo.FindAllByUrlLikePaged(ctx, url, page, pageSize)
 }
 
 func (s *RequestService) CountDocumentsForUrlFilter(ctx context.Context, url string) (int64, error) {
-	return s.requestRepo.CountDocuments(ctx, url)
+	return s.requestRepo.CountByUrlLike(ctx, url)
 }

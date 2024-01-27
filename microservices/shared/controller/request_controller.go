@@ -75,7 +75,8 @@ func (rc *RequestController) CreateRequestData(c *fiber.Ctx) error {
 	if err := c.BodyParser(&requestData); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(response.NewErrorResponse(err.Error()))
 	}
-	if err := rc.requestService.SaveRequest(c.Context(), requestData); err != nil {
+	requestData, err := rc.requestService.SaveRequest(c.Context(), requestData)
+	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(response.NewErrorResponse(err.Error()))
 	}
 	return c.Status(http.StatusCreated).JSON(response.NewSuccessResponse(requestData))

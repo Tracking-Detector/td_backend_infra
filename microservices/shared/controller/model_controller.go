@@ -53,7 +53,8 @@ func (tc *ModelController) CreateModel(c *fiber.Ctx) error {
 	if err := c.BodyParser(&model); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(response.NewErrorResponse(err.Error()))
 	}
-	if err := tc.modelService.Save(c.Context(), model); err != nil {
+	model, err := tc.modelService.Save(c.Context(), model)
+	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(response.NewErrorResponse(err.Error()))
 	}
 	return c.Status(http.StatusCreated).JSON(response.NewSuccessResponse(model))

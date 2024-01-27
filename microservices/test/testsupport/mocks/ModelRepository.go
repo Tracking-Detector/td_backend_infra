@@ -14,6 +14,34 @@ type ModelRepository struct {
 	mock.Mock
 }
 
+// Count provides a mock function with given fields: ctx
+func (_m *ModelRepository) Count(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Count")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // DeleteAll provides a mock function with given fields: ctx
 func (_m *ModelRepository) DeleteAll(ctx context.Context) error {
 	ret := _m.Called(ctx)
@@ -158,22 +186,96 @@ func (_m *ModelRepository) InTransaction(ctx context.Context, fn func(context.Co
 	return r0
 }
 
-// Save provides a mock function with given fields: ctx, m
-func (_m *ModelRepository) Save(ctx context.Context, m *models.Model) error {
-	ret := _m.Called(ctx, m)
+// Save provides a mock function with given fields: ctx, entity
+func (_m *ModelRepository) Save(ctx context.Context, entity *models.Model) (*models.Model, error) {
+	ret := _m.Called(ctx, entity)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Model) error); ok {
-		r0 = rf(ctx, m)
+	var r0 *models.Model
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Model) (*models.Model, error)); ok {
+		return rf(ctx, entity)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Model) *models.Model); ok {
+		r0 = rf(ctx, entity)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Model)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, *models.Model) error); ok {
+		r1 = rf(ctx, entity)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SaveAll provides a mock function with given fields: ctx, entity
+func (_m *ModelRepository) SaveAll(ctx context.Context, entity []*models.Model) ([]*models.Model, error) {
+	ret := _m.Called(ctx, entity)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveAll")
+	}
+
+	var r0 []*models.Model
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []*models.Model) ([]*models.Model, error)); ok {
+		return rf(ctx, entity)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []*models.Model) []*models.Model); ok {
+		r0 = rf(ctx, entity)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.Model)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []*models.Model) error); ok {
+		r1 = rf(ctx, entity)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// StreamAll provides a mock function with given fields: ctx
+func (_m *ModelRepository) StreamAll(ctx context.Context) (<-chan *models.Model, <-chan error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for StreamAll")
+	}
+
+	var r0 <-chan *models.Model
+	var r1 <-chan error
+	if rf, ok := ret.Get(0).(func(context.Context) (<-chan *models.Model, <-chan error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) <-chan *models.Model); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *models.Model)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) <-chan error); ok {
+		r1 = rf(ctx)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(<-chan error)
+		}
+	}
+
+	return r0, r1
 }
 
 // NewModelRepository creates a new instance of ModelRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

@@ -123,21 +123,33 @@ func (_m *IModelService) GetModelByName(ctx context.Context, name string) (*mode
 }
 
 // Save provides a mock function with given fields: ctx, model
-func (_m *IModelService) Save(ctx context.Context, model *models.Model) error {
+func (_m *IModelService) Save(ctx context.Context, model *models.Model) (*models.Model, error) {
 	ret := _m.Called(ctx, model)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Model) error); ok {
+	var r0 *models.Model
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Model) (*models.Model, error)); ok {
+		return rf(ctx, model)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Model) *models.Model); ok {
 		r0 = rf(ctx, model)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Model)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, *models.Model) error); ok {
+		r1 = rf(ctx, model)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewIModelService creates a new instance of IModelService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

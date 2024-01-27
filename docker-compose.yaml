@@ -35,7 +35,7 @@ services:
       - '--api.dashboard=true'
       - '--providers.docker=true'
       - '--providers.docker.exposedByDefault=false'
-      - "--entrypoints.web.address=:80"
+      # - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=${EMAIL}"
