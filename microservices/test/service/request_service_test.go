@@ -62,12 +62,12 @@ func (suite *RequestServiceTest) TestInsertManyRequest_Success() {
 		DocumentId: "documentId2",
 	},
 	}
-	suite.requestRepo.On("InsertMany", mock.Anything, requests).Return(nil)
+	suite.requestRepo.On("SaveAll", mock.Anything, requests).Return(requests, nil)
 	// when
 	err := suite.requestService.InsertManyRequests(context.Background(), requests)
 	// then
 	suite.NoError(err)
-	suite.requestRepo.AssertCalled(suite.T(), "InsertMany", mock.Anything, requests)
+	suite.requestRepo.AssertCalled(suite.T(), "SaveAll", mock.Anything, requests)
 }
 
 func (suite *RequestServiceTest) TestInsertManyRequest_Error() {
@@ -78,12 +78,12 @@ func (suite *RequestServiceTest) TestInsertManyRequest_Error() {
 		DocumentId: "documentId2",
 	},
 	}
-	suite.requestRepo.On("InsertMany", mock.Anything, requests).Return(errors.New("error"))
+	suite.requestRepo.On("SaveAll", mock.Anything, requests).Return(nil, errors.New("error"))
 	// when
 	err := suite.requestService.InsertManyRequests(context.Background(), requests)
 	// then
 	suite.Error(err)
-	suite.requestRepo.AssertCalled(suite.T(), "InsertMany", mock.Anything, requests)
+	suite.requestRepo.AssertCalled(suite.T(), "SaveAll", mock.Anything, requests)
 }
 
 func (suite *RequestServiceTest) TestSaveRequest_Success() {
@@ -93,7 +93,7 @@ func (suite *RequestServiceTest) TestSaveRequest_Success() {
 		ID:         id,
 		DocumentId: "documentId",
 	}
-	suite.requestRepo.On("Save", mock.Anything, request).Return(nil)
+	suite.requestRepo.On("Save", mock.Anything, request).Return(request, nil)
 	// when
 	_, err := suite.requestService.SaveRequest(context.Background(), request)
 	// then
@@ -108,7 +108,7 @@ func (suite *RequestServiceTest) TestSaveRequest_Error() {
 		ID:         id,
 		DocumentId: "documentId",
 	}
-	suite.requestRepo.On("Save", mock.Anything, request).Return(errors.New("error"))
+	suite.requestRepo.On("Save", mock.Anything, request).Return(nil, errors.New("error"))
 	// when
 	_, err := suite.requestService.SaveRequest(context.Background(), request)
 	// then
@@ -125,12 +125,12 @@ func (suite *RequestServiceTest) TestGetPagedRequestsFilterdByUrl_Success() {
 	url := "someUrl/test"
 	page := 10
 	pageSize := 1
-	suite.requestRepo.On("FindAllFilteredByUrlPaged", mock.Anything, url, page, pageSize).Return([]*models.RequestData{request}, nil)
+	suite.requestRepo.On("FindAllByUrlLikePaged", mock.Anything, url, page, pageSize).Return([]*models.RequestData{request}, nil)
 	// when
 	_, err := suite.requestService.GetPagedRequestsFilterdByUrl(context.Background(), url, page, pageSize)
 	// then
 	suite.NoError(err)
-	suite.requestRepo.AssertCalled(suite.T(), "FindAllFilteredByUrlPaged", mock.Anything, url, page, pageSize)
+	suite.requestRepo.AssertCalled(suite.T(), "FindAllByUrlLikePaged", mock.Anything, url, page, pageSize)
 }
 
 func (suite *RequestServiceTest) TestGetPagedRequestsFilterdByUrl_Error() {
@@ -139,12 +139,12 @@ func (suite *RequestServiceTest) TestGetPagedRequestsFilterdByUrl_Error() {
 	url := "someUrl/test"
 	page := 10
 	pageSize := 1
-	suite.requestRepo.On("FindAllFilteredByUrlPaged", mock.Anything, url, page, pageSize).Return(nil, errors.New("error"))
+	suite.requestRepo.On("FindAllByUrlLikePaged", mock.Anything, url, page, pageSize).Return(nil, errors.New("error"))
 	// when
 	_, err := suite.requestService.GetPagedRequestsFilterdByUrl(context.Background(), url, page, pageSize)
 	// then
 	suite.Error(err)
-	suite.requestRepo.AssertCalled(suite.T(), "FindAllFilteredByUrlPaged", mock.Anything, url, page, pageSize)
+	suite.requestRepo.AssertCalled(suite.T(), "FindAllByUrlLikePaged", mock.Anything, url, page, pageSize)
 }
 
 func (suite *RequestServiceTest) TestCountDocumentsForUrlFilter_Success() {
@@ -152,13 +152,13 @@ func (suite *RequestServiceTest) TestCountDocumentsForUrlFilter_Success() {
 
 	url := "someUrl/test"
 
-	suite.requestRepo.On("CountDocuments", mock.Anything, url).Return(int64(210000000), nil)
+	suite.requestRepo.On("CountByUrlLike", mock.Anything, url).Return(int64(210000000), nil)
 	// when
 	count, err := suite.requestService.CountDocumentsForUrlFilter(context.Background(), url)
 	// then
 	suite.Equal(int64(210000000), count)
 	suite.NoError(err)
-	suite.requestRepo.AssertCalled(suite.T(), "CountDocuments", mock.Anything, url)
+	suite.requestRepo.AssertCalled(suite.T(), "CountByUrlLike", mock.Anything, url)
 }
 
 func (suite *RequestServiceTest) TestCountDocumentsForUrlFilter_Error() {
@@ -166,11 +166,11 @@ func (suite *RequestServiceTest) TestCountDocumentsForUrlFilter_Error() {
 
 	url := "someUrl/test"
 
-	suite.requestRepo.On("CountDocuments", mock.Anything, url).Return(int64(0), errors.New("error"))
+	suite.requestRepo.On("CountByUrlLike", mock.Anything, url).Return(int64(0), errors.New("error"))
 	// when
 	count, err := suite.requestService.CountDocumentsForUrlFilter(context.Background(), url)
 	// then
 	suite.Equal(int64(0), count)
 	suite.Error(err)
-	suite.requestRepo.AssertCalled(suite.T(), "CountDocuments", mock.Anything, url)
+	suite.requestRepo.AssertCalled(suite.T(), "CountByUrlLike", mock.Anything, url)
 }

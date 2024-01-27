@@ -115,26 +115,26 @@ func (suite *TrainingRunServiceTest) TestFindAllByModelId_Error() {
 func (suite *TrainingRunServiceTest) TestDeleteAllByModelId_Success() {
 	// given
 	modelID := "exampleModelID"
-	suite.trainingrunRepo.On("DeleteMultipleByModelID", mock.Anything, modelID).Return(nil)
+	suite.trainingrunRepo.On("DeleteAllByModelID", mock.Anything, modelID).Return(nil)
 
 	// when
 	err := suite.trainingRunService.DeleteAllByModelId(context.Background(), modelID)
 
 	// then
-	suite.trainingrunRepo.AssertCalled(suite.T(), "DeleteMultipleByModelID", mock.Anything, modelID)
+	suite.trainingrunRepo.AssertCalled(suite.T(), "DeleteAllByModelID", mock.Anything, modelID)
 	suite.NoError(err)
 }
 
 func (suite *TrainingRunServiceTest) TestDeleteAllByModelId_Error() {
 	// given
 	modelID := "exampleModelID"
-	suite.trainingrunRepo.On("DeleteMultipleByModelID", mock.Anything, modelID).Return(errors.New("error"))
+	suite.trainingrunRepo.On("DeleteAllByModelID", mock.Anything, modelID).Return(errors.New("error"))
 
 	// when
 	err := suite.trainingRunService.DeleteAllByModelId(context.Background(), modelID)
 
 	// then
-	suite.trainingrunRepo.AssertCalled(suite.T(), "DeleteMultipleByModelID", mock.Anything, modelID)
+	suite.trainingrunRepo.AssertCalled(suite.T(), "DeleteAllByModelID", mock.Anything, modelID)
 	suite.Error(err)
 }
 

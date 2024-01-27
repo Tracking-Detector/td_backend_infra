@@ -43,7 +43,7 @@ func (suite *ExporterServiceTest) TestGetAllExporter() {
 
 func (suite *ExporterServiceTest) TestInitInCodeExports() {
 	// given
-	suite.exporterRepo.On("Save", mock.Anything, mock.AnythingOfType("*models.Exporter")).Return(nil)
+	suite.exporterRepo.On("Save", mock.Anything, mock.AnythingOfType("*models.Exporter")).Return(&models.Exporter{}, nil)
 	// when
 	suite.exporterService.InitInCodeExports(context.Background())
 

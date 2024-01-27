@@ -57,15 +57,15 @@ func (suite *UserServiceTest) TestDeleteUserByID_Success() {
 		f := args.Get(1).(func(ctx context.Context) error)
 		transactionError = f(context.Background())
 	}).Return(nil)
-	suite.userRepo.On("FindUserByID", mock.Anything, "1").Return(user, nil)
-	suite.userRepo.On("DeleteUserByID", mock.Anything, "1").Return(nil)
+	suite.userRepo.On("FindByID", mock.Anything, "1").Return(user, nil)
+	suite.userRepo.On("DeleteByID", mock.Anything, "1").Return(nil)
 	// when
 	_ = suite.userService.DeleteUserByID(context.Background(), "1")
 
 	// then
 	suite.userRepo.AssertCalled(suite.T(), "InTransaction", mock.Anything, mock.AnythingOfType("func(context.Context) error"))
-	suite.userRepo.AssertCalled(suite.T(), "FindUserByID", mock.Anything, "1")
-	suite.userRepo.AssertCalled(suite.T(), "DeleteUserByID", mock.Anything, "1")
+	suite.userRepo.AssertCalled(suite.T(), "FindByID", mock.Anything, "1")
+	suite.userRepo.AssertCalled(suite.T(), "DeleteByID", mock.Anything, "1")
 	suite.NoError(transactionError)
 }
 
@@ -75,7 +75,7 @@ func (suite *UserServiceTest) TestDeleteUserByID_Failure_AdminUser() {
 		ID: "1", Email: "user1@example.com", Role: models.ADMIN,
 	}
 	var transactionError error
-	suite.userRepo.On("FindUserByID", mock.Anything, "1").Return(user, nil)
+	suite.userRepo.On("FindByID", mock.Anything, "1").Return(user, nil)
 	suite.userRepo.On("InTransaction", mock.Anything, mock.AnythingOfType("func(context.Context) error")).Run(func(args mock.Arguments) {
 		f := args.Get(1).(func(ctx context.Context) error)
 		transactionError = f(context.Background())
@@ -85,7 +85,7 @@ func (suite *UserServiceTest) TestDeleteUserByID_Failure_AdminUser() {
 	_ = suite.userService.DeleteUserByID(context.Background(), "1")
 
 	// then
-	suite.userRepo.AssertNotCalled(suite.T(), "DeleteUserByID")
+	suite.userRepo.AssertNotCalled(suite.T(), "DeleteByID")
 	suite.Error(transactionError)
 	suite.Contains(transactionError.Error(), "Cannot delete admin users.")
 }
@@ -93,7 +93,7 @@ func (suite *UserServiceTest) TestDeleteUserByID_Failure_AdminUser() {
 func (suite *UserServiceTest) TestDeleteUserByID_Failure_NoUserForID() {
 	// given
 	var transactionError error
-	suite.userRepo.On("FindUserByID", mock.Anything, "1").Return(nil, errors.New("No user found."))
+	suite.userRepo.On("FindByID", mock.Anything, "1").Return(nil, errors.New("No user found."))
 	suite.userRepo.On("InTransaction", mock.Anything, mock.AnythingOfType("func(context.Context) error")).Run(func(args mock.Arguments) {
 		f := args.Get(1).(func(ctx context.Context) error)
 		transactionError = f(context.Background())
@@ -103,7 +103,7 @@ func (suite *UserServiceTest) TestDeleteUserByID_Failure_NoUserForID() {
 	_ = suite.userService.DeleteUserByID(context.Background(), "1")
 
 	// then
-	suite.userRepo.AssertNotCalled(suite.T(), "DeleteUserByID")
+	suite.userRepo.AssertNotCalled(suite.T(), "DeleteByID")
 	suite.Error(transactionError)
 	suite.Contains(transactionError.Error(), "No user found.")
 }
@@ -120,7 +120,7 @@ func (suite *UserServiceTest) TestInitAdmin_Success() {
 		Email: adminEmail,
 		Key:   "digest",
 	}
-	suite.userRepo.On("Save", mock.Anything, user).Return(nil)
+	suite.userRepo.On("Save", mock.Anything, user).Return(user, nil)
 
 	// when
 	err := suite.userService.InitAdmin(context.Background())
@@ -144,8 +144,8 @@ func (suite *UserServiceTest) TestCreateApiUser_Success() {
 		f := args.Get(1).(func(ctx context.Context) error)
 		transactionError = f(context.Background())
 	}).Return(nil)
-	suite.userRepo.On("FindUserByEmail", mock.Anything, email).Return(nil, errors.New("Error"))
-	suite.userRepo.On("Save", mock.Anything, user).Return(nil)
+	suite.userRepo.On("FindByEmail", mock.Anything, email).Return(nil, errors.New("Error"))
+	suite.userRepo.On("Save", mock.Anything, user).Return(user, nil)
 	// when
 	pw, _ := suite.userService.CreateApiUser(context.Background(), email)
 	// then
@@ -167,7 +167,7 @@ func (suite *UserServiceTest) TestCreateApiUser_ErrorEmailAlreadyExists() {
 		f := args.Get(1).(func(ctx context.Context) error)
 		transactionError = f(context.Background())
 	}).Return(errors.New("err"))
-	suite.userRepo.On("FindUserByEmail", mock.Anything, email).Return(user, nil)
+	suite.userRepo.On("FindByEmail", mock.Anything, email).Return(user, nil)
 	// when
 	pw, _ := suite.userService.CreateApiUser(context.Background(), email)
 	// then
