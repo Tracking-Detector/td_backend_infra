@@ -3,20 +3,23 @@ package testsupport
 import (
 	"compress/gzip"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"os"
 	"tds/shared/models"
 )
 
 func LoadRequestJson() []*models.RequestData {
-	rawJson, _ := ioutil.ReadFile("../resources/requests/requests.json")
+	rawJson, _ := os.ReadFile("../resources/requests/requests.json")
 	var requestDataList []*models.RequestData
-	_ = json.Unmarshal(rawJson, &requestDataList)
+	err := json.Unmarshal(rawJson, &requestDataList)
+	if err != nil {
+		panic(err)
+	}
 	return requestDataList
 }
 
 func LoadFile(path string) string {
-	file, _ := ioutil.ReadFile(path)
+	file, _ := os.ReadFile(path)
 	return string(file)
 }
 
@@ -36,7 +39,23 @@ func LoadGzFile(path string) string {
 	defer gzipReader.Close()
 
 	// Read the decompressed content
-	content, err := ioutil.ReadAll(gzipReader)
+	content, err := io.ReadAll(gzipReader)
+	if err != nil {
+		return ""
+	}
+
+	return string(content)
+}
+
+func Unzip(file io.ReadSeekCloser) string {
+	gzipReader, err := gzip.NewReader(file)
+	if err != nil {
+		return ""
+	}
+	defer gzipReader.Close()
+
+	// Read the decompressed content
+	content, err := io.ReadAll(gzipReader)
 	if err != nil {
 		return ""
 	}

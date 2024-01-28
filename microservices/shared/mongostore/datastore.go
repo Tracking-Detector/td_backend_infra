@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"tds/shared/models"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -16,7 +16,7 @@ func EnsureIndex(ctx context.Context, coll *mongo.Collection, name string, direc
 		Keys: bson.D{
 			{Key: name, Value: direction},
 		},
-		Options: options.Index().SetName(fmt.Sprintf("%s_index", name)).SetUnique(true),
+		Options: options.Index().SetName(fmt.Sprintf("%s_index", name)),
 	}
 
 	_, err := coll.Indexes().CreateOne(ctx, indexModel)
@@ -30,6 +30,9 @@ func EnsureIndex(ctx context.Context, coll *mongo.Collection, name string, direc
 // Base Interface Functions
 
 func Save[T models.BaseModel](ctx context.Context, coll *mongo.Collection, entity T) (T, error) {
+	if entity.GetID() == "" {
+		entity.SetID(uuid.New().String())
+	}
 	opts := options.FindOneAndReplace().SetUpsert(true)
 
 	var newEntity T
@@ -47,6 +50,11 @@ func SaveAll[T models.BaseModel](ctx context.Context, coll *mongo.Collection, en
 	// Prepare the bulk write operations
 	var bulkWrites []mongo.WriteModel
 	for _, entity := range entities {
+		// Generate a random UUID if _id is not set
+		if entity.GetID() == "" {
+			entity.SetID(uuid.New().String())
+		}
+
 		filter := bson.D{{Key: "_id", Value: entity.GetID()}}
 		upsert := true
 		bulkWrite := mongo.NewReplaceOneModel().SetFilter(filter).SetReplacement(entity).SetUpsert(upsert)
@@ -62,10 +70,15 @@ func SaveAll[T models.BaseModel](ctx context.Context, coll *mongo.Collection, en
 
 	// Retrieve the updated entities after the bulk write
 	for _, upsertedID := range result.UpsertedIDs {
-		// The upsertedID map has the form: map[0:ObjectID("...")]
-		id := upsertedID.(map[string]interface{})["0"].(primitive.ObjectID)
+		// Ensure that the upsertedID is a valid ObjectID
+		id, ok := upsertedID.(string)
+		if !ok {
+			return nil, fmt.Errorf("unexpected type for upsertedID")
+		}
+
+		// Find the corresponding entity using the ObjectID
 		for _, entity := range entities {
-			if entity.GetID() == id.Hex() {
+			if entity.GetID() == id {
 				savedEntities = append(savedEntities, entity)
 				break
 			}
@@ -111,12 +124,11 @@ func FindByID[T models.BaseModel](ctx context.Context, coll *mongo.Collection, i
 	if err := res.Err(); err != nil {
 		return entity, err
 	}
-
-	if err := res.Decode(entity); err != nil {
+	if err := res.Decode(entityType); err != nil {
 		return entity, err
 	}
 
-	return entity, nil
+	return entityType, nil
 }
 
 func FindBy[T models.BaseModel](ctx context.Context, coll *mongo.Collection, filter bson.M, entityType T) (T, error) {
@@ -125,11 +137,11 @@ func FindBy[T models.BaseModel](ctx context.Context, coll *mongo.Collection, fil
 	if err := res.Err(); err != nil {
 		return entity, err
 	}
-	if err := res.Decode(entity); err != nil {
+	if err := res.Decode(entityType); err != nil {
 		return entity, err
 	}
 
-	return entity, nil
+	return entityType, nil
 }
 
 func FindByName[T models.BaseModelName](ctx context.Context, coll *mongo.Collection, name string, entityType T) (T, error) {
@@ -139,11 +151,11 @@ func FindByName[T models.BaseModelName](ctx context.Context, coll *mongo.Collect
 		return entity, err
 	}
 
-	if err := res.Decode(entity); err != nil {
+	if err := res.Decode(entityType); err != nil {
 		return entity, err
 	}
 
-	return entity, nil
+	return entityType, nil
 }
 
 func DeleteByID(ctx context.Context, coll *mongo.Collection, id string) error {
@@ -169,12 +181,15 @@ func CountBy(ctx context.Context, coll *mongo.Collection, filter bson.M) (int64,
 func StreamAll[T models.BaseModel](ctx context.Context, db *mongo.Collection, filter bson.M) (<-chan T, <-chan error) {
 	resultChannel := make(chan T)
 	errorChannel := make(chan error)
+
 	go func() {
 		defer close(resultChannel)
 		defer close(errorChannel)
-		opts := options.Find().SetCursorType(options.TailableAwait)
+
+		opts := options.Find()
 		cursor, err := db.Find(ctx, filter, opts)
 		if err != nil {
+			fmt.Println(err)
 			errorChannel <- err
 			return
 		}
@@ -182,7 +197,8 @@ func StreamAll[T models.BaseModel](ctx context.Context, db *mongo.Collection, fi
 
 		for cursor.Next(ctx) {
 			var data T
-			if err := cursor.Decode(data); err != nil {
+			if err := cursor.Decode(&data); err != nil {
+				fmt.Println(err)
 				errorChannel <- err
 				return
 			}
@@ -191,6 +207,7 @@ func StreamAll[T models.BaseModel](ctx context.Context, db *mongo.Collection, fi
 		}
 
 		if err := cursor.Err(); err != nil {
+			fmt.Println(err)
 			errorChannel <- err
 		}
 	}()

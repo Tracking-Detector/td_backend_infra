@@ -93,7 +93,7 @@ func (_m *IStorageService) GetObject(ctx context.Context, bucketName string, fil
 }
 
 // PutObject provides a mock function with given fields: ctx, bucketName, fileName, pr, objectSize, contentType
-func (_m *IStorageService) PutObject(ctx context.Context, bucketName string, fileName string, pr *io.PipeReader, objectSize int64, contentType string) error {
+func (_m *IStorageService) PutObject(ctx context.Context, bucketName string, fileName string, pr io.Reader, objectSize int64, contentType string) error {
 	ret := _m.Called(ctx, bucketName, fileName, pr, objectSize, contentType)
 
 	if len(ret) == 0 {
@@ -101,7 +101,7 @@ func (_m *IStorageService) PutObject(ctx context.Context, bucketName string, fil
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, *io.PipeReader, int64, string) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, int64, string) error); ok {
 		r0 = rf(ctx, bucketName, fileName, pr, objectSize, contentType)
 	} else {
 		r0 = ret.Error(0)

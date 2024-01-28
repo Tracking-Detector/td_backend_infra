@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"tds/shared/configs"
 	"tds/shared/job"
@@ -36,6 +37,7 @@ func NewExportMessageConsumer(interExportJob job.IExportJob, externalExportJob j
 }
 
 func (c *ExportMessageConsumer) Consume() {
+	fmt.Println("Starting Export ConsumerService...")
 	msgs, err := c.queueAdapter.Consume(
 		configs.EnvExportQueueName(), // queue name
 		"",
@@ -70,7 +72,6 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 	dataset := jobValue.Args[2]
 
 	exporter, err := c.exporterService.FindByID(ctx, exporterId)
-
 	if err != nil || exporter == nil {
 		log.Errorf("Exporter does not exist: %v", err)
 		return
@@ -81,9 +82,9 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 		// metrics := &models.ExportMetrics{}
 		switch exporter.Type {
 		case models.IN_SERVICE:
-			_ = c.interExportJob.Execute(exporter, reducer, dataset)
+			c.interExportJob.Execute(exporter, reducer, dataset)
 		case models.JS:
-			_ = c.externalExportJob.Execute(exporter, reducer, dataset)
+			c.externalExportJob.Execute(exporter, reducer, dataset)
 		}
 		// end := time.Now()
 		if err != nil {

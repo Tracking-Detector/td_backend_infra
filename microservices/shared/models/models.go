@@ -25,12 +25,12 @@ const (
 )
 
 type Exporter struct {
-	ID                   string  `bson:"_id,omitempty"`
-	Name                 string  `bson:"name"`
-	Description          string  `bson:"description"`
-	Dimensions           []int   `bson:"dimensions"`
-	Type                 RunType `bson:"type"`
-	ExportScriptLocation *string `bson:"location"`
+	ID                   string  `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name                 string  `json:"name" bson:"name"`
+	Description          string  `json:"description" bson:"description"`
+	Dimensions           []int   `json:"dimensions" bson:"dimensions"`
+	Type                 RunType `json:"type" bson:"type"`
+	ExportScriptLocation *string `json:"location" bson:"location"`
 }
 
 func (e *Exporter) GetID() string {
@@ -68,16 +68,16 @@ func (e *Model) GetName() string {
 
 // TrainingRun
 type TrainingRun struct {
-	ID              string  `json:"_id,omitempty"`
-	ModelId         string  `json:"modelId"`
-	Name            string  `json:"name"`
-	DataSet         string  `json:"dataSet"`
-	Time            string  `json:"time"`
-	F1Train         float64 `json:"f1Train"`
-	F1Test          float64 `json:"f1Test"`
-	TrainingHistory bson.M  `json:"trainingHistory"`
-	BatchSize       int     `json:"batchSize"`
-	Epochs          int     `json:"epochs"`
+	ID              string  `json:"_id,omitempty" bson:"_id,omitempty"`
+	ModelId         string  `json:"modelId" bson:"modelId"`
+	Name            string  `json:"name" bson:"name"`
+	DataSet         string  `json:"dataSet" bson:"dataSet"`
+	Time            string  `json:"time" bson:"time"`
+	F1Train         float64 `json:"f1Train" bson:"f1Train"`
+	F1Test          float64 `json:"f1Test" bson:"f1Test"`
+	TrainingHistory bson.M  `json:"trainingHistory" bson:"trainingHistory"`
+	BatchSize       int     `json:"batchSize" bson:"batchSize"`
+	Epochs          int     `json:"epochs" bson:"epochs"`
 }
 
 func (e *TrainingRun) GetID() string {
@@ -101,10 +101,10 @@ const (
 )
 
 type UserData struct {
-	ID    string `bson:"_id,omitempty"`
-	Role  Role   `bson:"role"`
-	Email string `bson:"email"`
-	Key   string `bson:"key"`
+	ID    string `json:"_id,omitempty" bson:"_id,omitempty"`
+	Role  Role   `json:"role" bson:"role"`
+	Email string `json:"email" bson:"email"`
+	Key   string `json:"key" bson:"key"`
 }
 
 func (e *UserData) GetID() string {

@@ -16,7 +16,7 @@ type IStorageService interface {
 	VerifyBucketExists(ctx context.Context, bucketName string)
 	DownloadFile(ctx context.Context, bucketName, fileURI, destination string) error
 	GetObject(ctx context.Context, bucketName string, filename string) (io.ReadSeekCloser, error)
-	PutObject(ctx context.Context, bucketName string, fileName string, pr *io.PipeReader, objectSize int64, contentType string) error
+	PutObject(ctx context.Context, bucketName string, fileName string, pr io.Reader, objectSize int64, contentType string) error
 	GetBucketStructure(bucketName, prefix string) (interface{}, error)
 }
 
@@ -31,6 +31,7 @@ func NewMinIOStorageService(client storage.IStorageClientAdater) *MinIOStorageSe
 }
 
 func (s *MinIOStorageService) VerifyBucketExists(ctx context.Context, bucketName string) {
+
 	if exists, err := s.client.BucketExists(ctx, bucketName); err != nil {
 		log.WithFields(log.Fields{
 			"service": "setup",
@@ -76,7 +77,7 @@ func (s *MinIOStorageService) DownloadFile(ctx context.Context, bucketName, file
 	return nil
 }
 
-func (s *MinIOStorageService) PutObject(ctx context.Context, bucketName string, fileName string, pr *io.PipeReader, objectSize int64, contentType string) error {
+func (s *MinIOStorageService) PutObject(ctx context.Context, bucketName string, fileName string, pr io.Reader, objectSize int64, contentType string) error {
 	_, err := s.client.PutObject(ctx, bucketName, fileName, pr, objectSize, minio.PutObjectOptions{
 		ContentType: contentType,
 	})

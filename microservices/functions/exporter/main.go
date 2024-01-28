@@ -1,8 +1,8 @@
-package main
+package exporter
 
 import (
 	"context"
-	"time"
+	"fmt"
 
 	"tds/shared/configs"
 	"tds/shared/consumer"
@@ -13,8 +13,8 @@ import (
 	"tds/shared/storage"
 )
 
-func main() {
-	time.Sleep(30 * time.Second)
+func Main() {
+	fmt.Println("Starting exporter...")
 	ctx := context.TODO()
 	db := configs.GetDatabase(configs.ConnectDB(ctx))
 	minioClient := configs.ConnectMinio()
@@ -23,6 +23,9 @@ func main() {
 	requestRepo := repository.NewMongoRequestRepository(db)
 	minioStorageAdapter := storage.NewMinIOStorageAdapter(minioClient)
 	storageService := service.NewMinIOStorageService(minioStorageAdapter)
+	storageService.VerifyBucketExists(ctx, configs.EnvExtractorBucketName())
+	storageService.VerifyBucketExists(ctx, configs.EnvModelBucketName())
+	storageService.VerifyBucketExists(ctx, configs.EnvExportBucketName())
 	exporterRepo := repository.NewMongoExporterRepository(db)
 	exporterService := service.NewExporterService(exporterRepo)
 	internalExportJob := job.NewInternalExportJob(requestRepo, storageService)
