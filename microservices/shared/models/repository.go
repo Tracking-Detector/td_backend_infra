@@ -21,6 +21,13 @@ type ExporterRepository interface {
 	FindByName(ctx context.Context, name string) (*Exporter, error)
 }
 
+type ExportRunRepository interface {
+	IRepository[*ExportRun]
+	CountByExporterID(ctx context.Context, exporterId string) (int64, error)
+	FindByExporterID(ctx context.Context, exporterId string) ([]*ExportRun, error)
+	DeleteAllByExporterID(ctx context.Context, id string) error
+}
+
 type RequestRepository interface {
 	IRepository[*RequestData]
 	StreamByDataset(ctx context.Context, dataset string) (<-chan *RequestData, <-chan error)
