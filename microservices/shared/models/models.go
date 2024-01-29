@@ -217,3 +217,35 @@ func (e *ExportRun) SetID(id string) {
 func (e *ExportRun) GetName() string {
 	return e.Name
 }
+
+// Dataset
+
+type ReducerMetric struct {
+	Reducer    string `json:"reducer" bson:"reducer"`
+	Total      int    `json:"total" bson:"total"`
+	Tracker    int    `json:"tracker" bson:"tracker"`
+	NonTracker int    `json:"nonTracker" bson:"nonTracker"`
+}
+type DataSetMetrics struct {
+	Total         int             `json:"total" bson:"total"`
+	ReducerMetric []ReducerMetric `json:"reducerMetric" bson:"reducerMetric"`
+}
+
+type Dataset struct {
+	ID          string         `json:"_id" bson:"_id,omitempty"`
+	Name        string         `json:"name" bson:"name"`
+	Description string         `json:"description" bson:"description"`
+	Metrics     DataSetMetrics `json:"metrics,omitempty" bson:"metrics,omitempty"`
+}
+
+func (e *Dataset) GetID() string {
+	return e.ID
+}
+
+func (e *Dataset) SetID(id string) {
+	e.ID = id
+}
+
+func (e *Dataset) GetName() string {
+	return e.Name
+}

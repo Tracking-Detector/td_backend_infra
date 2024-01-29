@@ -32,6 +32,10 @@ func EnvExporterRunsCollection() string {
 	return os.Getenv("EXPORTER_RUNS_COLLECTION")
 }
 
+func EnvDatasetCollection() string {
+	return os.Getenv("DATASET_COLLECTION")
+}
+
 func EnvAdminEmail() string {
 	return os.Getenv("EMAIL")
 }

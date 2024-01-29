@@ -54,3 +54,8 @@ type ModelRepository interface {
 	IRepository[*Model]
 	FindByName(ctx context.Context, name string) (*Model, error)
 }
+
+type DatasetRepository interface {
+	IRepository[*Dataset]
+	FindByName(ctx context.Context, name string) (*Dataset, error)
+}

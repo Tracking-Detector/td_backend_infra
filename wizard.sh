@@ -46,6 +46,7 @@ generate_env_file() {
     echo "MODELS_COLLECTION=models"
     echo "EXPORTER_COLLECTION=exporter"
     echo "EXPORTER_RUNS_COLLECTION=exporter-runs"
+    echo "DATASET_COLLECTION=datasets"
     echo ""
     echo "# minio"
     echo "MINIO_URI=minio:9000"
