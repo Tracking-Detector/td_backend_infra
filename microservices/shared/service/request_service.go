@@ -9,6 +9,7 @@ type IRequestService interface {
 	GetRequestById(ctx context.Context, id string) (*models.RequestData, error)
 	InsertManyRequests(ctx context.Context, requests []*models.RequestData) error
 	SaveRequest(ctx context.Context, request *models.RequestData) (*models.RequestData, error)
+	StreamAll(ctx context.Context) (<-chan *models.RequestData, <-chan error)
 	GetPagedRequestsFilterdByUrl(ctx context.Context, url string, page, pageSize int) ([]*models.RequestData, error)
 	CountDocumentsForUrlFilter(ctx context.Context, url string) (int64, error)
 }
@@ -21,6 +22,10 @@ func NewRequestService(requestRepo models.RequestRepository) *RequestService {
 	return &RequestService{
 		requestRepo: requestRepo,
 	}
+}
+
+func (s *RequestService) StreamAll(ctx context.Context) (<-chan *models.RequestData, <-chan error) {
+	return s.requestRepo.StreamAll(ctx)
 }
 
 func (s *RequestService) GetRequestById(ctx context.Context, id string) (*models.RequestData, error) {

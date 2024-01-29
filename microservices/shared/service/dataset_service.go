@@ -7,7 +7,8 @@ import (
 
 type IDatasetService interface {
 	Save(ctx context.Context, dataset *models.Dataset) (*models.Dataset, error)
-	GetAllDatasets(ctx context.Context) []*models.Dataset
+	SaveAll(ctx context.Context, datasets []*models.Dataset) ([]*models.Dataset, error)
+	GetAllDatasets() []*models.Dataset
 	ReloadCache(ctx context.Context)
 	IsLabelValid(label string) bool
 }
@@ -25,13 +26,19 @@ func NewDatasetService(datasetRepo models.DatasetRepository) *DatasetService {
 	return service
 }
 
+func (s *DatasetService) SaveAll(ctx context.Context, datasets []*models.Dataset) ([]*models.Dataset, error) {
+	res, err := s.datasetRepo.SaveAll(ctx, datasets)
+	s.ReloadCache(ctx)
+	return res, err
+}
+
 func (s *DatasetService) Save(ctx context.Context, dataset *models.Dataset) (*models.Dataset, error) {
 	res, err := s.datasetRepo.Save(ctx, dataset)
 	s.ReloadCache(ctx)
 	return res, err
 }
 
-func (s *DatasetService) GetAllDatasets(ctx context.Context) []*models.Dataset {
+func (s *DatasetService) GetAllDatasets() []*models.Dataset {
 	return s.datasetCache
 }
 

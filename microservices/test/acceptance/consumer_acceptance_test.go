@@ -80,11 +80,10 @@ func (suite *ExportConsumerAcceptanceTest) TestExportConsumer_ForExternalExporte
 
 	// when
 	suite.publisherService.EnqueueExportJob("someId", "EasyPrivacy", "")
-	time.Sleep(5 * time.Second)
+	time.Sleep(1 * time.Second)
 	// then
 	suite.exportConsumer.Wg.Wait()
 	export, err := suite.storageService.GetObject(suite.ctx, configs.EnvExportBucketName(), "someName_EasyPrivacy_.csv.gz")
-
 	suite.NoError(err)
 	expectedCsv := testsupport.LoadFile("../resources/requests/expected_encoding.csv")
 	actualCsv := testsupport.Unzip(export)

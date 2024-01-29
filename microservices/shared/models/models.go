@@ -229,16 +229,16 @@ type ReducerMetric struct {
 	NonTracker int    `json:"nonTracker" bson:"nonTracker"`
 }
 type DataSetMetrics struct {
-	Total         int             `json:"total" bson:"total"`
-	ReducerMetric []ReducerMetric `json:"reducerMetric" bson:"reducerMetric"`
+	Total         int              `json:"total" bson:"total"`
+	ReducerMetric []*ReducerMetric `json:"reducerMetric" bson:"reducerMetric"`
 }
 
 type Dataset struct {
-	ID          string         `json:"_id" bson:"_id,omitempty"`
-	Name        string         `json:"name" bson:"name"`
-	Label       string         `json:"label" bson:"label"`
-	Description string         `json:"description" bson:"description"`
-	Metrics     DataSetMetrics `json:"metrics,omitempty" bson:"metrics,omitempty"`
+	ID          string          `json:"_id" bson:"_id,omitempty"`
+	Name        string          `json:"name" bson:"name"`
+	Label       string          `json:"label" bson:"label"`
+	Description string          `json:"description" bson:"description"`
+	Metrics     *DataSetMetrics `json:"metrics,omitempty" bson:"metrics,omitempty"`
 }
 
 func (e *Dataset) GetID() string {
