@@ -47,6 +47,12 @@ func (r *MongoDatasetRepository) FindByName(ctx context.Context, name string) (*
 	return mongostore.FindByName(ctx, r.coll, name, &models.Dataset{})
 }
 
+func (r *MongoDatasetRepository) FindByLabel(ctx context.Context, label string) (*models.Dataset, error) {
+	return mongostore.FindBy(ctx, r.coll, bson.M{
+		"label": label,
+	}, &models.Dataset{})
+}
+
 func (r *MongoDatasetRepository) DeleteAll(ctx context.Context) error {
 	return mongostore.DeleteAll(ctx, r.coll)
 }
