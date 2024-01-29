@@ -35,13 +35,12 @@ func Save[T models.BaseModel](ctx context.Context, coll *mongo.Collection, entit
 	}
 	opts := options.FindOneAndReplace().SetUpsert(true)
 
-	var newEntity T
-	err := coll.FindOneAndReplace(ctx, bson.D{{Key: "_id", Value: entity.GetID()}}, entity, opts).Decode(newEntity)
+	err := coll.FindOneAndReplace(ctx, bson.D{{Key: "_id", Value: entity.GetID()}}, entity, opts).Decode(entity)
 	if err != nil && err != mongo.ErrNoDocuments {
-		return newEntity, err
+		return entity, err
 	}
 
-	return newEntity, nil
+	return entity, nil
 }
 
 func SaveAll[T models.BaseModel](ctx context.Context, coll *mongo.Collection, entities []T) ([]T, error) {

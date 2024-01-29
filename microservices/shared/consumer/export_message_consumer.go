@@ -10,6 +10,7 @@ import (
 	"tds/shared/models"
 	"tds/shared/queue"
 	"tds/shared/service"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -22,14 +23,16 @@ type ExportMessageConsumer struct {
 	Wg                sync.WaitGroup
 	interExportJob    job.IExportJob
 	externalExportJob job.IExportJob
+	exportRunService  service.IExportRunService
 	queueAdapter      queue.IQueueChannelAdapter
 	exporterService   service.IExporterService
 }
 
-func NewExportMessageConsumer(interExportJob job.IExportJob, externalExportJob job.IExportJob, queueAdapter queue.IQueueChannelAdapter, exporterService service.IExporterService) *ExportMessageConsumer {
+func NewExportMessageConsumer(interExportJob job.IExportJob, externalExportJob job.IExportJob, exportRunService service.IExportRunService, queueAdapter queue.IQueueChannelAdapter, exporterService service.IExporterService) *ExportMessageConsumer {
 	return &ExportMessageConsumer{
 		interExportJob:    interExportJob,
 		externalExportJob: externalExportJob,
+		exportRunService:  exportRunService,
 		exporterService:   exporterService,
 		queueAdapter:      queueAdapter,
 		Wg:                sync.WaitGroup{},
@@ -78,20 +81,28 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 	}
 	c.Wg.Add(1)
 	go func() {
-		// start := time.Now()
-		// metrics := &models.ExportMetrics{}
+		start := time.Now()
+		run, err := c.exportRunService.Save(ctx, &models.ExportRun{
+			ExporterId: exporter.ID,
+			Name:       exporter.Name,
+			Reducer:    reducer,
+			Dataset:    dataset,
+			Start:      start,
+		})
+		if err != nil {
+			log.Fatal("Failed to save export run:", err)
+		}
 		switch exporter.Type {
 		case models.IN_SERVICE:
-			c.interExportJob.Execute(exporter, reducer, dataset)
+			run.Metrics = c.interExportJob.Execute(exporter, reducer, dataset)
 		case models.JS:
-			c.externalExportJob.Execute(exporter, reducer, dataset)
+			run.Metrics = c.externalExportJob.Execute(exporter, reducer, dataset)
 		}
-		// end := time.Now()
+		run.End = time.Now()
+		c.exportRunService.Save(ctx, run)
 		if err != nil {
 			log.Errorf("Job finished with an error: %v", err)
 		}
 		defer c.Wg.Done()
 	}()
-	// TODO write jobs into mongodb
-
 }

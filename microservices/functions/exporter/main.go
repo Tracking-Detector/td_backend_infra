@@ -2,7 +2,6 @@ package exporter
 
 import (
 	"context"
-	"fmt"
 
 	"tds/shared/configs"
 	"tds/shared/consumer"
@@ -14,7 +13,6 @@ import (
 )
 
 func Main() {
-	fmt.Println("Starting exporter...")
 	ctx := context.TODO()
 	db := configs.GetDatabase(configs.ConnectDB(ctx))
 	minioClient := configs.ConnectMinio()
@@ -28,9 +26,11 @@ func Main() {
 	storageService.VerifyBucketExists(ctx, configs.EnvExportBucketName())
 	exporterRepo := repository.NewMongoExporterRepository(db)
 	exporterService := service.NewExporterService(exporterRepo)
+	exportRunRepo := repository.NewMongoExportRunRunRepository(db)
+	exportRunService := service.NewExportRunService(exportRunRepo)
 	internalExportJob := job.NewInternalExportJob(requestRepo, storageService)
 	externalExportJob := job.NewExternalExportJob(requestRepo, storageService)
-	exportConsumer := consumer.NewExportMessageConsumer(internalExportJob, externalExportJob, rabbitMqAdapter, exporterService)
+	exportConsumer := consumer.NewExportMessageConsumer(internalExportJob, externalExportJob, exportRunService, rabbitMqAdapter, exporterService)
 	exportConsumer.Consume()
 	select {}
 }

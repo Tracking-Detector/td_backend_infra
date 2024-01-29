@@ -201,6 +201,8 @@ type ExportRun struct {
 	ID         string         `json:"_id" bson:"_id,omitempty"`
 	ExporterId string         `json:"exporterId" bson:"exporterId"`
 	Name       string         `json:"name" bson:"name"`
+	Reducer    string         `json:"reducer" bson:"reducer"`
+	Dataset    string         `json:"dataset" bson:"dataset"`
 	Metrics    *ExportMetrics `json:"metrics" bson:"metrics"`
 	Start      time.Time      `json:"start" bson:"start"`
 	End        time.Time      `json:"end" bson:"end"`
