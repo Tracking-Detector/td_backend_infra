@@ -6,7 +6,7 @@ COPY ./microservices/go.mod /app/go.mod
 COPY ./microservices/go.sum /app/go.sum
 RUN go mod download
 
-COPY ./microservices/functions/auth/main.go /app/main.go
+COPY ./microservices/functions/api/main.go /app/main.go
 COPY ./microservices/shared /app/shared
 
 # Build the function executable with optimizations enabled
