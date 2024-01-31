@@ -31,8 +31,8 @@ func Main() {
 	app.Use(cors.New())
 	app.Use(logger.New())
 	app.Get("/datasets/health", utils.GetHealth)
-	app.Post("/requests", datasetController.CreateDataset)
-	app.Get("/requests", datasetController.GetAllDatasets)
+	app.Post("/datasets", datasetController.CreateDataset)
+	app.Get("/datasets", datasetController.GetAllDatasets)
 
 	c := cron.New()
 	_, _ = c.AddFunc("@hourly", func() {
