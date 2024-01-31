@@ -26,7 +26,7 @@ func NewAuthService(userRepo models.UserRepository, encryptionService IEncryptio
 func (s *AuthService) ValidateBearerToken(ctx context.Context, token string, isAdmin bool) (bool, error) {
 	split := strings.Split(token, " ")
 	if len(split) != 2 || split[0] != "Bearer" {
-		return false, errors.New("Wrong formatted Bearer Token in Auth header.")
+		return false, errors.New("wrong formatted bearer token in auth header")
 	}
 
 	users, err := s.userRepo.FindAll(ctx)

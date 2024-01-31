@@ -41,10 +41,8 @@ func (s *ExporterService) InitInCodeExports(ctx context.Context) {
 
 func (s *ExporterService) IsValidExporter(ctx context.Context, exporter string) bool {
 	_, err := s.exporterRepo.FindByID(ctx, exporter)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
+
 }
 
 func (s *ExporterService) FindByID(ctx context.Context, id string) (*models.Exporter, error) {

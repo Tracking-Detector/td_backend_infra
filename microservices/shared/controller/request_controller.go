@@ -46,7 +46,7 @@ func (rc *RequestController) GetRequestById(c *fiber.Ctx) error {
 
 func (rc *RequestController) SearchRequests(c *fiber.Ctx) error {
 	url := c.Query("url")
-	page, err := strconv.Atoi(c.Query("page", "1"))
+	page, _ := strconv.Atoi(c.Query("page", "1"))
 	pageSize, err := strconv.Atoi(c.Query("pageSize", "10"))
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(response.NewErrorResponse("Query params 'page' and 'pageSize' should be left empty or numeric."))

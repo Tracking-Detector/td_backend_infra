@@ -3,10 +3,12 @@ package service
 import (
 	"context"
 	"tds/shared/models"
+	"tds/shared/payload"
 )
 
 type IDatasetService interface {
 	Save(ctx context.Context, dataset *models.Dataset) (*models.Dataset, error)
+	CreateDataset(ctx context.Context, datasetPayload *payload.CreateDatasetPayload) (*models.Dataset, error)
 	SaveAll(ctx context.Context, datasets []*models.Dataset) ([]*models.Dataset, error)
 	GetAllDatasets() []*models.Dataset
 	ReloadCache(ctx context.Context)
@@ -30,6 +32,15 @@ func (s *DatasetService) SaveAll(ctx context.Context, datasets []*models.Dataset
 	res, err := s.datasetRepo.SaveAll(ctx, datasets)
 	s.ReloadCache(ctx)
 	return res, err
+}
+
+func (s *DatasetService) CreateDataset(ctx context.Context, datasetPayload *payload.CreateDatasetPayload) (*models.Dataset, error) {
+	dataset := &models.Dataset{
+		Name:        datasetPayload.Name,
+		Description: datasetPayload.Description,
+		Label:       datasetPayload.Label,
+	}
+	return s.Save(ctx, dataset)
 }
 
 func (s *DatasetService) Save(ctx context.Context, dataset *models.Dataset) (*models.Dataset, error) {

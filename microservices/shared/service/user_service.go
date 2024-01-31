@@ -40,7 +40,7 @@ func (s *UserService) DeleteUserByID(ctx context.Context, id string) error {
 			return err
 		}
 		if user.Role == models.ADMIN {
-			return errors.New("Cannot delete admin users.")
+			return errors.New("cannot delete admin users")
 		}
 		return s.userRepository.DeleteByID(ctx, id)
 	})
@@ -71,7 +71,7 @@ func (s *UserService) CreateApiUser(ctx context.Context, email string) (string, 
 	err = s.userRepository.InTransaction(ctx, func(ctx context.Context) error {
 		user, _ := s.userRepository.FindByEmail(ctx, email)
 		if user != nil {
-			return errors.New("User with email already registered.")
+			return errors.New("user with email already registered")
 		}
 
 		newUser := &models.UserData{
