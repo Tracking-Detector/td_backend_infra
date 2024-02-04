@@ -25,7 +25,7 @@ const (
 )
 
 type Exporter struct {
-	ID                   string  `json:"_id,omitempty" bson:"_id,omitempty"`
+	ID                   string  `json:"id,omitempty" bson:"_id,omitempty"`
 	Name                 string  `json:"name" bson:"name"`
 	Description          string  `json:"description" bson:"description"`
 	Dimensions           []int   `json:"dimensions" bson:"dimensions"`
@@ -47,7 +47,7 @@ func (e *Exporter) GetName() string {
 
 // Model
 type Model struct {
-	ID               string `json:"_id" bson:"_id"`
+	ID               string `json:"id" bson:"_id"`
 	Name             string `json:"name" bson:"name"`
 	Description      string `json:"description" bson:"description"`
 	Dims             []int  `json:"dims" bson:"dims"`
@@ -68,7 +68,7 @@ func (e *Model) GetName() string {
 
 // TrainingRun
 type TrainingRun struct {
-	ID              string  `json:"_id,omitempty" bson:"_id,omitempty"`
+	ID              string  `json:"id,omitempty" bson:"_id,omitempty"`
 	ModelId         string  `json:"modelId" bson:"modelId"`
 	Name            string  `json:"name" bson:"name"`
 	DataSet         string  `json:"dataSet" bson:"dataSet"`
@@ -101,7 +101,7 @@ const (
 )
 
 type UserData struct {
-	ID    string `json:"_id,omitempty" bson:"_id,omitempty"`
+	ID    string `json:"id,omitempty" bson:"_id,omitempty"`
 	Role  Role   `json:"role" bson:"role"`
 	Email string `json:"email" bson:"email"`
 	Key   string `json:"key" bson:"key"`
@@ -142,7 +142,7 @@ type RequestDataResponse struct {
 }
 
 type RequestData struct {
-	ID                string              `json:"_id" bson:"_id,omitempty"`
+	ID                string              `json:"id" bson:"_id,omitempty"`
 	DocumentId        string              `json:"documentId" bson:"documentId"`
 	DocumentLifecycle string              `json:"documentLifecycle" bson:"documentLifecycle"`
 	FrameId           int                 `json:"frameId" bson:"frameId"`
@@ -198,7 +198,7 @@ type ExportMetrics struct {
 }
 
 type ExportRun struct {
-	ID         string         `json:"_id" bson:"_id,omitempty"`
+	ID         string         `json:"id" bson:"_id,omitempty"`
 	ExporterId string         `json:"exporterId" bson:"exporterId"`
 	Name       string         `json:"name" bson:"name"`
 	Reducer    string         `json:"reducer" bson:"reducer"`
@@ -234,7 +234,7 @@ type DataSetMetrics struct {
 }
 
 type Dataset struct {
-	ID          string          `json:"_id" bson:"_id,omitempty"`
+	ID          string          `json:"id" bson:"_id,omitempty"`
 	Name        string          `json:"name" bson:"name"`
 	Label       string          `json:"label" bson:"label"`
 	Description string          `json:"description" bson:"description"`

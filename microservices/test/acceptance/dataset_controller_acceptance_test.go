@@ -38,6 +38,7 @@ func (suite *DatasetControllerAcceptanceTest) SetupTest() {
 	suite.datasetRepo = repository.NewMongoDatasetRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.datasetService = service.NewDatasetService(suite.datasetRepo)
 	suite.datasetController = controller.NewDatasetController(suite.datasetService)
+	suite.datasetRepo.DeleteAll(suite.ctx)
 	go func() {
 		suite.datasetController.Start()
 	}()
@@ -81,4 +82,21 @@ func (suite *DatasetControllerAcceptanceTest) TestCreateDataset() {
 	suite.Equal("test", dataset.Description)
 	suite.Equal(http.StatusCreated, resp.StatusCode)
 	suite.NoError(err)
+}
+
+func (suite *DatasetControllerAcceptanceTest) TestGetAllDatasets() {
+	// given
+	datasetPayload := &models.Dataset{
+		Name:        "test",
+		Description: "test",
+		Label:       "test",
+	}
+	body, _ := json.Marshal(datasetPayload)
+	testsupport.Post("http://localhost:8081/datasets", string(body), "application/json")
+	// when
+	resp, err := testsupport.Get("http://localhost:8081/datasets")
+
+	// then
+	suite.NoError(err)
+	suite.Equal(http.StatusOK, resp.StatusCode)
 }

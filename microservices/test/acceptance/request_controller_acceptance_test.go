@@ -34,7 +34,6 @@ func (suite *RequestControllerAcceptanceTest) SetupTest() {
 	suite.requestService = service.NewRequestService(suite.requestRepo)
 	suite.requestController = controller.NewRequestController(suite.requestService)
 	go func() {
-		fmt.Println("Starting server...")
 		suite.requestController.Start()
 
 	}()
