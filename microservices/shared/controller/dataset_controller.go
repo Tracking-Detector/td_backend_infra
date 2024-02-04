@@ -4,11 +4,15 @@ import (
 	"tds/shared/payload"
 	"tds/shared/response"
 	"tds/shared/service"
+	"tds/shared/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 type DatasetController struct {
+	app            *fiber.App
 	datasetService service.IDatasetService
 }
 
@@ -33,4 +37,18 @@ func (dc *DatasetController) CreateDataset(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(response.NewErrorResponse(err.Error()))
 	}
 	return c.Status(fiber.StatusCreated).JSON(response.NewSuccessResponse(dataset))
+}
+
+func (dc *DatasetController) Start() {
+	dc.app = fiber.New()
+	dc.app.Use(cors.New())
+	dc.app.Use(logger.New())
+	dc.app.Get("/datasets/health", utils.GetHealth)
+	dc.app.Get("/datasets", dc.GetAllDatasets)
+	dc.app.Post("/datasets", dc.CreateDataset)
+	dc.app.Listen(":8081")
+}
+
+func (dc *DatasetController) Stop() {
+	dc.app.Shutdown()
 }

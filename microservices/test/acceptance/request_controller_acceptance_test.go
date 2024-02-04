@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"tds/functions/requests"
 	"tds/shared/configs"
+	"tds/shared/controller"
 	"tds/shared/models"
 	"tds/shared/repository"
+	"tds/shared/service"
 	"tds/test/testsupport"
 	"testing"
 	"time"
@@ -21,19 +22,29 @@ func TestRequestControllerAcceptance(t *testing.T) {
 
 type RequestControllerAcceptanceTest struct {
 	suite.Suite
-	requestRepo models.RequestRepository
-	ctx         context.Context
+	requestRepo       models.RequestRepository
+	requestController *controller.RequestController
+	requestService    *service.RequestService
+	ctx               context.Context
 }
 
 func (suite *RequestControllerAcceptanceTest) SetupTest() {
 	suite.ctx = context.Background()
+	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
+	suite.requestService = service.NewRequestService(suite.requestRepo)
+	suite.requestController = controller.NewRequestController(suite.requestService)
 	go func() {
-		requests.Main()
+		fmt.Println("Starting server...")
+		suite.requestController.Start()
 
 	}()
-	time.Sleep(2 * time.Second)
-	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
+	time.Sleep(5 * time.Second)
+
 	suite.requestRepo.DeleteAll(suite.ctx)
+}
+
+func (suite *RequestControllerAcceptanceTest) TearDownTest() {
+	suite.requestController.Stop()
 }
 
 func (suite *RequestControllerAcceptanceTest) TestHealth_Success() {

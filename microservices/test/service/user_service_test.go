@@ -87,7 +87,7 @@ func (suite *UserServiceTest) TestDeleteUserByID_Failure_AdminUser() {
 	// then
 	suite.userRepo.AssertNotCalled(suite.T(), "DeleteByID")
 	suite.Error(transactionError)
-	suite.Contains(transactionError.Error(), "Cannot delete admin users.")
+	suite.Contains(transactionError.Error(), "cannot delete admin users")
 }
 
 func (suite *UserServiceTest) TestDeleteUserByID_Failure_NoUserForID() {
@@ -172,5 +172,5 @@ func (suite *UserServiceTest) TestCreateApiUser_ErrorEmailAlreadyExists() {
 	pw, _ := suite.userService.CreateApiUser(context.Background(), email)
 	// then
 	suite.Empty(pw)
-	suite.Contains(transactionError.Error(), "User with email already registered.")
+	suite.Contains(transactionError.Error(), "user with email already registered")
 }

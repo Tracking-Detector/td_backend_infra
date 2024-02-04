@@ -2,7 +2,6 @@ package dataset
 
 import (
 	"context"
-	"fmt"
 	"tds/shared/configs"
 	"tds/shared/controller"
 	"tds/shared/job"
@@ -16,6 +15,24 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
+func StartServer(datasetController *controller.DatasetController) {
+	app := fiber.New()
+	app.Use(cors.New())
+	app.Use(logger.New())
+	app.Get("/datasets/health", utils.GetHealth)
+	app.Post("/datasets", datasetController.CreateDataset)
+	app.Get("/datasets", datasetController.GetAllDatasets)
+	app.Listen(":8081")
+}
+
+func StartCron(datasetCalculationJob *job.DatasetMetricJob) {
+	c := cron.New()
+	c.AddFunc("@hourly", func() {
+		datasetCalculationJob.Execute()
+	})
+	c.Start()
+}
+
 func Main() {
 	ctx := context.TODO()
 	requestRepo := repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(ctx)))
@@ -24,25 +41,9 @@ func Main() {
 	datasetService := service.NewDatasetService(datasetRepo)
 
 	datasetCalculationJob := job.NewDatasetMetricJob(datasetService, requestService)
-
 	datasetController := controller.NewDatasetController(datasetService)
 
-	app := fiber.New()
-	app.Use(cors.New())
-	app.Use(logger.New())
-	app.Get("/datasets/health", utils.GetHealth)
-	app.Post("/datasets", datasetController.CreateDataset)
-	app.Get("/datasets", datasetController.GetAllDatasets)
-
-	c := cron.New()
-	_, _ = c.AddFunc("@hourly", func() {
-		datasetCalculationJob.Execute()
-	})
-	c.Start()
-	go func() {
-		if err := app.Listen(":8081"); err != nil {
-			fmt.Println("Fiber failed to start:", err)
-		}
-	}()
+	go StartCron(datasetCalculationJob)
+	go StartServer(datasetController)
 	select {}
 }

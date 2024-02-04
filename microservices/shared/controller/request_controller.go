@@ -8,11 +8,15 @@ import (
 	"tds/shared/models"
 	"tds/shared/response"
 	"tds/shared/service"
+	"tds/shared/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 type RequestController struct {
+	app            *fiber.App
 	requestService service.IRequestService
 }
 
@@ -80,4 +84,20 @@ func (rc *RequestController) CreateRequestData(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(response.NewErrorResponse(err.Error()))
 	}
 	return c.Status(http.StatusCreated).JSON(response.NewSuccessResponse(requestData))
+}
+
+func (rc *RequestController) Start() {
+	rc.app = fiber.New()
+	rc.app.Use(cors.New())
+	rc.app.Use(logger.New())
+	rc.app.Get("/requests/health", utils.GetHealth)
+	rc.app.Get("/requests/:id", rc.GetRequestById)
+	rc.app.Post("/requests", rc.CreateRequestData)
+	rc.app.Post("/requests/multiple", rc.CreateMultipleRequestData)
+	rc.app.Get("/requests", rc.SearchRequests)
+	rc.app.Listen(":8081")
+}
+
+func (rc *RequestController) Stop() {
+	rc.app.Shutdown()
 }

@@ -38,6 +38,7 @@ func (c *MongoDBContainer) Setenvs() {
 	os.Setenv("REQUEST_COLLECTION", "requests")
 	os.Setenv("TRAINING_RUNS_COLLECTION", "training-runs")
 	os.Setenv("MODELS_COLLECTION", "models")
+	os.Setenv("DATASET_COLLECTION", "datasets")
 	os.Setenv("EXPORTER_COLLECTION", "exporter")
 	os.Setenv("EXPORTER_RUNS_COLLECTION", "exporter-runs")
 }
