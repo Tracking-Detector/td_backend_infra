@@ -43,6 +43,14 @@ func Save[T models.BaseModel](ctx context.Context, coll *mongo.Collection, entit
 	return entity, nil
 }
 
+func Exist(ctx context.Context, coll *mongo.Collection, filter bson.M) (bool, error) {
+	count, err := coll.CountDocuments(ctx, filter)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func SaveAll[T models.BaseModel](ctx context.Context, coll *mongo.Collection, entities []T) ([]T, error) {
 	var savedEntities []T
 

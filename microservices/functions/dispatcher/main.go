@@ -20,13 +20,17 @@ func main() {
 	exporterRepo := repository.NewMongoExporterRepository(db)
 	modelRepo := repository.NewMongoModelRepository(db)
 	trainingRunRepo := repository.NewMongoTrainingRunRepository(db)
+	exportRunRepo := repository.NewMongoExportRunRunRepository(db)
+	datasetRepo := repository.NewMongoDatasetRepository(db)
 
 	trainingRunService := service.NewTraingingrunService(trainingRunRepo)
 	exporterService := service.NewExporterService(exporterRepo)
+	exportRunService := service.NewExportRunService(exportRunRepo)
+	datasetService := service.NewDatasetService(datasetRepo)
 	modelService := service.NewModelService(modelRepo, trainingRunService)
 	publisherService := service.NewPublishService(channelAdapter)
 
-	dispatchController := controller.NewDispatchController(exporterService, publisherService, modelService)
+	dispatchController := controller.NewDispatchController(exporterService, publisherService, modelService, datasetService, exportRunService)
 
 	dispatchController.Start()
 }

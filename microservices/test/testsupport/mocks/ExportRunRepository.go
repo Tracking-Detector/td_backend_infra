@@ -124,6 +124,34 @@ func (_m *ExportRunRepository) DeleteByID(ctx context.Context, id string) error 
 	return r0
 }
 
+// ExistByExporterIDAndRecducer provides a mock function with given fields: ctx, exporterId, reducer
+func (_m *ExportRunRepository) ExistByExporterIDAndRecducer(ctx context.Context, exporterId string, reducer string) (bool, error) {
+	ret := _m.Called(ctx, exporterId, reducer)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ExistByExporterIDAndRecducer")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (bool, error)); ok {
+		return rf(ctx, exporterId, reducer)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) bool); ok {
+		r0 = rf(ctx, exporterId, reducer)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, exporterId, reducer)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FindAll provides a mock function with given fields: ctx
 func (_m *ExportRunRepository) FindAll(ctx context.Context) ([]*models.ExportRun, error) {
 	ret := _m.Called(ctx)

@@ -12,6 +12,7 @@ type IDatasetService interface {
 	SaveAll(ctx context.Context, datasets []*models.Dataset) ([]*models.Dataset, error)
 	GetAllDatasets() []*models.Dataset
 	ReloadCache(ctx context.Context)
+	IsValidDataset(ctx context.Context, id string) bool
 	IsLabelValid(label string) bool
 }
 
@@ -51,6 +52,14 @@ func (s *DatasetService) Save(ctx context.Context, dataset *models.Dataset) (*mo
 
 func (s *DatasetService) GetAllDatasets() []*models.Dataset {
 	return s.datasetCache
+}
+
+func (s *DatasetService) IsValidDataset(ctx context.Context, id string) bool {
+	dataset, err := s.datasetRepo.FindByID(ctx, id)
+	if err != nil {
+		return false
+	}
+	return dataset != nil
 }
 
 func (s *DatasetService) ReloadCache(ctx context.Context) {

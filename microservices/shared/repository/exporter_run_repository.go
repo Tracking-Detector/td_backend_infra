@@ -72,6 +72,22 @@ func (r *MongoExportRunRunRepository) CountByExporterID(ctx context.Context, exp
 	})
 }
 
+func (r *MongoExportRunRunRepository) ExistByExporterIDAndRecducer(ctx context.Context, exporterId, reducer string) (bool, error) {
+	exports, err := mongostore.FindAllBy[*models.ExportRun](ctx, r.coll, &models.ExportRun{}, bson.M{
+		"exporterId": exporterId,
+		"reducer":    reducer,
+	}, nil)
+	if err != nil {
+		return false, err
+	}
+	for _, export := range exports {
+		if !export.End.IsZero() {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (r *MongoExportRunRunRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {
 	return mongostore.InTransaction(ctx, r.db, fn)
 }

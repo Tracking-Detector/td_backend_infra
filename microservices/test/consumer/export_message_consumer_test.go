@@ -121,6 +121,7 @@ func (suite *ExportConsumerTest) TestConsume_SuccessMultiple() {
 	}
 	jobs := []*messages.JobPayload{messages.NewJob("export", []string{"someId1", "or", "dataset"}),
 		messages.NewJob("export", []string{"someId2", "or", "dataset"})}
+
 	suite.exportRunService.On("Save", mock.Anything, mock.Anything).Return(&models.ExportRun{
 		ID:         "someRunId",
 		ExporterId: exporter1.ID,

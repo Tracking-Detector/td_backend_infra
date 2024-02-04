@@ -25,6 +25,7 @@ type ExportRunRepository interface {
 	IRepository[*ExportRun]
 	CountByExporterID(ctx context.Context, exporterId string) (int64, error)
 	FindByExporterID(ctx context.Context, exporterId string) ([]*ExportRun, error)
+	ExistByExporterIDAndRecducer(ctx context.Context, exporterId, reducer string) (bool, error)
 	DeleteAllByExporterID(ctx context.Context, id string) error
 }
 

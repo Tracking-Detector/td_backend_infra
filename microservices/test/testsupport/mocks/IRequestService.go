@@ -150,6 +150,38 @@ func (_m *IRequestService) SaveRequest(ctx context.Context, request *models.Requ
 	return r0, r1
 }
 
+// StreamAll provides a mock function with given fields: ctx
+func (_m *IRequestService) StreamAll(ctx context.Context) (<-chan *models.RequestData, <-chan error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for StreamAll")
+	}
+
+	var r0 <-chan *models.RequestData
+	var r1 <-chan error
+	if rf, ok := ret.Get(0).(func(context.Context) (<-chan *models.RequestData, <-chan error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) <-chan *models.RequestData); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *models.RequestData)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) <-chan error); ok {
+		r1 = rf(ctx)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(<-chan error)
+		}
+	}
+
+	return r0, r1
+}
+
 // NewIRequestService creates a new instance of IRequestService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewIRequestService(t interface {

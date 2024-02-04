@@ -9,6 +9,7 @@ type IExportRunService interface {
 	Save(ctx context.Context, exportRun *models.ExportRun) (*models.ExportRun, error)
 	GetAll(ctx context.Context) ([]*models.ExportRun, error)
 	GetByExporterID(ctx context.Context, exporterId string) ([]*models.ExportRun, error)
+	ExistByExporterIDAndRecducer(ctx context.Context, exporterId, reducer string) (bool, error)
 	GetByID(ctx context.Context, id string) (*models.ExportRun, error)
 }
 
@@ -36,4 +37,8 @@ func (s *ExportRunService) GetByExporterID(ctx context.Context, exporterId strin
 
 func (s *ExportRunService) GetByID(ctx context.Context, id string) (*models.ExportRun, error) {
 	return s.exportRunRepository.FindByID(ctx, id)
+}
+
+func (s *ExportRunService) ExistByExporterIDAndRecducer(ctx context.Context, exporterId, reducer string) (bool, error) {
+	return s.exportRunRepository.ExistByExporterIDAndRecducer(ctx, exporterId, reducer)
 }
