@@ -1,4 +1,4 @@
-package exporter
+package main
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"tds/shared/storage"
 )
 
-func Main() {
+func main() {
 	ctx := context.TODO()
 	db := configs.GetDatabase(configs.ConnectDB(ctx))
 	minioClient := configs.ConnectMinio()

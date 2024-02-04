@@ -1,4 +1,4 @@
-package dataset
+package main
 
 import (
 	"context"
@@ -19,7 +19,7 @@ func StartCron(datasetCalculationJob *job.DatasetMetricJob) {
 	c.Start()
 }
 
-func Main() {
+func main() {
 	ctx := context.TODO()
 	requestRepo := repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(ctx)))
 	requestService := service.NewRequestService(requestRepo)
