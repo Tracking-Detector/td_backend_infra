@@ -7,23 +7,9 @@ import (
 	"tds/shared/job"
 	"tds/shared/repository"
 	"tds/shared/service"
-	"tds/shared/utils"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/robfig/cron/v3"
 )
-
-func StartServer(datasetController *controller.DatasetController) {
-	app := fiber.New()
-	app.Use(cors.New())
-	app.Use(logger.New())
-	app.Get("/datasets/health", utils.GetHealth)
-	app.Post("/datasets", datasetController.CreateDataset)
-	app.Get("/datasets", datasetController.GetAllDatasets)
-	app.Listen(":8081")
-}
 
 func StartCron(datasetCalculationJob *job.DatasetMetricJob) {
 	c := cron.New()
@@ -44,6 +30,7 @@ func Main() {
 	datasetController := controller.NewDatasetController(datasetService)
 
 	go StartCron(datasetCalculationJob)
-	go StartServer(datasetController)
+	go datasetController.Start()
+
 	select {}
 }

@@ -6,11 +6,15 @@ import (
 	"tds/shared/converter"
 	"tds/shared/response"
 	"tds/shared/service"
+	"tds/shared/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 type DispatchController struct {
+	app             *fiber.App
 	exporterService service.IExporterService
 	publishService  service.IPublishService
 	modelService    service.IModelService
@@ -61,4 +65,19 @@ func (dc *DispatchController) DispatchTrainingJob(c *fiber.Ctx) error {
 	dc.publishService.EnqueueTrainingJob(modelId, exporterId, reducer)
 
 	return c.Status(http.StatusCreated).JSON(response.NewSuccessResponse("The training job has been dispatched."))
+}
+
+func (dc *DispatchController) Start() {
+	dc.app = fiber.New()
+	dc.app.Use(cors.New())
+	dc.app.Use(logger.New())
+	dc.app.Get("/dispatch/health", utils.GetHealth)
+	dc.app.Post("/dispatch/export/:exporterId/:reducer", dc.DispatchExportJob)
+	dc.app.Post("/dispatch/train/:modelId/run/:exporterId/:reducer", dc.DispatchTrainingJob)
+
+	dc.app.Listen(":8081")
+}
+
+func (dc *DispatchController) Stop() {
+	dc.app.Shutdown()
 }

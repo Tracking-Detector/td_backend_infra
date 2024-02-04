@@ -5,11 +5,15 @@ import (
 	"tds/shared/models"
 	"tds/shared/response"
 	"tds/shared/service"
+	"tds/shared/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 type ModelController struct {
+	app                *fiber.App
 	trainingrunService service.ITrainingrunService
 	modelService       service.IModelService
 }
@@ -84,4 +88,23 @@ func (tc *ModelController) DeleteRunById(c *fiber.Ctx) error {
 		return c.Status(http.StatusNotFound).JSON(response.NewErrorResponse(err.Error()))
 	}
 	return c.Status(http.StatusOK).JSON(response.NewSuccessResponse("Successfully deleted model run."))
+}
+
+func (tc *ModelController) Start() {
+	tc.app = fiber.New()
+	tc.app.Use(cors.New())
+	tc.app.Use(logger.New())
+	tc.app.Get("/models/health", utils.GetHealth)
+	tc.app.Get("/models", tc.GetAllModels)
+	tc.app.Post("/models", tc.CreateModel)
+	tc.app.Get("/models/:id", tc.GetModelById)
+	tc.app.Delete("/models/:id", tc.DeleteModelById)
+	tc.app.Get("/models/:id/runs", tc.GetTrainingRunsByModelId)
+	tc.app.Delete("/models/:id/runs/:runId", tc.DeleteRunById)
+	tc.app.Get("/models/runs", tc.GetTrainingRuns)
+	tc.app.Listen(":8081")
+}
+
+func (tc *ModelController) Stop() {
+	tc.app.Shutdown()
 }

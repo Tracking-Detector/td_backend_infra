@@ -10,12 +10,16 @@ import (
 	"tds/shared/configs"
 	"tds/shared/response"
 	"tds/shared/service"
+	"tds/shared/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	log "github.com/sirupsen/logrus"
 )
 
 type DownloadController struct {
+	app            *fiber.App
 	storageService service.IStorageService
 }
 
@@ -99,4 +103,21 @@ func (dc *DownloadController) GetModelData(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(response.NewErrorResponse("Failed to download file."))
 	}
 	return nil
+}
+
+func (dc *DownloadController) Start() {
+	dc.app = fiber.New()
+	dc.app.Use(cors.New())
+	dc.app.Use(logger.New())
+	dc.app.Get("/transfer/health", utils.GetHealth)
+	dc.app.Get("/transfer/export/:fileName", dc.DownloadExport)
+	dc.app.Get("/transfer/export", dc.GetDownloadExport)
+	dc.app.Get("/transfer/models", dc.GetDownloadModels)
+	dc.app.Get("/transfer/models/:modelName/:zippedModelName", dc.GetZippedModel)
+	dc.app.Get("/transfer/models/:modelName/:trainingSet/:filename", dc.GetModelData)
+	dc.app.Listen(":8081")
+}
+
+func (dc *DownloadController) Stop() {
+	dc.app.Shutdown()
 }

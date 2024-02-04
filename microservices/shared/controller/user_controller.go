@@ -6,11 +6,15 @@ import (
 	"tds/shared/representation"
 	"tds/shared/response"
 	"tds/shared/service"
+	"tds/shared/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 type UserController struct {
+	app         *fiber.App
 	userService service.IUserService
 }
 
@@ -50,4 +54,19 @@ func (uc *UserController) DeleteUserByID(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusOK).JSON(response.NewSuccessResponse("Deleted user successful."))
+}
+
+func (uc *UserController) Start() {
+	uc.app = fiber.New()
+	uc.app.Use(cors.New())
+	uc.app.Use(logger.New())
+	uc.app.Get("/users/health", utils.GetHealth)
+	uc.app.Get("/users", uc.GetUsers)
+	uc.app.Post("/users", uc.CreateApiUser)
+	uc.app.Delete("/users/:Id", uc.DeleteUserByID)
+	uc.app.Listen(":8081")
+}
+
+func (uc *UserController) Stop() {
+	uc.app.Shutdown()
 }
