@@ -5,13 +5,11 @@ import (
 	"os"
 	"tds/test/testsupport/containers"
 	"testing"
-	"time"
 )
 
 func setupIntegration() {
 	// Start docker containers for
-	ctx, ctxCancel := context.WithTimeout(context.Background(), 60*time.Second)
-	defer ctxCancel()
+	ctx := context.Background()
 	mongo, _ := containers.NewMongoContainer(ctx)
 	minio, _ := containers.NewMinIOContainer(ctx)
 	rabbitmq, _ := containers.NewRabbitMQContainer(ctx)

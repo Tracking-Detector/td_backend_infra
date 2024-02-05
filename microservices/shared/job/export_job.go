@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"sync"
 
@@ -40,7 +39,6 @@ func NewInternalExportJob(requestRepo models.RequestRepository, storageService s
 
 func (j *InternalExportJob) Execute(exporter *models.Exporter, reducer string, dataset string) *models.ExportMetrics {
 	ctx := context.TODO()
-	fmt.Println("Execute")
 	extractor, err := j.getCorrectExporter(exporter)
 	if err != nil {
 		return &models.ExportMetrics{
@@ -65,7 +63,6 @@ func (j *InternalExportJob) Execute(exporter *models.Exporter, reducer string, d
 		defer wg.Done()
 
 		for requestData := range resultChannel {
-			fmt.Println(requestData)
 			reduced := converter.ConvertRequestModel(requestData, converter.ReduceType(reducer))
 			encoded, encodedErr := extractor.Encode(*reduced)
 
@@ -88,7 +85,6 @@ func (j *InternalExportJob) Execute(exporter *models.Exporter, reducer string, d
 					"service": "InternalExportJob",
 					"error":   err.Error(),
 				}).Error("Failed to write to gzip writer.")
-				fmt.Println("In gzipError")
 				break // Break the loop if there's an error writing to the gzip writer
 			}
 			if reduced.Tracker {
@@ -140,7 +136,6 @@ func (j *ExternalExportJob) Execute(exporter *models.Exporter, reducer string, d
 	obj, err := j.storageService.GetObject(ctx, configs.EnvExtractorBucketName(), *exporter.ExportScriptLocation)
 	_, err = vm.Run(obj)
 	if err != nil {
-		fmt.Println(err)
 		return &models.ExportMetrics{
 			Error: err.Error(),
 		}

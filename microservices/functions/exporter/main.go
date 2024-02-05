@@ -26,11 +26,13 @@ func main() {
 	storageService.VerifyBucketExists(ctx, configs.EnvExportBucketName())
 	exporterRepo := repository.NewMongoExporterRepository(db)
 	exporterService := service.NewExporterService(exporterRepo)
+	datasetRepo := repository.NewMongoDatasetRepository(db)
+	datasetService := service.NewDatasetService(datasetRepo)
 	exportRunRepo := repository.NewMongoExportRunRunRepository(db)
 	exportRunService := service.NewExportRunService(exportRunRepo)
 	internalExportJob := job.NewInternalExportJob(requestRepo, storageService)
 	externalExportJob := job.NewExternalExportJob(requestRepo, storageService)
-	exportConsumer := consumer.NewExportMessageConsumer(internalExportJob, externalExportJob, exportRunService, rabbitMqAdapter, exporterService)
+	exportConsumer := consumer.NewExportMessageConsumer(internalExportJob, externalExportJob, exportRunService, rabbitMqAdapter, exporterService, datasetService)
 	exportConsumer.Consume()
 	select {}
 }

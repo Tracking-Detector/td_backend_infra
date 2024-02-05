@@ -26,15 +26,17 @@ type ExportMessageConsumer struct {
 	exportRunService  service.IExportRunService
 	queueAdapter      queue.IQueueChannelAdapter
 	exporterService   service.IExporterService
+	datasetService    service.IDatasetService
 }
 
-func NewExportMessageConsumer(interExportJob job.IExportJob, externalExportJob job.IExportJob, exportRunService service.IExportRunService, queueAdapter queue.IQueueChannelAdapter, exporterService service.IExporterService) *ExportMessageConsumer {
+func NewExportMessageConsumer(interExportJob job.IExportJob, externalExportJob job.IExportJob, exportRunService service.IExportRunService, queueAdapter queue.IQueueChannelAdapter, exporterService service.IExporterService, datasetService service.IDatasetService) *ExportMessageConsumer {
 	return &ExportMessageConsumer{
 		interExportJob:    interExportJob,
 		externalExportJob: externalExportJob,
 		exportRunService:  exportRunService,
 		exporterService:   exporterService,
 		queueAdapter:      queueAdapter,
+		datasetService:    datasetService,
 		Wg:                sync.WaitGroup{},
 	}
 }
@@ -72,11 +74,16 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 	}
 	exporterId := jobValue.Args[0]
 	reducer := jobValue.Args[1]
-	dataset := jobValue.Args[2]
+	datasetId := jobValue.Args[2]
 
 	exporter, err := c.exporterService.FindByID(ctx, exporterId)
 	if err != nil || exporter == nil {
 		log.Errorf("Exporter does not exist: %v", err)
+		return
+	}
+	dataset, err := c.datasetService.GetDatasetByID(ctx, datasetId)
+	if err != nil || dataset == nil {
+		log.Errorf("Dataset does not exist: %v", err)
 		return
 	}
 	c.Wg.Add(1)
@@ -86,7 +93,7 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 			ExporterId: exporter.ID,
 			Name:       exporter.Name,
 			Reducer:    reducer,
-			Dataset:    dataset,
+			Dataset:    dataset.ID, // TODO what to save in run?
 			Start:      start,
 		})
 		if err != nil {
@@ -94,9 +101,9 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 		}
 		switch exporter.Type {
 		case models.IN_SERVICE:
-			run.Metrics = c.interExportJob.Execute(exporter, reducer, dataset)
+			run.Metrics = c.interExportJob.Execute(exporter, reducer, dataset.Label)
 		case models.JS:
-			run.Metrics = c.externalExportJob.Execute(exporter, reducer, dataset)
+			run.Metrics = c.externalExportJob.Execute(exporter, reducer, dataset.Label)
 		}
 		run.End = time.Now()
 		c.exportRunService.Save(ctx, run)

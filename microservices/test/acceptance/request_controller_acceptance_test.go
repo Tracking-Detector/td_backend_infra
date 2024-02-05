@@ -2,7 +2,6 @@ package acceptance
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"tds/shared/configs"
 	"tds/shared/controller"
@@ -28,7 +27,7 @@ type RequestControllerAcceptanceTest struct {
 	ctx               context.Context
 }
 
-func (suite *RequestControllerAcceptanceTest) SetupTest() {
+func (suite *RequestControllerAcceptanceTest) SetupSuite() {
 	suite.ctx = context.Background()
 	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.requestService = service.NewRequestService(suite.requestRepo)
@@ -38,11 +37,14 @@ func (suite *RequestControllerAcceptanceTest) SetupTest() {
 
 	}()
 	time.Sleep(5 * time.Second)
+}
+
+func (suite *RequestControllerAcceptanceTest) SetupTest() {
 
 	suite.requestRepo.DeleteAll(suite.ctx)
 }
 
-func (suite *RequestControllerAcceptanceTest) TearDownTest() {
+func (suite *RequestControllerAcceptanceTest) TearDownSuite() {
 	suite.requestController.Stop()
 }
 
@@ -55,7 +57,7 @@ func (suite *RequestControllerAcceptanceTest) TestHealth_Success() {
 	// then
 	suite.NoError(err)
 	suite.Equal(http.StatusOK, resp.StatusCode)
-	fmt.Println(resp.Body, "{\"message\":\"System is running correct.\",\"status\":200}")
+	suite.Equal(`{"success":true,"data":"System is running correct."}`, resp.Body)
 }
 
 func (suite *RequestControllerAcceptanceTest) TestCreateRequest_Success() {

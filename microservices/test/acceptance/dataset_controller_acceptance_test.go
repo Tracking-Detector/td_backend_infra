@@ -3,7 +3,6 @@ package acceptance
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"tds/shared/configs"
 	"tds/shared/controller"
@@ -31,21 +30,24 @@ type DatasetControllerAcceptanceTest struct {
 	ctx               context.Context
 }
 
-func (suite *DatasetControllerAcceptanceTest) SetupTest() {
+func (suite *DatasetControllerAcceptanceTest) SetupSuite() {
 	suite.ctx = context.Background()
 	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.requestService = service.NewRequestService(suite.requestRepo)
 	suite.datasetRepo = repository.NewMongoDatasetRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.datasetService = service.NewDatasetService(suite.datasetRepo)
 	suite.datasetController = controller.NewDatasetController(suite.datasetService)
-	suite.datasetRepo.DeleteAll(suite.ctx)
 	go func() {
 		suite.datasetController.Start()
 	}()
 	time.Sleep(5 * time.Second)
 }
 
-func (suite *DatasetControllerAcceptanceTest) TearDownTest() {
+func (suite *DatasetControllerAcceptanceTest) SetupTest() {
+	suite.datasetRepo.DeleteAll(suite.ctx)
+}
+
+func (suite *DatasetControllerAcceptanceTest) TearDownSuite() {
 	suite.datasetController.Stop()
 }
 
@@ -56,10 +58,9 @@ func (suite *DatasetControllerAcceptanceTest) TestHealth_Success() {
 	resp, err := testsupport.Get("http://localhost:8081/datasets/health")
 
 	// then
-	fmt.Println(resp, err)
 	suite.NoError(err)
 	suite.Equal(http.StatusOK, resp.StatusCode)
-	fmt.Println(resp.Body, "{\"message\":\"System is running correct.\",\"status\":200}")
+	suite.Equal(`{"success":true,"data":"System is running correct."}`, resp.Body)
 }
 
 func (suite *DatasetControllerAcceptanceTest) TestCreateDataset() {
@@ -73,7 +74,6 @@ func (suite *DatasetControllerAcceptanceTest) TestCreateDataset() {
 	// when
 	resp, err := testsupport.Post("http://localhost:8081/datasets", string(body), "application/json")
 	// then
-	fmt.Println(resp, err)
 	count, _ := suite.datasetRepo.Count(suite.ctx)
 	dataset, _ := suite.datasetRepo.FindByLabel(suite.ctx, "test")
 	suite.Equal(int64(1), count)

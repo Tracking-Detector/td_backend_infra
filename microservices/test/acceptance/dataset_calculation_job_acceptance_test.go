@@ -2,8 +2,6 @@ package acceptance
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"tds/shared/configs"
 	"tds/shared/job"
 	"tds/shared/models"
@@ -94,8 +92,6 @@ func (suite *DatasetCalculationJobAcceptanceTest) TestExecuteMultiple_Success() 
 	// then
 	datasets := suite.datasetService.GetAllDatasets()
 	suite.Equal(2, len(datasets))
-	t, _ := json.Marshal(datasets)
-	fmt.Println(string(t))
 	suite.Equal(4, datasets[0].Metrics.Total)
 	suite.Equal(4, datasets[0].Metrics.ReducerMetric[0].Total)
 	suite.Equal(4, datasets[0].Metrics.ReducerMetric[0].NonTracker)
