@@ -65,14 +65,14 @@ func (suite *ExportConsumerTest) TestConsume_SuccessInternal() {
 		Start:      time.Now(),
 		End:        time.Now(),
 	}, nil)
-	suite.queueAdapter.On("Consume", configs.EnvExportQueueName(), "", true, false, false, false, mock.Anything).Return(suite.createChan(jobs), nil)
+	suite.queueAdapter.On("Consume", configs.EnvExportQueueName(), "ExportConsumer", true, false, false, false, mock.Anything).Return(suite.createChan(jobs), nil)
 	suite.exporterService.On("FindByID", mock.Anything, "someId").Return(exporter, nil)
 	suite.internalJob.On("Execute", exporter, "or", "").Return(nil)
 	// when
 	suite.exportConsumer.Consume()
 	suite.exportConsumer.Wg.Wait()
 	// then
-	suite.queueAdapter.AssertCalled(suite.T(), "Consume", configs.EnvExportQueueName(), "", true, false, false, false, mock.Anything)
+	suite.queueAdapter.AssertCalled(suite.T(), "Consume", configs.EnvExportQueueName(), "ExportConsumer", true, false, false, false, mock.Anything)
 	suite.exporterService.AssertCalled(suite.T(), "FindByID", mock.Anything, "someId")
 	suite.exportRunService.AssertNumberOfCalls(suite.T(), "Save", 2)
 	suite.internalJob.AssertCalled(suite.T(), "Execute", exporter, "or", "")
@@ -95,7 +95,7 @@ func (suite *ExportConsumerTest) TestConsume_SuccessExternal() {
 	}
 	jobs := []*messages.JobPayload{messages.NewJob("export", []string{"someId", "or", "someId"})}
 	suite.datasetService.On("GetDatasetByID", mock.Anything, "someId").Return(dataset, nil)
-	suite.queueAdapter.On("Consume", configs.EnvExportQueueName(), "", true, false, false, false, mock.Anything).Return(suite.createChan(jobs), nil)
+	suite.queueAdapter.On("Consume", configs.EnvExportQueueName(), "ExportConsumer", true, false, false, false, mock.Anything).Return(suite.createChan(jobs), nil)
 	suite.exportRunService.On("Save", mock.Anything, mock.Anything).Return(&models.ExportRun{
 		ID:         "someRunId",
 		ExporterId: exporter.ID,
@@ -110,7 +110,7 @@ func (suite *ExportConsumerTest) TestConsume_SuccessExternal() {
 	suite.exportConsumer.Consume()
 	suite.exportConsumer.Wg.Wait()
 	// then
-	suite.queueAdapter.AssertCalled(suite.T(), "Consume", configs.EnvExportQueueName(), "", true, false, false, false, mock.Anything)
+	suite.queueAdapter.AssertCalled(suite.T(), "Consume", configs.EnvExportQueueName(), "ExportConsumer", true, false, false, false, mock.Anything)
 	suite.exporterService.AssertCalled(suite.T(), "FindByID", mock.Anything, "someId")
 	suite.exportRunService.AssertNumberOfCalls(suite.T(), "Save", 2)
 	suite.externalJob.AssertCalled(suite.T(), "Execute", exporter, "or", "")
@@ -149,7 +149,7 @@ func (suite *ExportConsumerTest) TestConsume_SuccessMultiple() {
 		Start:      time.Now(),
 		End:        time.Now(),
 	}, nil)
-	suite.queueAdapter.On("Consume", configs.EnvExportQueueName(), "", true, false, false, false, mock.Anything).Return(suite.createChan(jobs), nil)
+	suite.queueAdapter.On("Consume", configs.EnvExportQueueName(), "ExportConsumer", true, false, false, false, mock.Anything).Return(suite.createChan(jobs), nil)
 	suite.exporterService.On("FindByID", mock.Anything, "someId1").Return(exporter1, nil)
 	suite.exporterService.On("FindByID", mock.Anything, "someId2").Return(exporter2, nil)
 	suite.internalJob.On("Execute", exporter1, "or", "").Return(nil)
@@ -158,7 +158,7 @@ func (suite *ExportConsumerTest) TestConsume_SuccessMultiple() {
 	suite.exportConsumer.Consume()
 	suite.exportConsumer.Wg.Wait()
 	// then
-	suite.queueAdapter.AssertCalled(suite.T(), "Consume", configs.EnvExportQueueName(), "", true, false, false, false, mock.Anything)
+	suite.queueAdapter.AssertCalled(suite.T(), "Consume", configs.EnvExportQueueName(), "ExportConsumer", true, false, false, false, mock.Anything)
 	suite.exporterService.AssertCalled(suite.T(), "FindByID", mock.Anything, "someId1")
 	suite.exporterService.AssertCalled(suite.T(), "FindByID", mock.Anything, "someId2")
 	suite.exportRunService.AssertNumberOfCalls(suite.T(), "Save", 4)
