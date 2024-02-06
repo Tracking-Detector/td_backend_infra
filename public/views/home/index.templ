@@ -1,0 +1,17 @@
+package home
+
+import (
+    "github.com/Tracking-Detector/td_backend_infra/public/views/layout"
+    "github.com/Tracking-Detector/td_backend_infra/public/views/components/sections"
+    "github.com/Tracking-Detector/td_backend_infra/public/models"
+)
+
+
+templ Index(home *models.Home) {
+    @layout.Base(home.Title) {
+        @sections.HeroSection(home.Hero)
+        @sections.FeatureSection(home.Features)
+        @sections.ProductSection(home.Products)
+    }
+  
+}
