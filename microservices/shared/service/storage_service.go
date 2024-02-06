@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"tds/shared/storage"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/storage"
 	"github.com/minio/minio-go/v7"
 	log "github.com/sirupsen/logrus"
 )

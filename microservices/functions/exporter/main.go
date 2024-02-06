@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 
-	"tds/shared/configs"
-	"tds/shared/consumer"
-	"tds/shared/job"
-	"tds/shared/queue"
-	"tds/shared/repository"
-	"tds/shared/service"
-	"tds/shared/storage"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/configs"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/consumer"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/job"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/queue"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/repository"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/storage"
 )
 
 func main() {

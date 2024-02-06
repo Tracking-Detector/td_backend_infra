@@ -5,10 +5,11 @@ import (
 	"errors"
 	"io"
 	"os"
-	"tds/shared/service"
-	"tds/test/testsupport/mocks"
+
 	"testing"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/test/testsupport/mocks"
 	"github.com/minio/minio-go/v7"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"

@@ -1,8 +1,7 @@
 package extractor
 
 import (
-	"tds/shared/models"
-
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
 	"go.mongodb.org/mongo-driver/bson"
 )
 

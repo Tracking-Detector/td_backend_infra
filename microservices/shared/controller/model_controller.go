@@ -2,11 +2,11 @@ package controller
 
 import (
 	"net/http"
-	"tds/shared/models"
-	"tds/shared/response"
-	"tds/shared/service"
-	"tds/shared/utils"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/response"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"

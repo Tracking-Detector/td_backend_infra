@@ -3,8 +3,10 @@ package acceptance
 import (
 	"context"
 	"os"
-	"tds/test/testsupport/containers"
+
 	"testing"
+
+	"github.com/Tracking-Detector/td_backend_infra/microservices/test/testsupport/containers"
 )
 
 type AcceptanceTest struct {

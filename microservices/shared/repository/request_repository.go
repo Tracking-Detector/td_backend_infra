@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
-	"tds/shared/configs"
-	"tds/shared/models"
-	"tds/shared/mongostore"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/configs"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/mongostore"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

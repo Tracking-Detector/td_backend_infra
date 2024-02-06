@@ -2,11 +2,12 @@ package service_test
 
 import (
 	"os"
-	"tds/shared/messages"
-	"tds/shared/service"
-	"tds/test/testsupport/mocks"
+
 	"testing"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/messages"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/test/testsupport/mocks"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/suite"
 )

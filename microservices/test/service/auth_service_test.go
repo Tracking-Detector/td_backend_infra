@@ -3,10 +3,11 @@ package service_test
 import (
 	"context"
 
-	"tds/shared/models"
-	"tds/shared/service"
-	"tds/test/testsupport/mocks"
 	"testing"
+
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/test/testsupport/mocks"
 
 	"github.com/stretchr/testify/suite"
 )

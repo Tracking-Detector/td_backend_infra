@@ -4,9 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"tds/shared/configs"
-	"tds/shared/models"
-
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/configs"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -3,12 +3,13 @@ package job_test
 import (
 	"io"
 	"os"
-	"tds/shared/job"
-	"tds/shared/models"
-	"tds/test/testsupport"
-	"tds/test/testsupport/mocks"
+
 	"testing"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/job"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/test/testsupport"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/test/testsupport/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )

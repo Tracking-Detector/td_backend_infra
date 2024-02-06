@@ -4,8 +4,8 @@ package mocks
 
 import (
 	context "context"
-	models "tds/shared/models"
 
+	models "github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
 	mock "github.com/stretchr/testify/mock"
 )
 

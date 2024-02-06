@@ -9,12 +9,12 @@ import (
 	"sync"
 
 	"strings"
-	"tds/shared/configs"
-	"tds/shared/converter"
-	"tds/shared/extractor"
-	"tds/shared/models"
-	"tds/shared/service"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/configs"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/converter"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/extractor"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
 	"github.com/robertkrimen/otto"
 	log "github.com/sirupsen/logrus"
 )

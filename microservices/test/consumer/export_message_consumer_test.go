@@ -2,14 +2,15 @@ package consumer_test
 
 import (
 	"os"
-	"tds/shared/configs"
-	"tds/shared/consumer"
-	"tds/shared/messages"
-	"tds/shared/models"
-	"tds/test/testsupport/mocks"
+
 	"testing"
 	"time"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/configs"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/consumer"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/messages"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/test/testsupport/mocks"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"

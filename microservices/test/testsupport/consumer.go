@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log"
 	"sync"
-	"tds/shared/queue"
+
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/queue"
 )
 
 type TestQueueConsumer struct {

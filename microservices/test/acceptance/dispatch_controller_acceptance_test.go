@@ -2,16 +2,17 @@ package acceptance
 
 import (
 	"fmt"
-	"tds/shared/configs"
-	"tds/shared/controller"
-	"tds/shared/models"
-	"tds/shared/queue"
-	"tds/shared/repository"
-	"tds/shared/service"
-	"tds/test/testsupport"
+
 	"testing"
 	"time"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/configs"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/controller"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/queue"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/repository"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/test/testsupport"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/suite"
 )

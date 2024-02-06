@@ -1,8 +1,6 @@
 package converter
 
-import (
-	"tds/shared/models"
-)
+import "github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
 
 type ReduceType string
 type ReduceFunction func([]models.RequestDataLabel) bool

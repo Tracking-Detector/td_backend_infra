@@ -1,10 +1,10 @@
 package converter_test
 
 import (
-	"tds/shared/converter"
-	"tds/shared/models"
 	"testing"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/converter"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
 	"github.com/stretchr/testify/suite"
 )
 

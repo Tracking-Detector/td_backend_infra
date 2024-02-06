@@ -1,8 +1,6 @@
 package representation
 
-import (
-	"tds/shared/models"
-)
+import "github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
 
 type UserDataRepresentation struct {
 	ID    string      `json:"_id" bson:"_id"`

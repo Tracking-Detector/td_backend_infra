@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	"tds/shared/models"
-	"tds/shared/payload"
+
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/payload"
 )
 
 type IDatasetService interface {

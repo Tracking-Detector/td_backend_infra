@@ -2,9 +2,9 @@ package job
 
 import (
 	"context"
-	"tds/shared/models"
-	"tds/shared/service"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -4,14 +4,15 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"tds/shared/configs"
-	"tds/shared/job"
-	"tds/shared/messages"
-	"tds/shared/models"
-	"tds/shared/queue"
-	"tds/shared/service"
+
 	"time"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/configs"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/job"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/messages"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/queue"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
 	log "github.com/sirupsen/logrus"
 )
 

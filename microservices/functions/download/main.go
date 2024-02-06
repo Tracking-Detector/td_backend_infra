@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"tds/shared/configs"
-	"tds/shared/controller"
-	"tds/shared/service"
-	"tds/shared/storage"
+
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/configs"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/controller"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/storage"
 )
 
 func main() {

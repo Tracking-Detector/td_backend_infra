@@ -1,9 +1,9 @@
 package service_test
 
 import (
-	"tds/shared/service"
 	"testing"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
 	"github.com/stretchr/testify/suite"
 	"golang.org/x/crypto/bcrypt"
 )

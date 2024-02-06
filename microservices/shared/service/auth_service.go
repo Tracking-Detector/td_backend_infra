@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 	"strings"
-	"tds/shared/models"
+
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
 )
 
 type IAuthService interface {

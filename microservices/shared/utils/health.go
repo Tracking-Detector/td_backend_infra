@@ -2,8 +2,8 @@ package utils
 
 import (
 	"net/http"
-	"tds/shared/response"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/response"
 	"github.com/gofiber/fiber/v2"
 )
 

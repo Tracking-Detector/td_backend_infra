@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	"tds/shared/extractor"
-	"tds/shared/models"
+
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/extractor"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
 )
 
 type IExporterService interface {

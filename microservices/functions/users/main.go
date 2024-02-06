@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 
-	"tds/shared/configs"
-	"tds/shared/controller"
-	"tds/shared/repository"
-	"tds/shared/service"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/configs"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/controller"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/repository"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
 )
 
 func main() {

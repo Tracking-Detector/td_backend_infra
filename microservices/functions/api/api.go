@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"tds/shared/configs"
-	"tds/shared/repository"
-	"tds/shared/service"
 
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/configs"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/repository"
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/proxy"
 )

@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	"tds/shared/models"
+
+	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
 )
 
 func LoadRequestJson() []*models.RequestData {
