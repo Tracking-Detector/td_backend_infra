@@ -23,3 +23,7 @@ func (a *RabbitMQChannelAdapter) Publish(exchange string, key string, mandatory 
 func (a *RabbitMQChannelAdapter) Consume(queue string, consumer string, autoAck bool, exclusive bool, noLocal bool, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error) {
 	return a.ch.Consume(queue, consumer, autoAck, exclusive, noLocal, noWait, args)
 }
+
+func (a *RabbitMQChannelAdapter) PurgeQueue(name string, noWait bool) (int, error) {
+	return a.ch.QueuePurge(name, noWait)
+}

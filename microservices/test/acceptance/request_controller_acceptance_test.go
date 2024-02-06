@@ -1,7 +1,6 @@
 package acceptance
 
 import (
-	"context"
 	"net/http"
 	"tds/shared/configs"
 	"tds/shared/controller"
@@ -21,14 +20,14 @@ func TestRequestControllerAcceptance(t *testing.T) {
 
 type RequestControllerAcceptanceTest struct {
 	suite.Suite
+	AcceptanceTest
 	requestRepo       models.RequestRepository
 	requestController *controller.RequestController
 	requestService    *service.RequestService
-	ctx               context.Context
 }
 
 func (suite *RequestControllerAcceptanceTest) SetupSuite() {
-	suite.ctx = context.Background()
+	suite.setupIntegration()
 	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.requestService = service.NewRequestService(suite.requestRepo)
 	suite.requestController = controller.NewRequestController(suite.requestService)
@@ -46,6 +45,7 @@ func (suite *RequestControllerAcceptanceTest) SetupTest() {
 
 func (suite *RequestControllerAcceptanceTest) TearDownSuite() {
 	suite.requestController.Stop()
+	suite.teardownIntegration()
 }
 
 func (suite *RequestControllerAcceptanceTest) TestHealth_Success() {

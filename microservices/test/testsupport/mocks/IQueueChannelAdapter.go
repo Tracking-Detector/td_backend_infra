@@ -60,6 +60,34 @@ func (_m *IQueueChannelAdapter) Publish(exchange string, key string, mandatory b
 	return r0
 }
 
+// PurgeQueue provides a mock function with given fields: name, noWait
+func (_m *IQueueChannelAdapter) PurgeQueue(name string, noWait bool) (int, error) {
+	ret := _m.Called(name, noWait)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PurgeQueue")
+	}
+
+	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, bool) (int, error)); ok {
+		return rf(name, noWait)
+	}
+	if rf, ok := ret.Get(0).(func(string, bool) int); ok {
+		r0 = rf(name, noWait)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, bool) error); ok {
+		r1 = rf(name, noWait)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // QueueDeclare provides a mock function with given fields: name, durable, autoDelete, exclusive, noWait, args
 func (_m *IQueueChannelAdapter) QueueDeclare(name string, durable bool, autoDelete bool, exclusive bool, noWait bool, args amqp.Table) (amqp.Queue, error) {
 	ret := _m.Called(name, durable, autoDelete, exclusive, noWait, args)

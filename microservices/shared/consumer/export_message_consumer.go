@@ -27,9 +27,12 @@ type ExportMessageConsumer struct {
 	queueAdapter      queue.IQueueChannelAdapter
 	exporterService   service.IExporterService
 	datasetService    service.IDatasetService
+	cancelContext     context.Context
+	cancelFunc        context.CancelFunc
 }
 
 func NewExportMessageConsumer(interExportJob job.IExportJob, externalExportJob job.IExportJob, exportRunService service.IExportRunService, queueAdapter queue.IQueueChannelAdapter, exporterService service.IExporterService, datasetService service.IDatasetService) *ExportMessageConsumer {
+	ctx, cancel := context.WithCancel(context.Background())
 	return &ExportMessageConsumer{
 		interExportJob:    interExportJob,
 		externalExportJob: externalExportJob,
@@ -38,6 +41,8 @@ func NewExportMessageConsumer(interExportJob job.IExportJob, externalExportJob j
 		queueAdapter:      queueAdapter,
 		datasetService:    datasetService,
 		Wg:                sync.WaitGroup{},
+		cancelContext:     ctx,
+		cancelFunc:        cancel,
 	}
 }
 
@@ -45,7 +50,7 @@ func (c *ExportMessageConsumer) Consume() {
 	fmt.Println("Starting Export ConsumerService...")
 	msgs, err := c.queueAdapter.Consume(
 		configs.EnvExportQueueName(), // queue name
-		"",
+		"ExportConsumer",
 		true,  // auto-ack
 		false, // exclusive
 		false, // no-local
@@ -66,7 +71,7 @@ func (c *ExportMessageConsumer) Consume() {
 }
 
 func (c *ExportMessageConsumer) handleMessage(msg []byte) {
-	ctx := context.TODO()
+
 	jobValue, err := messages.DeserializeJob(string(msg))
 	if err != nil {
 		log.Errorf("Failed to deserialize job: %v", err)
@@ -76,12 +81,12 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 	reducer := jobValue.Args[1]
 	datasetId := jobValue.Args[2]
 
-	exporter, err := c.exporterService.FindByID(ctx, exporterId)
+	exporter, err := c.exporterService.FindByID(c.cancelContext, exporterId)
 	if err != nil || exporter == nil {
 		log.Errorf("Exporter does not exist: %v", err)
 		return
 	}
-	dataset, err := c.datasetService.GetDatasetByID(ctx, datasetId)
+	dataset, err := c.datasetService.GetDatasetByID(c.cancelContext, datasetId)
 	if err != nil || dataset == nil {
 		log.Errorf("Dataset does not exist: %v", err)
 		return
@@ -89,7 +94,7 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 	c.Wg.Add(1)
 	go func() {
 		start := time.Now()
-		run, err := c.exportRunService.Save(ctx, &models.ExportRun{
+		run, err := c.exportRunService.Save(c.cancelContext, &models.ExportRun{
 			ExporterId: exporter.ID,
 			Name:       exporter.Name,
 			Reducer:    reducer,
@@ -106,10 +111,14 @@ func (c *ExportMessageConsumer) handleMessage(msg []byte) {
 			run.Metrics = c.externalExportJob.Execute(exporter, reducer, dataset.Label)
 		}
 		run.End = time.Now()
-		c.exportRunService.Save(ctx, run)
+		c.exportRunService.Save(c.cancelContext, run)
 		if err != nil {
 			log.Errorf("Job finished with an error: %v", err)
 		}
 		defer c.Wg.Done()
 	}()
+}
+
+func (c *ExportMessageConsumer) Stop() {
+	c.cancelFunc()
 }

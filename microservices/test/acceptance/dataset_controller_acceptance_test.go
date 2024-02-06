@@ -1,7 +1,6 @@
 package acceptance
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"tds/shared/configs"
@@ -21,20 +20,20 @@ func TestDatasetControllerAcceptance(t *testing.T) {
 }
 
 type DatasetControllerAcceptanceTest struct {
+	AcceptanceTest
 	suite.Suite
 	requestRepo       models.RequestRepository
 	requestService    service.IRequestService
 	datasetRepo       models.DatasetRepository
 	datasetService    service.IDatasetService
 	datasetController *controller.DatasetController
-	ctx               context.Context
 }
 
 func (suite *DatasetControllerAcceptanceTest) SetupSuite() {
-	suite.ctx = context.Background()
-	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
+	suite.setupIntegration()
+	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.AcceptanceTest.ctx)))
 	suite.requestService = service.NewRequestService(suite.requestRepo)
-	suite.datasetRepo = repository.NewMongoDatasetRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
+	suite.datasetRepo = repository.NewMongoDatasetRepository(configs.GetDatabase(configs.ConnectDB(suite.AcceptanceTest.ctx)))
 	suite.datasetService = service.NewDatasetService(suite.datasetRepo)
 	suite.datasetController = controller.NewDatasetController(suite.datasetService)
 	go func() {
@@ -44,11 +43,12 @@ func (suite *DatasetControllerAcceptanceTest) SetupSuite() {
 }
 
 func (suite *DatasetControllerAcceptanceTest) SetupTest() {
-	suite.datasetRepo.DeleteAll(suite.ctx)
+	suite.datasetRepo.DeleteAll(suite.AcceptanceTest.ctx)
 }
 
 func (suite *DatasetControllerAcceptanceTest) TearDownSuite() {
 	suite.datasetController.Stop()
+	suite.teardownIntegration()
 }
 
 func (suite *DatasetControllerAcceptanceTest) TestHealth_Success() {
@@ -74,8 +74,8 @@ func (suite *DatasetControllerAcceptanceTest) TestCreateDataset() {
 	// when
 	resp, err := testsupport.Post("http://localhost:8081/datasets", string(body), "application/json")
 	// then
-	count, _ := suite.datasetRepo.Count(suite.ctx)
-	dataset, _ := suite.datasetRepo.FindByLabel(suite.ctx, "test")
+	count, _ := suite.datasetRepo.Count(suite.AcceptanceTest.ctx)
+	dataset, _ := suite.datasetRepo.FindByLabel(suite.AcceptanceTest.ctx, "test")
 	suite.Equal(int64(1), count)
 	suite.Equal("test", dataset.Label)
 	suite.Equal("test", dataset.Name)

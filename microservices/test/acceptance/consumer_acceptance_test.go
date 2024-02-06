@@ -1,7 +1,6 @@
 package acceptance
 
 import (
-	"context"
 	"os"
 	"tds/shared/configs"
 	"tds/shared/consumer"
@@ -23,6 +22,7 @@ func TestConsumerAcceptance(t *testing.T) {
 }
 
 type ExportConsumerAcceptanceTest struct {
+	AcceptanceTest
 	suite.Suite
 	storageService   *service.MinIOStorageService
 	publisherService *service.PublishService
@@ -33,12 +33,11 @@ type ExportConsumerAcceptanceTest struct {
 	exportRunRepo    *repository.MongoExportRunRunRepository
 	exportRunService *service.ExportRunService
 	exportConsumer   *consumer.ExportMessageConsumer
-	ctx              context.Context
+	queueAdapter     *queue.RabbitMQChannelAdapter
 }
 
 func (suite *ExportConsumerAcceptanceTest) SetupSuite() {
-	suite.ctx = context.Background()
-
+	suite.setupIntegration()
 	suite.exporterRepo = repository.NewMongoExporterRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.exportRunRepo = repository.NewMongoExportRunRunRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
@@ -47,15 +46,15 @@ func (suite *ExportConsumerAcceptanceTest) SetupSuite() {
 	suite.exportRunService = service.NewExportRunService(suite.exportRunRepo)
 	minioClient := configs.ConnectMinio()
 	rabbitMqChannel := configs.ConnectRabbitMQ()
-	rabbitMqAdapter := queue.NewRabbitMQChannelAdapter(rabbitMqChannel)
+	suite.queueAdapter = queue.NewRabbitMQChannelAdapter(rabbitMqChannel)
 	minioStorageAdapter := storage.NewMinIOStorageAdapter(minioClient)
 	suite.storageService = service.NewMinIOStorageService(minioStorageAdapter)
-	suite.publisherService = service.NewPublishService(rabbitMqAdapter)
+	suite.publisherService = service.NewPublishService(suite.queueAdapter)
 	suite.datasetRepo.DeleteAll(suite.ctx)
 	internalJob := job.NewInternalExportJob(suite.requestRepo, suite.storageService)
 	externJob := job.NewExternalExportJob(suite.requestRepo, suite.storageService)
 	suite.exportConsumer = consumer.NewExportMessageConsumer(internalJob, externJob,
-		suite.exportRunService, rabbitMqAdapter, service.NewExporterService(suite.exporterRepo), suite.datasetService)
+		suite.exportRunService, suite.queueAdapter, service.NewExporterService(suite.exporterRepo), suite.datasetService)
 	go func() {
 		suite.exportConsumer.Consume()
 	}()
@@ -65,6 +64,12 @@ func (suite *ExportConsumerAcceptanceTest) SetupTest() {
 	suite.requestRepo.DeleteAll(suite.ctx)
 	suite.exporterRepo.DeleteAll(suite.ctx)
 	suite.exportRunRepo.DeleteAll(suite.ctx)
+	suite.queueAdapter.PurgeQueue(configs.EnvExportBucketName(), false)
+}
+
+func (suite *ExportConsumerAcceptanceTest) TearDownSuite() {
+	suite.exportConsumer.Stop()
+	suite.teardownIntegration()
 }
 
 func (suite *ExportConsumerAcceptanceTest) TestExportConsumer_ForExternalExporterSuccess() {

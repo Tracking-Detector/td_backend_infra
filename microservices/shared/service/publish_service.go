@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"tds/shared/configs"
 	"tds/shared/messages"
 	"tds/shared/queue"
@@ -44,7 +45,7 @@ func (s *PublishService) EnqueueTrainingJob(modelId string, exporterId string, r
 		log.WithFields(log.Fields{
 			"service": "PublishService",
 			"error":   err.Error(),
-		}).Printf("Failed to publish a message to training queue: %v", err)
+		}).Fatalf("Failed to publish a message to training queue: %v", err)
 	}
 }
 
@@ -63,10 +64,11 @@ func (s *PublishService) EnqueueExportJob(exporterId string, reducer string, dat
 		Body:         []byte(message),
 		DeliveryMode: amqp.Persistent,
 	})
+	fmt.Println("Published message to export queue")
 	if err != nil {
 		log.WithFields(log.Fields{
 			"service": "PublishService",
 			"error":   err.Error(),
-		}).Printf("Failed to publish a message to training queue: %v", err)
+		}).Fatalf("Failed to publish a message to training queue: %v", err)
 	}
 }

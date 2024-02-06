@@ -1,7 +1,6 @@
 package acceptance
 
 import (
-	"context"
 	"tds/shared/configs"
 	"tds/shared/job"
 	"tds/shared/models"
@@ -18,8 +17,8 @@ func TestDatasetCalculationJobAcceptance(t *testing.T) {
 }
 
 type DatasetCalculationJobAcceptanceTest struct {
+	AcceptanceTest
 	suite.Suite
-	ctx              context.Context
 	requestRepo      models.RequestRepository
 	requestService   service.IRequestService
 	datasetRepo      models.DatasetRepository
@@ -28,7 +27,7 @@ type DatasetCalculationJobAcceptanceTest struct {
 }
 
 func (suite *DatasetCalculationJobAcceptanceTest) SetupTest() {
-	suite.ctx = context.Background()
+	suite.setupIntegration()
 	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.datasetRepo = repository.NewMongoDatasetRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.requestService = service.NewRequestService(suite.requestRepo)
@@ -36,6 +35,10 @@ func (suite *DatasetCalculationJobAcceptanceTest) SetupTest() {
 	suite.datasetMetricJob = *job.NewDatasetMetricJob(suite.datasetService, suite.requestService)
 	suite.requestRepo.DeleteAll(suite.ctx)
 	suite.datasetRepo.DeleteAll(suite.ctx)
+}
+
+func (suite *DatasetCalculationJobAcceptanceTest) TearDownSuite() {
+	suite.teardownIntegration()
 }
 
 func (suite *DatasetCalculationJobAcceptanceTest) TestExecute_Success() {
