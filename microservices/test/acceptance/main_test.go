@@ -2,7 +2,9 @@ package acceptance
 
 import (
 	"context"
+	"os"
 	"tds/test/testsupport/containers"
+	"testing"
 )
 
 type AcceptanceTest struct {
@@ -30,10 +32,9 @@ func (t *AcceptanceTest) teardownIntegration() {
 	t.cancel()
 }
 
-// func TestMain(m *testing.M) {
-// 	t := &AcceptanceTest{}
-// 	t.setupIntegration()
-// 	code := m.Run()
-// 	t.teardownIntegration()
-// 	os.Exit(code)
-// }
+func TestMain(m *testing.M) {
+
+	code := m.Run()
+
+	os.Exit(code)
+}
