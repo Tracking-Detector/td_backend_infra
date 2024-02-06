@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	heroResourcePath     = "./assets/content/hero.json"
-	featuresResourcePath = "./assets/content/features.json"
-	productsResourcePath = "./assets/content/products.json"
+	heroResourcePath              = "./assets/content/hero.json"
+	featuresResourcePath          = "./assets/content/features.json"
+	productsResourcePath          = "./assets/content/products.json"
+	installationGuideResourcePath = "./assets/content/installation_guide.json"
 )
 
 func LoadHomeResource() *models.Home {
@@ -24,12 +25,15 @@ func LoadHomeResource() *models.Home {
 	products := &models.Products{}
 	loadResource(productsResourcePath, products)
 	home.Products = products
+	installationGuide := &models.InstallationGuide{}
+	loadResource(installationGuideResourcePath, installationGuide)
+	home.InstallationGuide = installationGuide
 	return home
 }
 
 func loadResource(filePath string, resource interface{}) {
 	// Read file path and map to models.Hero
-	file, err := os.Open(heroResourcePath)
+	file, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
 	}
