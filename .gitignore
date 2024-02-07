@@ -6,3 +6,6 @@ private.pem
 .vscode
 node_modules
 public/static/styles.css
+tmp
+
+dashboard/static/styles.css
