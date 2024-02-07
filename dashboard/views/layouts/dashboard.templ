@@ -1,0 +1,20 @@
+package layouts
+
+
+templ Dashboard(page string) {
+     <!DOCTYPE html>
+    <html>
+        <head>
+            <title>Tracker Detector | {page}</title>
+            <link rel="stylesheet" href="/static/styles.css"/>
+        </head>
+        <body class="m-0 p-0">
+            <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
+                @Navbar()
+                <main class="flex-1 p-4 overflow-y-auto">
+                    { children... }
+                </main>
+            </div>
+        </body>
+    </html>
+}
