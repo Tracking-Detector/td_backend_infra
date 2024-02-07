@@ -25,7 +25,15 @@ func HeroSection(hero *models.Hero) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"container mx-auto py-12 md:py-24 lg:py-32 px-4\"><div class=\"grid items-center gap-6 lg:grid-cols-[1fr_500px] lg:gap-12 xl:grid-cols-[1fr_550px]\"><img class=\"mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last\" height=\"310\" src=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(hero.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"container mx-auto py-12 md:py-24 lg:py-32 px-4\"><div class=\"grid items-center gap-6 lg:grid-cols-[1fr_500px] lg:gap-12 xl:grid-cols-[1fr_550px]\"><img class=\"mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last\" height=\"310\" src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,4 +1,5 @@
 {
+    "id": "hero",
     "title": "Tracker Detector",
     "subTitle": "Protect your privacy with AI.",
     "caption": "Tracker Detector provides web extension that prove that AI can be used for web tracker detection. Furthermore, it provides a web service that allows users to upload their own models and datasets to achieve better datasets and a more complete ground truth.",

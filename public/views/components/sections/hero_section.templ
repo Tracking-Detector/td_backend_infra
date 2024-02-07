@@ -1,7 +1,7 @@
 package sections
 import  "github.com/Tracking-Detector/td_backend_infra/public/models"
 templ HeroSection(hero *models.Hero) {
-    <section class="container mx-auto py-12 md:py-24 lg:py-32 px-4">
+    <section id={hero.ID} class="container mx-auto py-12 md:py-24 lg:py-32 px-4">
         <div class="grid items-center gap-6 lg:grid-cols-[1fr_500px] lg:gap-12 xl:grid-cols-[1fr_550px]">
             <img
                 class="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"

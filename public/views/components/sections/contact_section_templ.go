@@ -10,7 +10,9 @@ import "context"
 import "io"
 import "bytes"
 
-func ContactSection() templ.Component {
+import "github.com/Tracking-Detector/td_backend_infra/public/models"
+
+func ContactSection(contact *models.Contact) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -23,7 +25,54 @@ func ContactSection() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"relative flex items-center min-h-screen p-4 overflow-hidden\"><div class=\"absolute inset-0 z-10 bg-gradient-to-r from-purple-500 via-pink-600 to-red-600 dark:from-purple-500 dark:via-pink-600 dark:to-red-600 rounded-t-[15%]\"><span class=\"absolute inset-0 w-64 h-64 translate-x-1/3 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full opacity-50 translate-y-1/2 animate-blob animation-delay-2000\"></span> <span class=\"absolute inset-0 w-200 h-200 translate-x-1/4 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full opacity-50 -translate-y-1/2 animate-blob animation-delay-1500\"></span></div><div class=\"w-full max-w-2xl mx-auto grid gap-4 z-20\"><div class=\"border text-card-foreground shadow-sm bg-opacity-70 bg-white dark:bg-gray-800/80 rounded-lg\" data-v0-t=\"card\"><div class=\"p-4\"><div class=\"grid gap-4\"><div class=\"space-y-2\"><input class=\"flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50\" id=\"name\" placeholder=\"Your Name\"></div><div class=\"space-y-2\"><input class=\"flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50\" id=\"email\" placeholder=\"Your Email\" type=\"email\"></div><div class=\"space-y-2\"><textarea class=\"flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[100px]\" id=\"message\" placeholder=\"Your Message\"></textarea></div><button class=\"inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary hover:bg-primary/90 h-11 rounded-md px-8 w-full bg-gradient-to-r from-purple-500 via-pink-600 to-red-600 text-white hover:from-purple-500 hover:via-pink-600 hover:to-red-600 dark:text-gray-200 hover:text-white hover:shadow-md\">Send Message</button></div></div></div></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"w-full py-12 md:py-24 lg:py-32 bg-gradient-to-r from-purple-500 via-pink-600 to-red-600\" id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(contact.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"px-4 md:px-6\"><div class=\"flex flex-col items-center justify-center space-y-4 text-center\"><div class=\"space-y-2\"><div class=\"inline-block rounded-lg bg-white px-3 py-1 text-sm\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 string
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Section)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/sections/contact_section.templ`, Line: 13, Col: 94}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><h2 class=\"text-3xl font-bold tracking-tighter sm:text-5xl text-white\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Title)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/sections/contact_section.templ`, Line: 14, Col: 99}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h2><p class=\"max-w-[900px] text-white md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(contact.Caption)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/sections/contact_section.templ`, Line: 16, Col: 32}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></div><form class=\"mx-auto\"><input class=\"w-full bg-white text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline\" type=\"text\" placeholder=\"Your Name\"> <input class=\"w-full bg-white text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline\" type=\"email\" placeholder=\"Your Email\"> <textarea placeholder=\"Your Message...\" rows=\"15\" class=\"w-full bg-white text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline\"></textarea> <button type=\"submit\" class=\"inline-flex mt-5 h-10 items-center justify-center rounded-md bg-white px-8 text-sm font-medium text-gray-900 shadow transition-colors hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-300 disabled:pointer-events-none disabled:opacity-50\">Send Message</button></form></div></div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

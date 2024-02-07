@@ -25,7 +25,15 @@ func InstallationGuideSection(guide *models.InstallationGuide) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"w-full py-12 md:py-24 lg:py-32 bg-white px-4\"><div class=\"grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10 \"><div class=\"space-y-2\"><h2 class=\"text-3xl font-bold tracking-tighter md:text-4xl/tight\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(guide.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"w-full py-12 md:py-24 lg:py-32 bg-white px-4\"><div class=\"grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10 \"><div class=\"space-y-2\"><h2 class=\"text-3xl font-bold tracking-tighter md:text-4xl/tight\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

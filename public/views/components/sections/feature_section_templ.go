@@ -25,7 +25,15 @@ func FeatureSection(features *models.Features) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"w-full py-12 md:py-24 lg:py-32 bg-white\"><div class=\"px-4\"><div class=\"flex flex-col items-center justify-center space-y-4 text-center\"><div class=\"space-y-2\"><div class=\"inline-block rounded-lg bg-gray-200 px-3 py-1 text-sm\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(features.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"w-full py-12 md:py-24 lg:py-32 bg-white\"><div class=\"px-4\"><div class=\"flex flex-col items-center justify-center space-y-4 text-center\"><div class=\"space-y-2\"><div class=\"inline-block rounded-lg bg-gray-200 px-3 py-1 text-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

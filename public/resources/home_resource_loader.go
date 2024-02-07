@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/Tracking-Detector/td_backend_infra/public/models"
+	"github.com/a-h/templ"
 )
 
 const (
@@ -12,6 +13,7 @@ const (
 	featuresResourcePath          = "./assets/content/features.json"
 	productsResourcePath          = "./assets/content/products.json"
 	installationGuideResourcePath = "./assets/content/installation_guide.json"
+	contactResourcePath           = "./assets/content/contact.json"
 )
 
 func LoadHomeResource() *models.Home {
@@ -28,6 +30,29 @@ func LoadHomeResource() *models.Home {
 	installationGuide := &models.InstallationGuide{}
 	loadResource(installationGuideResourcePath, installationGuide)
 	home.InstallationGuide = installationGuide
+	contact := &models.Contact{}
+	loadResource(contactResourcePath, contact)
+	home.Contact = contact
+	home.Navbar = &models.Navbar{
+		Links: []models.Link{
+			{
+				Text: "Features",
+				URL:  templ.SafeURL("#" + home.Features.ID),
+			},
+			{
+				Text: "Products",
+				URL:  templ.SafeURL("#" + home.Products.ID),
+			},
+			{
+				Text: "Install",
+				URL:  templ.SafeURL("#" + home.InstallationGuide.ID),
+			},
+			{
+				Text: "Contact",
+				URL:  templ.SafeURL("#" + home.Contact.ID),
+			},
+		},
+	}
 	return home
 }
 

@@ -28,7 +28,15 @@ func ProductSection(products *models.Products) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"w-full py-12 md:py-24 lg:py-32\" id=\"products\"><div class=\"px-4 md:px-6\"><div class=\"flex flex-col items-center justify-center space-y-4 text-center\"><div class=\"space-y-2\"><div class=\"inline-block rounded-lg bg-white px-3 py-1 text-sm\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<section class=\"w-full py-12 md:py-24 lg:py-32\" id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(products.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"px-4 md:px-6\"><div class=\"flex flex-col items-center justify-center space-y-4 text-center\"><div class=\"space-y-2\"><div class=\"inline-block rounded-lg bg-white px-3 py-1 text-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
