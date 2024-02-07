@@ -1,0 +1,32 @@
+package home
+
+import  (
+    "github.com/Tracking-Detector/td_backend_infra/dashboard/views/components"
+    "github.com/Tracking-Detector/td_backend_infra/dashboard/views/layouts"
+     "github.com/Tracking-Detector/td_backend_infra/dashboard/models"
+)
+
+
+templ IndexContent(serviceStatus []*models.ServiceStatus) {
+    <main id="status-content" class="flex flex-col gap-4 w-full">
+            <div class="grid grid-cols-4 gap-4 md:grid-cols-4 lg:grid-cols-4 grid-rows-2">
+                for _, service := range serviceStatus {
+                    @components.StatusCard(service)
+                }
+            </div>
+            @components.StatusTable(serviceStatus)
+    </main>
+}
+
+templ Index(serviceStatus []*models.ServiceStatus) {
+    @layouts.Dashboard("Home") {
+       <div class="flex justify-between items-center align-center mb-4 mx-auto w-full">
+            <h2 class="text-xl font-bold text-gray-600">Home</h2>
+            @components.IconButton(components.ReloadIcon(), templ.Attributes{
+                "hx-get": "/reload",
+                "hx-target": "#status-content",
+            })
+       </div>
+       @IndexContent(serviceStatus)
+    }
+}

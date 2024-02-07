@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/Tracking-Detector/td_backend_infra/dashboard/services"
-	"github.com/Tracking-Detector/td_backend_infra/dashboard/views/pages"
+	"github.com/Tracking-Detector/td_backend_infra/dashboard/views/pages/home"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -23,9 +23,15 @@ func NewHomeHandler(app *fiber.App, statusService services.IStatusService) *Home
 }
 
 func (h *HomeHandler) Index(c *fiber.Ctx) error {
-	return Render(c, pages.Home(h.statusService.GetStatus()))
+	return Render(c, home.Index(h.statusService.GetStatus()))
+}
+
+func (h *HomeHandler) ReloadContent(c *fiber.Ctx) error {
+	h.statusService.ReloadCache()
+	return Render(c, home.IndexContent(h.statusService.GetStatus()))
 }
 
 func (h *HomeHandler) RegisterHandlers() {
 	h.app.Get("/", h.Index)
+	h.app.Get("/reload", h.ReloadContent)
 }

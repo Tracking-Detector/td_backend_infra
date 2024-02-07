@@ -18,6 +18,9 @@ templ StatusTable(serviceStatus []*models.ServiceStatus) {
                 <th class="h-12 px-4 text-left align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 text-gray-600">
                   Response Time
                 </th>
+                <th class="h-12 px-4 align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 text-right text-gray-600">
+                    Last Checked
+                </th>
               </tr>
             </thead>
             <tbody class="[&amp;_tr:last-child]:border-0">
@@ -26,6 +29,7 @@ templ StatusTable(serviceStatus []*models.ServiceStatus) {
                         <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-medium">{status.ServiceName}</td>
                         <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{status.Status}</td>
                         <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{status.ResponseTime}</td>
+                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 text-right">{status.LastUpdate}</td>
                     </tr>
                 }
             </tbody>

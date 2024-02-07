@@ -11,4 +11,5 @@ type ServiceStatus struct {
 	StatusSubtitle string `json:"status_subtitle"`
 	ServiceName    string `json:"service_name"`
 	ResponseTime   string `json:"response_time"`
+	LastUpdate     string `json:"last_update"`
 }

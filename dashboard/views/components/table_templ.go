@@ -25,7 +25,7 @@ func StatusTable(serviceStatus []*models.ServiceStatus) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mt-4\"><div class=\"rounded-lg border bg-white text-card-foreground shadow-sm\" data-v0-t=\"card\"><div class=\"relative w-full overflow-auto\"><table class=\"w-full caption-bottom text-sm\"><thead class=\"[&amp;_tr]:border-b\"><tr class=\"border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted\"><th class=\"h-12 px-4 text-left align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 w-[200px] text-gray-600\">Service</th><th class=\"h-12 px-4 text-left align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 text-gray-600\">Status</th><th class=\"h-12 px-4 text-left align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 text-gray-600\">Response Time</th></tr></thead> <tbody class=\"[&amp;_tr:last-child]:border-0\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mt-4\"><div class=\"rounded-lg border bg-white text-card-foreground shadow-sm\" data-v0-t=\"card\"><div class=\"relative w-full overflow-auto\"><table class=\"w-full caption-bottom text-sm\"><thead class=\"[&amp;_tr]:border-b\"><tr class=\"border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted\"><th class=\"h-12 px-4 text-left align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 w-[200px] text-gray-600\">Service</th><th class=\"h-12 px-4 text-left align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 text-gray-600\">Status</th><th class=\"h-12 px-4 text-left align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 text-gray-600\">Response Time</th><th class=\"h-12 px-4 align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 text-right text-gray-600\">Last Checked</th></tr></thead> <tbody class=\"[&amp;_tr:last-child]:border-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -37,7 +37,7 @@ func StatusTable(serviceStatus []*models.ServiceStatus) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(status.ServiceName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/table.templ`, Line: 25, Col: 118}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/table.templ`, Line: 28, Col: 118}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -50,7 +50,7 @@ func StatusTable(serviceStatus []*models.ServiceStatus) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(status.Status)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/table.templ`, Line: 26, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/table.templ`, Line: 29, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -63,9 +63,22 @@ func StatusTable(serviceStatus []*models.ServiceStatus) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(status.ResponseTime)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/table.templ`, Line: 27, Col: 107}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/table.templ`, Line: 30, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 text-right\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(status.LastUpdate)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/table.templ`, Line: 31, Col: 116}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
