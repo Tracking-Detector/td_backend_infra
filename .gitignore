@@ -1,6 +1,6 @@
 letsencrypt
-config
-.env
+./config
+./.env
 public.pem
 private.pem
 .vscode

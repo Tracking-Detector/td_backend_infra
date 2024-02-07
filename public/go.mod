@@ -1,6 +1,6 @@
 module github.com/Tracking-Detector/td_backend_infra/public
 
-go 1.21.6
+go 1.21
 
 require (
 	github.com/a-h/templ v0.2.543
