@@ -16,7 +16,7 @@ func NewExportHandler(app *fiber.App) *ExportHandler {
 }
 
 func (h *ExportHandler) Index(c *fiber.Ctx) error {
-	return Render(c, layouts.Page("Exports"))
+	return Render(c, layouts.Dashboard("Exports"))
 }
 
 func (h *ExportHandler) RegisterHandlers() {

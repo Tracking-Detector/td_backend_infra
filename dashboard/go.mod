@@ -2,7 +2,11 @@ module github.com/Tracking-Detector/td_backend_infra/dashboard
 
 go 1.21.6
 
-require github.com/gofiber/fiber/v2 v2.52.0
+require (
+	github.com/a-h/templ v0.2.543
+	github.com/go-resty/resty/v2 v2.11.0
+	github.com/gofiber/fiber/v2 v2.52.0
+)
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
@@ -15,5 +19,6 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 )

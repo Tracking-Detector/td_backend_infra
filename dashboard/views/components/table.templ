@@ -1,0 +1,36 @@
+package components
+
+import  "github.com/Tracking-Detector/td_backend_infra/dashboard/models"
+
+templ StatusTable(serviceStatus []*models.ServiceStatus) {
+    <div class="mt-4">
+      <div class="rounded-lg border bg-white text-card-foreground shadow-sm" data-v0-t="card">
+        <div class="relative w-full overflow-auto">
+          <table class="w-full caption-bottom text-sm">
+            <thead class="[&amp;_tr]:border-b">
+              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <th class="h-12 px-4 text-left align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 w-[200px] text-gray-600">
+                  Service
+                </th>
+                <th class="h-12 px-4 text-left align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 text-gray-600">
+                  Status
+                </th>
+                <th class="h-12 px-4 text-left align-middle font-medium [&amp;:has([role=checkbox])]:pr-0 text-gray-600">
+                  Response Time
+                </th>
+              </tr>
+            </thead>
+            <tbody class="[&amp;_tr:last-child]:border-0">
+                for _, status := range serviceStatus {
+                    <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-medium">{status.ServiceName}</td>
+                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{status.Status}</td>
+                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{status.ResponseTime}</td>
+                    </tr>
+                }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+}

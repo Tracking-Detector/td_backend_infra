@@ -1,0 +1,61 @@
+package components
+
+
+
+templ LoadingHome() {
+    <div class="flex flex-col gap-20 w-full">
+        <div class="grid grid-cols-4 gap-4 md:grid-cols-4 lg:grid-cols-4 grid-rows-2">
+            @LoadingCard()
+            @LoadingCard()
+            @LoadingCard()
+            @LoadingCard()
+            @LoadingCard()
+            @LoadingCard()
+            @LoadingCard()
+            @LoadingCard()
+        </div>
+        @LoadingTable()
+    </div>
+
+}
+
+
+templ LoadingCard() {
+    <div class="rounded-lg border bg-card text-card-foreground shadow-sm" data-v0-t="card">
+        <div class="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg p-8">
+          <div class="h-4 w-24 mb-2 bg-gray-300 dark:bg-gray-600 rounded"></div>
+          <div class="h-4 w-20 bg-gray-300 dark:bg-gray-600 rounded"></div>
+        </div>
+    </div>
+}
+
+templ LoadingTable() {
+   <div class="rounded-lg border bg-card text-card-foreground shadow-sm" data-v0-t="card">
+  <div class="p-6 flex flex-col gap-10  bg-gray-200 animate-pulse">
+    <div class="flex items-center space-x-8 mx-8">
+      <div class="w-1/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-2/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-1/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-2/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-1/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-5/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+    </div>
+    <div class="flex items-center space-x-8">
+    <div class="w-1/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-2/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-1/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-2/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-1/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-5/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+    </div>
+    <div class="flex items-center space-x-8">
+      <div class="w-1/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-2/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-1/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-2/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-1/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+      <div class="w-5/12 h-6 rounded-full bg-gray-300 animate-pulse"></div>
+    </div>
+  </div>
+</div>
+}

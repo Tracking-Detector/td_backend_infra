@@ -16,7 +16,7 @@ func NewDatasetHandler(app *fiber.App) *DatasetHandler {
 }
 
 func (h *DatasetHandler) Index(c *fiber.Ctx) error {
-	return Render(c, layouts.Page("Datasets"))
+	return Render(c, layouts.Dashboard("Datasets"))
 }
 
 func (h *DatasetHandler) RegisterHandlers() {

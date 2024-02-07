@@ -16,7 +16,7 @@ func NewUserHandler(app *fiber.App) *UserHandler {
 }
 
 func (h *UserHandler) Index(c *fiber.Ctx) error {
-	return Render(c, layouts.Page("Users"))
+	return Render(c, layouts.Dashboard("Users"))
 }
 
 func (h *UserHandler) RegisterHandlers() {

@@ -16,7 +16,7 @@ func NewModelHandler(app *fiber.App) *ModelHandler {
 }
 
 func (h *ModelHandler) Index(c *fiber.Ctx) error {
-	return Render(c, layouts.Page("Models"))
+	return Render(c, layouts.Dashboard("Models"))
 }
 
 func (h *ModelHandler) RegisterHandlers() {

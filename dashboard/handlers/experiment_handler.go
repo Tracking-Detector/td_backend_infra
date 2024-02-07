@@ -16,7 +16,7 @@ func NewExperimentHandler(app *fiber.App) *ExperimentHandler {
 }
 
 func (h *ExperimentHandler) Index(c *fiber.Ctx) error {
-	return Render(c, layouts.Page("Experiments"))
+	return Render(c, layouts.Dashboard("Experiments"))
 }
 
 func (h *ExperimentHandler) RegisterHandlers() {

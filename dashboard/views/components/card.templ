@@ -1,0 +1,22 @@
+package components
+import  "github.com/Tracking-Detector/td_backend_infra/dashboard/models"
+
+templ StatusCard (service *models.ServiceStatus) {
+    <div class="rounded-lg border  bg-white text-card-foreground shadow-sm" data-v0-t="card">
+        <div class="p-6 flex flex-row items-center justify-between pb-2 space-y-0">
+          <h3 class="whitespace-nowrap tracking-tight text-sm font-medium text-gray-600">{service.ServiceName}</h3>
+          switch service.Status {
+            case models.HEALTHY:
+                @OkIcon()
+            case models.WARNING:
+                @AlertIcon()
+            case models.ERROR:
+                @ErrorIcon()
+          }
+        </div>
+        <div class="p-6">
+          <div class="text-lg font-bold">{service.Status}</div>
+          <p class="text-xs text-gray-500 dark:text-gray-400">{service.StatusSubtitle}</p>
+        </div>
+      </div>
+}

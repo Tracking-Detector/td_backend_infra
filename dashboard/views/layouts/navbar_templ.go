@@ -10,7 +10,10 @@ import "context"
 import "io"
 import "bytes"
 
-import "github.com/Tracking-Detector/td_backend_infra/dashboard/views/components"
+import (
+	"github.com/Tracking-Detector/td_backend_infra/dashboard/config"
+	"github.com/Tracking-Detector/td_backend_infra/dashboard/views/components"
+)
 
 func Navbar() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -41,7 +44,15 @@ func Navbar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Home</a> <a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"/exports\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Home</a> <a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"/datasets\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.DatasetIcon().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Dataset</a> <a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"/exports\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -73,15 +84,7 @@ func Navbar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Users</a> <a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"/datasets\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.DatasetIcon().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Dataset</a>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Users</a>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -93,7 +96,16 @@ func Navbar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"#\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 templ.SafeURL = templ.SafeURL("https://minio." + config.EnvDomain())
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var2)))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -101,7 +113,7 @@ func Navbar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Minio</a> <a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"#\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Minio</a> <a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"/mongo\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -109,7 +121,16 @@ func Navbar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Mongo DB</a> <a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"#\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Mongo DB</a> <a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 templ.SafeURL = templ.SafeURL("https://portainer." + config.EnvDomain())
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var3)))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -117,7 +138,16 @@ func Navbar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Portainer</a> <a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"#\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("Portainer</a> <a class=\"flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700\" href=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 templ.SafeURL = templ.SafeURL("https://traefik." + config.EnvDomain())
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var4)))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

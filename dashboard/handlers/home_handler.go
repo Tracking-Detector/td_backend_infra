@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	"github.com/Tracking-Detector/td_backend_infra/dashboard/views/layouts"
+	"github.com/Tracking-Detector/td_backend_infra/dashboard/services"
+	"github.com/Tracking-Detector/td_backend_infra/dashboard/views/pages"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -10,17 +11,19 @@ type IHandler interface {
 }
 
 type HomeHandler struct {
-	app *fiber.App
+	app           *fiber.App
+	statusService services.IStatusService
 }
 
-func NewHomeHandler(app *fiber.App) *HomeHandler {
+func NewHomeHandler(app *fiber.App, statusService services.IStatusService) *HomeHandler {
 	return &HomeHandler{
-		app: app,
+		app:           app,
+		statusService: statusService,
 	}
 }
 
 func (h *HomeHandler) Index(c *fiber.Ctx) error {
-	return Render(c, layouts.Page("Home"))
+	return Render(c, pages.Home(h.statusService.GetStatus()))
 }
 
 func (h *HomeHandler) RegisterHandlers() {

@@ -1,6 +1,9 @@
 package layouts
 
-import  "github.com/Tracking-Detector/td_backend_infra/dashboard/views/components"
+import  (
+    "github.com/Tracking-Detector/td_backend_infra/dashboard/views/components"
+    "github.com/Tracking-Detector/td_backend_infra/dashboard/config"
+)
 
 templ Navbar() {
     <aside class="h-screen w-64 bg-white dark:bg-gray-800 p-4 overflow-y-auto flex flex-col">
@@ -10,6 +13,10 @@ templ Navbar() {
       <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href="/">
         @components.HomeIcon()
         Home
+      </a>
+      <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href="/datasets">
+        @components.DatasetIcon()
+        Dataset
       </a>
       <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href="/exports">
         @components.ExportIcon()
@@ -27,25 +34,21 @@ templ Navbar() {
         @components.UserIcon()
         Users
       </a>
-      <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href="/datasets">
-        @components.DatasetIcon()
-        Dataset
-      </a>
       @components.Spacer()
       @components.HorizontalDivier()
-      <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href="#">
+      <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href={templ.SafeURL("https://minio."+config.EnvDomain())}>
         @components.MinIOIcon()
         Minio
       </a>
-      <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href="#">
+      <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href="/mongo">
         @components.MongoDBIcon()
         Mongo DB
       </a>
-      <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href="#">
+      <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href={templ.SafeURL("https://portainer."+config.EnvDomain())}>
         @components.PortainerIcon()
         Portainer
       </a>
-      <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href="#">
+      <a class="flex items-center gap-2 p-2 rounded-lg active:bg-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700" href={templ.SafeURL("https://traefik."+config.EnvDomain())}>
         @components.TraefikIcon()
         Traefik
       </a>
