@@ -3,7 +3,7 @@ tmp_dir = "tmp"
 
 [build]
   bin = "./tmp/main"
-  cmd = "make generate && make assets && go build -o ./tmp/main ./cmd/main.go"
+  cmd = "make generate && make assets && docker-compose build && docker-compose up"
   delay = 1000
   exclude_file = ["./static/styles.css"]
   exclude_regex = [".*_templ.go"]

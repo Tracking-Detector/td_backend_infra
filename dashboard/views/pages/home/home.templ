@@ -9,7 +9,7 @@ import  (
 
 templ IndexContent(serviceStatus []*models.ServiceStatus) {
     <main id="status-content" class="flex flex-col gap-4 w-full">
-            <div class="grid grid-cols-4 gap-4 md:grid-cols-4 lg:grid-cols-4 grid-rows-2">
+            <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
                 for _, service := range serviceStatus {
                     @components.StatusCard(service)
                 }

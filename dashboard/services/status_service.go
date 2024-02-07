@@ -55,7 +55,7 @@ func (s *StatusService) ReloadCache() {
 
 			mu.Lock()
 			defer mu.Unlock()
-			if resp.Time() > 400 {
+			if resp.Time().Milliseconds() > 400 {
 				resultCh <- &models.ServiceStatus{
 					ServiceName:    name,
 					Status:         models.WARNING,

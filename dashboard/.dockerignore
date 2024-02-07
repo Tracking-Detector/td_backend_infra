@@ -1,0 +1,7 @@
+.air.toml
+.env
+docker-compose.yaml
+Dockerfile
+Makefile
+assets
+tmp

@@ -1,0 +1,19 @@
+package dataset
+
+import "github.com/Tracking-Detector/td_backend_infra/dashboard/views/components"
+import     "github.com/Tracking-Detector/td_backend_infra/dashboard/views/layouts"
+templ IndexContent() {
+    <div>Hallo</div>
+}
+
+templ Index() {
+    @layouts.Dashboard("Dataset") {
+       <div class="flex justify-between items-center align-center mb-4 mx-auto w-full">
+            <h2 class="text-xl font-bold text-gray-600">Dataset</h2>
+            @components.IconButton(components.ReloadIcon(), templ.Attributes{
+                "hx-get": "/reload",
+                "hx-target": "#status-content",
+            })
+       </div>
+    }
+}
