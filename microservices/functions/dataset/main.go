@@ -21,9 +21,10 @@ func StartCron(datasetCalculationJob *job.DatasetMetricJob) {
 
 func main() {
 	ctx := context.TODO()
-	requestRepo := repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(ctx)))
+	db := configs.GetDatabase(configs.ConnectDB(ctx))
+	requestRepo := repository.NewMongoRequestRepository(db)
 	requestService := service.NewRequestService(requestRepo)
-	datasetRepo := repository.NewMongoDatasetRepository(configs.GetDatabase(configs.ConnectDB(ctx)))
+	datasetRepo := repository.NewMongoDatasetRepository(db)
 	datasetService := service.NewDatasetService(datasetRepo)
 
 	datasetCalculationJob := job.NewDatasetMetricJob(datasetService, requestService)

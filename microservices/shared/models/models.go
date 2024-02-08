@@ -236,7 +236,7 @@ type DataSetMetrics struct {
 type Dataset struct {
 	ID          string          `json:"id" bson:"_id,omitempty"`
 	Name        string          `json:"name" bson:"name"`
-	Label       string          `json:"label" bson:"label"`
+	Label       string          `json:"label,omitempty" bson:"label,omitempty"`
 	Description string          `json:"description" bson:"description"`
 	Metrics     *DataSetMetrics `json:"metrics,omitempty" bson:"metrics,omitempty"`
 }

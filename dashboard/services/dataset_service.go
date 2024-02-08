@@ -1,7 +1,9 @@
 package services
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Tracking-Detector/td_backend_infra/dashboard/config"
@@ -40,17 +42,17 @@ func (s *DatasetService) LoadAllDatasets() {
 		s.loadingError = nil
 		return
 	}
-	apires := result.(*models.APIResponse)
+	apires := &models.APIResponse[[]*models.Dataset]{}
+	if err := json.Unmarshal(resp.Body(), apires); err != nil {
+		s.loadingError = errors.New(err.Error())
+		return
+	}
 	if !apires.Success {
 		s.loadingError = errors.New(apires.Message)
 		return
 	}
-	if datasets, ok := apires.Data.([]*models.Dataset); ok {
-		s.cache = datasets
-		s.loadingError = nil
-	} else {
-		s.loadingError = errors.New("Error parsing response")
-	}
+	s.cache = apires.Data
+	s.loadingError = nil
 	s.lastUpdate = time.Now()
 }
 
@@ -63,12 +65,16 @@ func (s *DatasetService) GetAllDatasets() ([]*models.Dataset, error) {
 
 func (s *DatasetService) CreateDataset(datasetPayload *models.CreateDatasetPayload) (*models.Dataset, error) {
 	resp, err := s.restService.Post(s.dataSetServiceBaseUrl+"/datasets", datasetPayload)
+	fmt.Println(resp, err)
 	if err != nil {
 		return nil, err
 	}
-	apires := resp.Result().(*models.APIResponse)
+	apires := &models.APIResponse[*models.Dataset]{}
+	if err := json.Unmarshal(resp.Body(), apires); err != nil {
+		return nil, errors.New(err.Error())
+	}
 	if !apires.Success {
 		return nil, errors.New(apires.Message)
 	}
-	return apires.Data.(*models.Dataset), nil
+	return apires.Data, nil
 }

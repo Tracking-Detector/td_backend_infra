@@ -43,7 +43,7 @@ func (s *DatasetService) CreateDataset(ctx context.Context, datasetPayload *payl
 		Description: datasetPayload.Description,
 		Label:       datasetPayload.Label,
 	}
-	return s.Save(ctx, dataset)
+	return s.datasetRepo.Save(ctx, dataset)
 }
 
 func (s *DatasetService) Save(ctx context.Context, dataset *models.Dataset) (*models.Dataset, error) {

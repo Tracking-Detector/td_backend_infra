@@ -28,6 +28,7 @@ func (dc *DatasetController) GetAllDatasets(c *fiber.Ctx) error {
 
 func (dc *DatasetController) CreateDataset(c *fiber.Ctx) error {
 	datasetPayload := new(payload.CreateDatasetPayload)
+
 	if err := c.BodyParser(datasetPayload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(response.NewErrorResponse(err.Error()))
 	}
