@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
 	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/payload"
@@ -43,7 +44,8 @@ func (s *DatasetService) CreateDataset(ctx context.Context, datasetPayload *payl
 		Description: datasetPayload.Description,
 		Label:       datasetPayload.Label,
 	}
-	return s.Save(ctx, dataset)
+	fmt.Println("In create", *dataset)
+	return s.datasetRepo.Save(ctx, dataset)
 }
 
 func (s *DatasetService) Save(ctx context.Context, dataset *models.Dataset) (*models.Dataset, error) {

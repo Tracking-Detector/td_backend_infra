@@ -1,13 +1,33 @@
 package components
 
-templ IconButton(icon templ.Component, attrs templ.Attributes) {
+templ IconButton(icon templ.Component,  attrs templ.Attributes) {
 	<button { attrs... } class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-white hover:bg-gray-200 hover:text-accent-foreground h-10 w-10">
 		@icon
 	</button>
 }
 
 templ IconButtonLink(icon templ.Component, path templ.SafeURL) {
-    <a href={path} class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-white hover:bg-gray-200 hover:text-accent-foreground h-10 w-10">
+	<a href={ path } class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-white hover:bg-gray-200 hover:text-accent-foreground h-10 w-10">
 		@icon
 	</a>
+}
+
+templ ButtonPrimary(name string, buttonType string, attrs templ.Attributes) {
+	<button
+		{ attrs... }
+		class="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-10 px-4 py-2 bg-gray-900 text-gray-50 hover:bg-gray-700 hover:text-gray-100 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-100 dark:hover:text-gray-50"
+		type={buttonType}
+	>
+		{ name }
+	</button>
+}
+
+templ ButtonSecondary(name string, buttonType string, attrs templ.Attributes) {
+	<button
+		{ attrs... }
+		class="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-10 px-4 py-2 bg-white text-gray-900 hover:bg-gray-100 hover:text-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-50"
+		type={buttonType}
+	>
+		{ name }
+	</button>
 }

@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Tracking-Detector/td_backend_infra/dashboard/config"
@@ -63,6 +64,7 @@ func (s *DatasetService) GetAllDatasets() ([]*models.Dataset, error) {
 
 func (s *DatasetService) CreateDataset(datasetPayload *models.CreateDatasetPayload) (*models.Dataset, error) {
 	resp, err := s.restService.Post(s.dataSetServiceBaseUrl+"/datasets", datasetPayload)
+	fmt.Println(resp, err)
 	if err != nil {
 		return nil, err
 	}

@@ -7,6 +7,10 @@ import  (
 )
 
 
+const (
+    PageTitle = "Home"
+)
+
 templ IndexContent(serviceStatus []*models.ServiceStatus) {
     <main id="status-content" class="flex flex-col gap-4 w-full">
             <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
@@ -19,9 +23,9 @@ templ IndexContent(serviceStatus []*models.ServiceStatus) {
 }
 
 templ Index(serviceStatus []*models.ServiceStatus) {
-    @layouts.Dashboard("Home") {
+    @layouts.Dashboard(PageTitle) {
        <div class="flex justify-between items-center align-center mb-4 mx-auto w-full">
-            <h2 class="text-xl font-bold text-gray-600">Home</h2>
+            @components.Heading(PageTitle)
             @components.IconButton(components.ReloadIcon(), templ.Attributes{
                 "hx-get": "/reload",
                 "hx-target": "#status-content",

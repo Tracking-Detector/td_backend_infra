@@ -3,31 +3,64 @@ package dataset
 import "github.com/Tracking-Detector/td_backend_infra/dashboard/views/components"
 import "github.com/Tracking-Detector/td_backend_infra/dashboard/views/layouts"
 import "github.com/Tracking-Detector/td_backend_infra/dashboard/models"
+
+const (
+	PageTitle            = "Dataset"
+	CreateDatasetCaption = `
+        Create a new dataset to get started. The name of the dataset must be unique.
+        The label should be the label that is set at your request json in the dataset field.
+    `
+)
+
 templ IndexContent() {
-    <div>Hallo</div>
+	<div>Hallo</div>
 }
 
 templ Create() {
-    @layouts.Dashboard("Dataset") {
-        <div class="flex justify-between items-center align-center mb-4 mx-auto w-full">
-            <h2 class="text-xl font-bold text-gray-600">Create Dataset</h2>
-        </div>
-    }
+	@components.Popup("Create Dataset") {
+		<div id="createAlert" class="w-full pb-2">
+		</div>
+		<div class="pb-3 w-[500px]">
+			@components.Caption(CreateDatasetCaption)
+		</div>
+		<form id="createDatasetForm" class="w-[500px] grid gap-5" hx-post="/datasets/create" hx-trigger="submit"  hx-target="#createAlert" hx-headers='{"Content-Type": "application/json"}'>
+			<div class="grid gap-2">
+				@components.Label("Name:")
+				@components.Input("text", "Dataset Name...", "name", true)
+			</div>
+			<div class="grid gap-2">
+				@components.Label("Description:")
+				@components.TextArea("Description...", 5, "description", true)
+			</div>
+			<div class="grid gap-2">
+				@components.Label("Label:")
+				@components.Input("text", "Label...", "label", false)
+			</div>
+			<div class="w-full flex justify-space items-center gap-8">
+				@components.ButtonSecondary("Cancel", "button", templ.Attributes{
+					"hx-on:click": "document.getElementById('popup').innerHTML = ''",
+				})
+				@components.ButtonPrimary("Create", "submit", nil)
+			</div>
+		</form>
+	}
 }
 
 templ Index(datasets []*models.Dataset, err error) {
-    @layouts.Dashboard("Dataset") {
-        
-            <div class="flex justify-between items-center align-center mb-4 mx-auto w-full">
-                    <h2 class="text-xl font-bold text-gray-600">Dataset</h2>
-                    @components.IconButtonLink(components.AddIcon(), templ.SafeURL("/datasets/create"))
-                
-            </div>
-            if err != nil {
-                @components.Empty("Error with the API!", err.Error())
-            } else if len(datasets) == 0 {
-                @components.Empty("No datasets created!", "Create a new dataset to get started.")
-            }
-        
-    }
+	@layouts.Dashboard(PageTitle) {
+		<div id="popup"></div>
+		<div class="flex justify-between items-center align-center mb-4 mx-auto w-full">
+			@components.Heading(PageTitle)
+			@components.IconButton(components.AddIcon(), templ.Attributes{
+				"hx-get":     "/datasets/create",
+				"hx-trigger": "click",
+				"hx-target":  "#popup",
+			})
+		</div>
+		if err != nil {
+			@components.Empty("Error with the API!", err.Error())
+		} else if len(datasets) == 0 {
+			@components.Empty("No datasets created!", "Create a new dataset to get started.")
+		}
+	}
 }

@@ -20,7 +20,7 @@ type Dataset struct {
 }
 
 type CreateDatasetPayload struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Label       string `json:"label"`
+	Name        string `json:"name" form:"name" binding:"required"`
+	Description string `json:"description" form:"description" binding:"required"`
+	Label       string `json:"label" form:"label"`
 }
