@@ -27,6 +27,7 @@ func (h *DatasetHandler) Index(c *fiber.Ctx) error {
 }
 
 func (h *DatasetHandler) Reload(c *fiber.Ctx) error {
+	h.datasetService.LoadAllDatasets()
 	return Render(c, dataset.Content(h.datasetService.GetAllDatasets()))
 }
 

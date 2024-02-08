@@ -11,6 +11,7 @@ import (
 )
 
 type IDatasetService interface {
+	LoadAllDatasets()
 	GetAllDatasets() ([]*models.Dataset, error)
 	GetDatasetByID(id string) (*models.Dataset, error)
 	CreateDataset(datasetPayload *models.CreateDatasetPayload) (*models.Dataset, error)

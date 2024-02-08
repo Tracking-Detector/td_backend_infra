@@ -18,7 +18,7 @@ templ IndexContent() {
 }
 
 templ Create() {
-	@components.Popup("Create Dataset",  "/datasets/reload", "#datasetContent") {
+	@components.Popup("Create Dataset", "/datasets/reload", "#datasetContent") {
 		<div id="createAlert" class="w-full pb-2"></div>
 		<div class="pb-3 w-[500px]">
 			@components.Caption(CreateDatasetCaption)
@@ -38,7 +38,7 @@ templ Create() {
 			</div>
 			<div class="w-full flex justify-space items-center gap-8">
 				@components.ButtonSecondary("Cancel", "button", templ.Attributes{
-					"hx-get": "/datasets/reload",
+					"hx-get":    "/datasets/reload",
 					"hx-target": "#datasetContent",
 				})
 				@components.ButtonPrimary("Create", "submit", nil)
@@ -48,14 +48,14 @@ templ Create() {
 }
 
 templ DeleteDialog(dataset *models.Dataset) {
-	@components.Popup(fmt.Sprintf("Delete '%s'", dataset.Name),"/datasets/reload", "#datasetContent") {
+	@components.Popup(fmt.Sprintf("Delete '%s'", dataset.Name), "/datasets/reload", "#datasetContent") {
 		<div id="createAlert" class="w-full pb-2"></div>
 		<div class="pb-3 w-[500px]">
 			Are you sure that you want to delete the dataset? This will also delete all the data that is associated with the dataset.
 		</div>
 		<div class="w-full flex justify-space items-center gap-8">
 			@components.ButtonSecondary("Cancel", "button", templ.Attributes{
-				"hx-get": "/datasets/reload",
+				"hx-get":    "/datasets/reload",
 				"hx-target": "#datasetContent",
 			})
 			@components.ButtonPrimary("Delete", "submit", templ.Attributes{
@@ -70,11 +70,17 @@ templ Content(datasets []*models.Dataset, err error) {
 	<div id="popup"></div>
 	<div class="flex justify-between items-center align-center mb-4 mx-auto w-full">
 		@components.Heading(PageTitle)
-		@components.IconButton(components.AddIcon(), templ.Attributes{
-			"hx-get":     "/datasets/create",
-			"hx-trigger": "click",
-			"hx-target":  "#popup",
-		})
+		<div class="flex justify-center gap-4 items-center">
+			@components.IconButton(components.ReloadIcon(), templ.Attributes{
+				"hx-get":    "/datasets/reload",
+				"hx-target": "#datasetContent",
+			})
+			@components.IconButton(components.AddIcon(), templ.Attributes{
+				"hx-get":     "/datasets/create",
+				"hx-trigger": "click",
+				"hx-target":  "#popup",
+			})
+		</div>
 	</div>
 	<div>
 		if err != nil {
