@@ -10,7 +10,7 @@ COPY ./microservices/functions/download/main.go /app/main.go
 COPY ./microservices/shared /app/shared
 
 # Build the function executable with optimizations enabled
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o main .
+RUN go build -o main .
 
 FROM alpine:latest
 

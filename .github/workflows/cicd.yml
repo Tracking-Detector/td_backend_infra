@@ -1,0 +1,19 @@
+name: CICD
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Go 1.20.0
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20.0'
+      - name: Run tests
+        working-directory: microservices
+        run: go test ./test/...

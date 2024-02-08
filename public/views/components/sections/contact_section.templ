@@ -1,0 +1,41 @@
+package sections
+
+import  "github.com/Tracking-Detector/td_backend_infra/public/models"
+
+templ ContactSection(contact *models.Contact) {
+
+<section
+        class="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-r from-purple-500 via-pink-600 to-red-600"
+        id={contact.ID}
+      >
+        <div class="px-4 md:px-6">
+          <div class="flex flex-col items-center justify-center space-y-4 text-center">
+            <div class="space-y-2">
+              <div class="inline-block rounded-lg bg-white px-3 py-1 text-sm">{contact.Section}</div>
+              <h2 class="text-3xl font-bold tracking-tighter sm:text-5xl text-white">{contact.Title}</h2>
+              <p class="max-w-[900px] text-white md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                {contact.Caption}
+              </p>
+            </div>
+            <form class="mx-auto">
+                <input class="w-full bg-white text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline"
+                        type="text" placeholder="Your Name"/>
+                <input class="w-full bg-white text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline"
+                        type="email" placeholder="Your Email"/>
+         
+                <textarea
+                    placeholder="Your Message..."
+                    rows="15"
+                    class="w-full bg-white text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline"
+                ></textarea>
+                <button
+                    type="submit"
+                    class="inline-flex mt-5 h-10 items-center justify-center rounded-md bg-white px-8 text-sm font-medium text-gray-900 shadow transition-colors hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-300 disabled:pointer-events-none disabled:opacity-50"
+                >
+                    Send Message
+                </button>
+            </form>
+          </div>
+        </div>
+      </section>
+}

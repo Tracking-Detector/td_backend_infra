@@ -2,7 +2,6 @@ package extractor
 
 import (
 	"errors"
-	"tds/shared/models"
 )
 
 func GetTypes() []string {
@@ -89,53 +88,11 @@ func TYPE_EXTRACTOR(s string) ([]int, error) {
 	return nil, errors.New("Unknown type encountered")
 }
 
-// Label extractors
-func LABEL_EXTRACTOR_OR(labels []models.RequestDataLabel) ([]int, error) {
-	if len(labels) == 0 {
-		return nil, errors.New("Labels are not set")
-	}
-	isTracking := false
-	for _, label := range labels {
-		isTracking = isTracking || label.IsLabeled
-	}
-	if isTracking {
+func TRACKER_EXTRACTOR(tracker bool) ([]int, error) {
+	if tracker {
 		return []int{1}, nil
 	}
 	return []int{0}, nil
-}
-
-func LABEL_EXTRACTOR_EASY_PRIVACY(labels []models.RequestDataLabel) ([]int, error) {
-	if len(labels) == 0 {
-		return nil, errors.New("Labels are not set")
-	}
-	for _, label := range labels {
-		if label.Blocklist == "EasyPrivacy" {
-			if label.IsLabeled {
-				return []int{1}, nil
-			} else {
-				return []int{0}, nil
-			}
-		}
-
-	}
-	return nil, errors.New("Could not find EasyPrivacy label")
-}
-
-func LABEL_EXTRACTOR_EASY_LIST(labels []models.RequestDataLabel) ([]int, error) {
-	if len(labels) == 0 {
-		return nil, errors.New("Labels are not set")
-	}
-	for _, label := range labels {
-		if label.Blocklist == "EasyList" {
-			if label.IsLabeled {
-				return []int{1}, nil
-			} else {
-				return []int{0}, nil
-			}
-		}
-
-	}
-	return nil, errors.New("Could not find EasyList label")
 }
 
 func REQUEST_HEADER_REFERER_EXTRACTOR(headers []map[string]string) ([]int, error) {

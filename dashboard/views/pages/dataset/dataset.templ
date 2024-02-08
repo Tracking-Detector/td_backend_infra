@@ -1,0 +1,106 @@
+package dataset
+
+import "github.com/Tracking-Detector/td_backend_infra/dashboard/views/components"
+import "github.com/Tracking-Detector/td_backend_infra/dashboard/views/layouts"
+import "github.com/Tracking-Detector/td_backend_infra/dashboard/models"
+import "fmt"
+
+const (
+	PageTitle            = "Dataset"
+	CreateDatasetCaption = `
+        Create a new dataset to get started. The name of the dataset must be unique.
+        The label should be the label that is set at your request json in the dataset field.
+    `
+)
+
+templ IndexContent() {
+	<div>Hallo</div>
+}
+
+templ Create() {
+	@components.Popup("Create Dataset", "/datasets/reload", "#datasetContent") {
+		<div id="createAlert" class="w-full pb-2"></div>
+		<div class="pb-3 w-[500px]">
+			@components.Caption(CreateDatasetCaption)
+		</div>
+		<form id="createDatasetForm" class="w-[500px] grid gap-5" hx-post="/datasets/create" hx-trigger="submit" hx-target="#createAlert" hx-headers='{"Content-Type": "application/json"}'>
+			<div class="grid gap-2">
+				@components.Label("Name:")
+				@components.Input("text", "Dataset Name...", "name", true)
+			</div>
+			<div class="grid gap-2">
+				@components.Label("Description:")
+				@components.TextArea("Description...", 5, "description", true)
+			</div>
+			<div class="grid gap-2">
+				@components.Label("Label:")
+				@components.Input("text", "Label...", "label", false)
+			</div>
+			<div class="w-full flex justify-space items-center gap-8">
+				@components.ButtonSecondary("Cancel", "button", templ.Attributes{
+					"hx-get":    "/datasets/reload",
+					"hx-target": "#datasetContent",
+				})
+				@components.ButtonPrimary("Create", "submit", nil)
+			</div>
+		</form>
+	}
+}
+
+templ DeleteDialog(dataset *models.Dataset) {
+	@components.Popup(fmt.Sprintf("Delete '%s'", dataset.Name), "/datasets/reload", "#datasetContent") {
+		<div id="createAlert" class="w-full pb-2"></div>
+		<div class="pb-3 w-[500px]">
+			Are you sure that you want to delete the dataset? This will also delete all the data that is associated with the dataset.
+		</div>
+		<div class="w-full flex justify-space items-center gap-8">
+			@components.ButtonSecondary("Cancel", "button", templ.Attributes{
+				"hx-get":    "/datasets/reload",
+				"hx-target": "#datasetContent",
+			})
+			@components.ButtonPrimary("Delete", "submit", templ.Attributes{
+				"hx-delete": fmt.Sprintf("/datasets/delete/%s", dataset.ID),
+				"hx-target": "#createAlert",
+			})
+		</div>
+	}
+}
+
+templ Content(datasets []*models.Dataset, err error) {
+	<div id="popup"></div>
+	<div class="flex justify-between items-center align-center mb-4 mx-auto w-full">
+		@components.Heading(PageTitle)
+		<div class="flex justify-center gap-4 items-center">
+			@components.IconButton(components.ReloadIcon(), templ.Attributes{
+				"hx-get":    "/datasets/reload",
+				"hx-target": "#datasetContent",
+			})
+			@components.IconButton(components.AddIcon(), templ.Attributes{
+				"hx-get":     "/datasets/create",
+				"hx-trigger": "click",
+				"hx-target":  "#popup",
+			})
+		</div>
+	</div>
+	<div>
+		if err != nil {
+			@components.Empty("Error with the API!", err.Error())
+		} else if len(datasets) == 0 {
+			@components.Empty("No datasets created!", "Create a new dataset to get started.")
+		} else {
+			<div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+				for _, dataset := range datasets {
+					@components.DatasetCard(dataset)
+				}
+			</div>
+		}
+	</div>
+}
+
+templ Index(datasets []*models.Dataset, err error) {
+	@layouts.Dashboard(PageTitle) {
+		<div id="datasetContent" class="w-full">
+			@Content(datasets, err)
+		</div>
+	}
+}

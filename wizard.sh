@@ -35,13 +35,18 @@ generate_rsa_key_pair() {
 # Generate .env file
 generate_env_file() {
     local domain=$1
+
     read -p "Enter email for LetsEncrypt Certificate: " email
     echo "# mongo"
     echo "MONGO_URI=mongodb://db:27017/tracking-detector"
+    echo "DB_NAME=tracking-detector"
     echo "USER_COLLECTION=users"
     echo "REQUEST_COLLECTION=requests"
     echo "TRAINING_RUNS_COLLECTION=training-runs"
     echo "MODELS_COLLECTION=models"
+    echo "EXPORTER_COLLECTION=exporter"
+    echo "EXPORTER_RUNS_COLLECTION=exporter-runs"
+    echo "DATASET_COLLECTION=datasets"
     echo ""
     echo "# minio"
     echo "MINIO_URI=minio:9000"
@@ -49,9 +54,15 @@ generate_env_file() {
     echo "MINIO_PRIVATE_KEY=$(generate_random_string_32)"
     echo "EXPORT_BUCKET_NAME=exports"
     echo "MODEL_BUCKET_NAME=models"
+    echo "EXTRACTOR_BUCKET_NAME=extractors"
     echo ""
     echo "# admin"
     echo "ADMIN_API_KEY=$(generate_random_string_32)"
+    echo ""
+    echo "# rabbitmq"
+    echo "RABBIT_URI=amqp://$(generate_random_string_32):$(generate_random_string_32)@rabbitmq:5672/"
+    echo "TRAIN_QUEUE=training"
+    echo "EXPORT_QUEUE=exports"
     echo ""
     echo "DOMAIN=$domain"
     echo "CONFIG_FOLDER=$CONFIG_FOLDER"

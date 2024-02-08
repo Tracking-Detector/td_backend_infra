@@ -1,0 +1,360 @@
+version: '3.3'
+
+networks:
+  web:
+name: dev
+volumes:
+  mongo_storage:
+  minio_data:
+
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:v2.9
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.traefik.rule=Host(`traefik.localhost`)'
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+      - "traefik.http.middlewares.stripapi.stripprefix.prefixes=/api"
+    command:
+      - '--api.dashboard=true'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedByDefault=false'
+      - "--entrypoints.web.address=:80"
+      - '--log=true'
+      - '--log.level=DEBUG'
+    networks:
+      - web
+  mongo-express:
+    container_name: mongo-express
+    restart: unless-stopped
+    image: mongo-express:latest
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://db:27017/tracking-detector
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+      - ME_CONFIG_BASICAUTH=false
+      - ME_CONFIG_SITE_BASEURL=/mongo
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.mongo-express.rule=(Host(`dashboard.${DOMAIN}`) && PathPrefix(`/mongo`))' 
+      - "traefik.http.services.mongo-express.loadbalancer.server.port=8081"
+      - "traefik.http.routers.mongo-express.entrypoints=web"
+    depends_on:
+      - db
+    networks:
+      - web
+  # infra
+  db:
+    image: mongo:latest
+    restart: unless-stopped
+    container_name: db
+    environment:
+      - MONGO_INITDB_DATABASE=${DB_NAME}
+    volumes:
+      - mongo_storage:/data/db
+    networks:
+      - web
+
+  minio:
+    restart: unless-stopped
+    image: minio/minio
+    container_name: minio
+    volumes:
+      - minio_data:/data
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.minio.rule=Host(`minio.localhost`)'
+      - "traefik.http.services.minio.loadbalancer.server.port=9001"
+      - "traefik.http.routers.minio.entrypoints=web"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_PRIVATE_KEY}
+    command: server ~ --address ':9000' --console-address ':9001'
+    networks:
+      - web
+
+  rabbitmq:
+    image: "rabbitmq:latest"
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: "VdJMg9mUuSXilaGn5e9LDmDM18gGCytk"
+      RABBITMQ_DEFAULT_PASS: "O6B1Ddp1pc5HSQfeMeKkiGR676ZlFdgN"
+    networks:
+      - web
+
+  # microservices
+  dataset:
+    restart: unless-stopped
+    container_name: dataset
+    build: 
+      context: ..
+      dockerfile: ./microservices/functions/dataset/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
+      - EXPORTER_RUNS_COLLECTION=${EXPORTER_RUNS_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - DATASET_COLLECTION=${DATASET_COLLECTION}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+    labels:
+      - microservice=dataset
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.dataset.rule=(Host(`dashboard.localhost`) && PathPrefix(`/api/datasets`))' 
+      - "traefik.http.services.dataset.loadbalancer.server.port=8081"
+      - "traefik.http.routers.dataset.entrypoints=web"
+      - 'traefik.http.routers.dataset.middlewares=stripapi@docker'
+    networks:
+      - web
+
+  
+  dispatch:
+    restart: unless-stopped
+    container_name: dispatch
+    build:
+      context: ..
+      dockerfile: ./microservices/functions/dispatcher/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
+      - EXPORTER_RUNS_COLLECTION=${EXPORTER_RUNS_COLLECTION}
+      - DATASET_COLLECTION=${DATASET_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+      - MODELS_COLLECTION=${MODELS_COLLECTION}
+      - RABBIT_URI=${RABBIT_URI}
+    depends_on:
+      - minio
+      - db
+      - rabbitmq
+    labels:
+      - microservice=dispatch
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.dispatch.rule=(Host(`dashboard.localhost`) && PathPrefix(`/api/dispatch`))' 
+      - "traefik.http.services.dispatch.loadbalancer.server.port=8081"
+      - "traefik.http.routers.dispatch.entrypoints=web"
+      - 'traefik.http.routers.dispatch.middlewares=stripapi@docker' 
+    networks:
+      - web
+
+  download:
+    restart: unless-stopped
+    container_name: download
+    build:
+      context: ..
+      dockerfile: ./microservices/functions/download/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
+      - EXPORTER_RUNS_COLLECTION=${EXPORTER_RUNS_COLLECTION}
+      - DATASET_COLLECTION=${DATASET_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+    labels:
+      - microservice=download
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.download.rule=(Host(`dashboard.localhost`) && PathPrefix(`/api/transfer`))' 
+      - "traefik.http.services.download.loadbalancer.server.port=8081"
+      - "traefik.http.routers.download.entrypoints=web"
+      - 'traefik.http.routers.download.middlewares=stripapi@docker' 
+    networks:
+      - web
+  
+  export:
+    restart: unless-stopped
+    container_name: export
+    build:
+      context: ..
+      dockerfile: ./microservices/functions/export/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
+      - EXPORTER_RUNS_COLLECTION=${EXPORTER_RUNS_COLLECTION}
+      - DATASET_COLLECTION=${DATASET_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+      - rabbitmq
+    labels:
+      - microservice=export
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.export.rule=(Host(`dashboard.localhost`) && PathPrefix(`/api/export`))' 
+      - "traefik.http.services.export.loadbalancer.server.port=8081"
+      - "traefik.http.routers.export.entrypoints=web"
+      - 'traefik.http.routers.export.middlewares=stripapi@docker'
+    networks:
+      - web
+
+  model:
+    restart: unless-stopped
+    container_name: model
+    build: 
+      context: ..
+      dockerfile: ./microservices/functions/model/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
+      - EXPORTER_RUNS_COLLECTION=${EXPORTER_RUNS_COLLECTION}
+      - DATASET_COLLECTION=${DATASET_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+    labels:
+      - microservice=model
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.model.rule=(Host(`dashboard.localhost`) && PathPrefix(`/api/models`))' 
+      - "traefik.http.services.model.loadbalancer.server.port=8081"
+      - "traefik.http.routers.model.entrypoints=web"
+      - 'traefik.http.routers.model.middlewares=stripapi@docker' 
+    networks:
+      - web
+
+  request:
+    restart: unless-stopped
+    container_name: request
+    build: 
+      context: ..
+      dockerfile: ./microservices/functions/requests/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
+      - EXPORTER_RUNS_COLLECTION=${EXPORTER_RUNS_COLLECTION}
+      - DATASET_COLLECTION=${DATASET_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+    labels:
+      - microservice=request
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.request.rule=(Host(`dashboard.localhost`) && PathPrefix(`/api/requests`))' 
+      - "traefik.http.services.request.loadbalancer.server.port=8081"
+      - "traefik.http.routers.request.entrypoints=web"
+      - 'traefik.http.routers.request.middlewares=stripapi@docker' 
+    networks:
+      - web
+
+
+  
+  user:
+    restart: unless-stopped
+    container_name: user
+    build:
+      context: ..
+      dockerfile: ./microservices/functions/users/Dockerfile
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - DB_NAME=${DB_NAME}
+      - USER_COLLECTION=${USER_COLLECTION}
+      - REQUEST_COLLECTION=${REQUEST_COLLECTION}
+      - TRAINING_RUNS_COLLECTION=${TRAINING_RUNS_COLLECTION}
+      - EXPORTER_COLLECTION=${EXPORTER_COLLECTION}
+      - EXPORTER_RUNS_COLLECTION=${EXPORTER_RUNS_COLLECTION}
+      - DATASET_COLLECTION=${DATASET_COLLECTION}
+      - MINIO_URI=${MINIO_URI}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_PRIVATE_KEY=${MINIO_PRIVATE_KEY}
+      - EXPORT_BUCKET_NAME=${EXPORT_BUCKET_NAME}
+      - MODEL_BUCKET_NAME=${MODEL_BUCKET_NAME}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    depends_on:
+      - minio
+      - db
+    labels:
+      - microservice=user
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.user.rule=(Host(`dashboard.localhost`) && PathPrefix(`/api/users`))' 
+      - "traefik.http.services.user.loadbalancer.server.port=8081"
+      - "traefik.http.routers.user.entrypoints=web"
+      - 'traefik.http.routers.user.middlewares=stripapi@docker' 
+    networks:
+      - web
+  
+  dashboard:
+    restart: unless-stopped
+    container_name: dashboard
+    build:
+      context: ..
+      dockerfile: ./dashboard/Dockerfile
+    environment:
+      - DOMAIN=${DOMAIN}
+      - DATASET_SERVICE_DOMAIN=${DATASET_SERVICE_DOMAIN}
+      - DISPATCH_SERVICE_DOMAIN=${DISPATCH_SERVICE_DOMAIN}
+      - DOWNLOAD_SERVICE_DOMAIN=${DOWNLOAD_SERVICE_DOMAIN}
+      - DATASET_COLLECTION=${DATASET_COLLECTION}
+      - EXPORT_SERVICE_DOMAIN=${EXPORT_SERVICE_DOMAIN}
+      - MODEL_SERVICE_DOMAIN=${MODEL_SERVICE_DOMAIN}
+      - REQUEST_SERVICE_DOMAIN=${REQUEST_SERVICE_DOMAIN}
+      - USER_SERVICE_DOMAIN=${USER_SERVICE_DOMAIN}
+    labels:
+      - microservice=dashboard
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.dashboard.rule=Host(`dashboard.localhost`)' 
+      - "traefik.http.services.dashboard.loadbalancer.server.port=8081"
+      - "traefik.http.routers.dashboard.entrypoints=web"
+    networks:
+      - web

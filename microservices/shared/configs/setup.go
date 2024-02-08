@@ -2,9 +2,9 @@ package configs
 
 import (
 	"context"
-	"time"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/streadway/amqp"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -13,21 +13,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectDB() *mongo.Client {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+func ConnectDB(ctx context.Context) *mongo.Client {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(EnvMongoURI()))
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	//ping the database
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.WithFields(log.Fields{
-		"service": "setup",
+		"service": "Setup",
 	}).Info("Successfully connected to MongoDB.")
 	return client
 }
@@ -38,45 +34,50 @@ func ConnectMinio() *minio.Client {
 		Secure: false,
 	})
 	if err != nil {
-		log.Fatalln(err)
+		log.WithFields(log.Fields{
+			"service": "Setup",
+		}).Fatalln(err)
 	}
 	log.WithFields(log.Fields{
-		"service": "setup",
+		"service": "Setup",
 	}).Info("Successfully connected to MinIO.")
 	return minioClient
 }
 
-var DB *mongo.Client = ConnectDB()
-
-var MINIO *minio.Client = ConnectMinio()
-
-func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-	collection := client.Database("tracking-detector").Collection(collectionName)
-	return collection
-}
-
-func VerifyBucketExists(ctx context.Context, client *minio.Client, bucketName string) {
-	if exists, err := client.BucketExists(ctx, bucketName); err != nil {
+func ConnectRabbitMQ() *amqp.Channel {
+	rabbitConn, err := amqp.Dial(EnvMQURI())
+	if err != nil {
 		log.WithFields(log.Fields{
 			"service": "setup",
 			"error":   err.Error(),
-		}).Fatal("Error verifing whether bucket exisits.")
-	} else if exists {
-	} else {
-		if makeBucketError := client.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: "eu-central-1"}); makeBucketError != nil {
-			log.WithFields(log.Fields{
-				"service": "setup",
-				"error":   makeBucketError.Error(),
-			}).Fatal("Error creating bucket with name ", bucketName, ".")
-		} else {
-			if setVersioningError := client.SetBucketVersioning(ctx, bucketName, minio.BucketVersioningConfiguration{
-				Status: "Enabled",
-			}); setVersioningError != nil {
-				log.WithFields(log.Fields{
-					"service": "setup",
-					"error":   makeBucketError.Error(),
-				}).Fatal("Error setting versioning for bucket with name ", bucketName, ".")
-			}
-		}
+		}).Fatalf("Failed to connect to RabbitMQ: %v", err)
 	}
+	rabbitCh, err := rabbitConn.Channel()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"service": "setup",
+			"error":   err.Error(),
+		}).Fatalf("Failed to open Channel: %v", err)
+	}
+	_, err = rabbitCh.QueueDeclare(EnvExportQueueName(), true, false, false, false, nil)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"service": "setup",
+			"error":   err.Error(),
+		}).Fatalf("Failed to declare an exports queue: %v", err)
+	}
+
+	_, err = rabbitCh.QueueDeclare(EnvTrainQueueName(), true, false, false, false, nil)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"service": "setup",
+			"error":   err.Error(),
+		}).Fatalf("Failed to declare a training queue: %v", err)
+	}
+	return rabbitCh
+}
+
+func GetDatabase(client *mongo.Client) *mongo.Database {
+	db := client.Database(EnvDBName())
+	return db
 }

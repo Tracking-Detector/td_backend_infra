@@ -1,0 +1,20 @@
+{
+    "id": "features",
+    "section": "Features",
+    "title": "Why Tracker Detector?",
+    "caption": "Tracker Detector provides a comprehensive solution to maintain your privacy online. Here are some of the features that make it stand out.",
+    "items": [
+        {
+            "title": "AI-Powered Detection",
+            "caption": "Our AI-powered detection system identifies and blocks a wide range of web trackers to ensure your privacy."
+        },
+        {
+            "title": "Easy to Use",
+            "caption": "With a simple and intuitive interface, Tracker Detector is easy to use for everyone."
+        },
+        {
+            "title": "Regular Updates",
+            "caption": "We regularly update our database to ensure that you are protected against the latest tracking techniques."
+        }
+    ]
+}

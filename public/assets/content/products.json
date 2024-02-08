@@ -1,0 +1,31 @@
+{
+    "id": "products",
+    "section": "Products",
+    "title": "Our Products",
+    "caption": "We offer two different products to cater to your needs. Choose the one that suits you best.",
+    "products": [
+        {
+            "name": "Tracking Detector",
+            "description": "Tracking Detector is a Chrome web extension that blocks web tracker with the use of a pre-trained tensorflow.js model.",
+            "logo": "/static/images/td-logo.png",
+            "points": [
+                "Free of use",
+                "Regular updates and improvements",
+                "Open source",
+                "More transparency when browsing the web"
+            ]
+        },
+        {
+            "name": "Train On Surf",
+            "description": "Train On Surf is Chrome web extension that trains a tensorflow.js model while you surf the internet.",
+            "logo": "/static/images/tos-logo.png",
+            "points": [
+                "Free of use",
+                "Regular updates and improvements",
+                "Open source",
+                "Adapts to your browsing habits",
+                "Optimized for your most visited websites"
+            ]
+        }
+    ]
+}

@@ -1,5 +1,11 @@
 letsencrypt
-config
-.env
+./config
+./.env
 public.pem
 private.pem
+.vscode
+node_modules
+public/static/styles.css
+tmp
+
+dashboard/static/styles.css
