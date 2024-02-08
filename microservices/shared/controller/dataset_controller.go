@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/payload"
 	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/response"
 	"github.com/Tracking-Detector/td_backend_infra/microservices/shared/service"
@@ -32,6 +34,7 @@ func (dc *DatasetController) CreateDataset(c *fiber.Ctx) error {
 	if err := c.BodyParser(datasetPayload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(response.NewErrorResponse(err.Error()))
 	}
+	fmt.Println(*datasetPayload)
 	dataset, err := dc.datasetService.CreateDataset(c.Context(), datasetPayload)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(response.NewErrorResponse(err.Error()))
