@@ -6,6 +6,7 @@ import (
 	context "context"
 
 	models "github.com/Tracking-Detector/td_backend_infra/microservices/shared/models"
+	payload "github.com/Tracking-Detector/td_backend_infra/microservices/shared/payload"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,7 +16,7 @@ type IUserService struct {
 }
 
 // CreateApiUser provides a mock function with given fields: ctx, email
-func (_m *IUserService) CreateApiUser(ctx context.Context, email string) (string, error) {
+func (_m *IUserService) CreateApiUser(ctx context.Context, email payload.CreateUserData) (string, error) {
 	ret := _m.Called(ctx, email)
 
 	if len(ret) == 0 {
@@ -24,16 +25,16 @@ func (_m *IUserService) CreateApiUser(ctx context.Context, email string) (string
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, payload.CreateUserData) (string, error)); ok {
 		return rf(ctx, email)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, payload.CreateUserData) string); ok {
 		r0 = rf(ctx, email)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, payload.CreateUserData) error); ok {
 		r1 = rf(ctx, email)
 	} else {
 		r1 = ret.Error(1)
@@ -88,24 +89,6 @@ func (_m *IUserService) GetAllUsers(ctx context.Context) ([]*models.UserData, er
 	}
 
 	return r0, r1
-}
-
-// InitAdmin provides a mock function with given fields: ctx
-func (_m *IUserService) InitAdmin(ctx context.Context) error {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for InitAdmin")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
 }
 
 // NewIUserService creates a new instance of IUserService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

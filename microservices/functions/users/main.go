@@ -14,7 +14,6 @@ func main() {
 	userRepo := repository.NewMongoUserRepository(configs.GetDatabase(configs.ConnectDB(ctx)))
 	encryptionService := service.NewEncryptionService()
 	userService := service.NewUserService(userRepo, encryptionService)
-	userService.InitAdmin(ctx)
 	userController := controller.NewUserController(userService)
 
 	userController.Start()

@@ -96,8 +96,9 @@ func (e *TrainingRun) GetName() string {
 type Role string
 
 const (
-	ADMIN  Role = "admin"
-	CLIENT Role = "client"
+	ADMIN    Role = "admin"
+	CLIENT   Role = "client"
+	REVIEWER Role = "reviewer"
 )
 
 type UserData struct {

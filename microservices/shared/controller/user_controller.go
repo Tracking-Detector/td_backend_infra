@@ -37,7 +37,7 @@ func (uc *UserController) CreateApiUser(c *fiber.Ctx) error {
 	if err := c.BodyParser(&createUserData); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(response.NewErrorResponse(err.Error()))
 	}
-	key, err := uc.userService.CreateApiUser(c.Context(), createUserData.Email)
+	key, err := uc.userService.CreateApiUser(c.Context(), createUserData)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(response.NewErrorResponse(err.Error()))
 	}
