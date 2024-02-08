@@ -128,6 +128,7 @@ func FindAllBy[T models.BaseModel](ctx context.Context, coll *mongo.Collection, 
 func FindByID[T models.BaseModel](ctx context.Context, coll *mongo.Collection, id string, entityType T) (T, error) {
 	var entity T
 	res := coll.FindOne(ctx, bson.M{"_id": id})
+	fmt.Println("FindByID", res)
 	if err := res.Err(); err != nil {
 		return entity, err
 	}
@@ -166,9 +167,10 @@ func FindByName[T models.BaseModelName](ctx context.Context, coll *mongo.Collect
 }
 
 func DeleteByID(ctx context.Context, coll *mongo.Collection, id string) error {
-	_, err := coll.DeleteOne(ctx, bson.M{
+	res, err := coll.DeleteOne(ctx, bson.M{
 		"_id": id,
 	})
+	fmt.Println(res)
 	return err
 }
 

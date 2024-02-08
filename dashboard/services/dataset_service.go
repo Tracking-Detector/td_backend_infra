@@ -12,7 +12,9 @@ import (
 
 type IDatasetService interface {
 	GetAllDatasets() ([]*models.Dataset, error)
+	GetDatasetByID(id string) (*models.Dataset, error)
 	CreateDataset(datasetPayload *models.CreateDatasetPayload) (*models.Dataset, error)
+	DeleteDataset(id string) error
 }
 
 type DatasetService struct {
@@ -31,15 +33,10 @@ func NewDatasetService(restService IRestService) *DatasetService {
 }
 
 func (s *DatasetService) LoadAllDatasets() {
+	fmt.Println("Loading datasets")
 	resp, err := s.restService.Get(s.dataSetServiceBaseUrl + "/datasets")
 	if err != nil {
 		s.loadingError = err
-		return
-	}
-	result := resp.Result()
-	if result == nil {
-		s.cache = make([]*models.Dataset, 0)
-		s.loadingError = nil
 		return
 	}
 	apires := &models.APIResponse[[]*models.Dataset]{}
@@ -52,6 +49,7 @@ func (s *DatasetService) LoadAllDatasets() {
 		return
 	}
 	s.cache = apires.Data
+	fmt.Println("Found datasets", len(s.cache))
 	s.loadingError = nil
 	s.lastUpdate = time.Now()
 }
@@ -76,5 +74,32 @@ func (s *DatasetService) CreateDataset(datasetPayload *models.CreateDatasetPaylo
 	if !apires.Success {
 		return nil, errors.New(apires.Message)
 	}
+	s.LoadAllDatasets()
 	return apires.Data, nil
+}
+
+func (s *DatasetService) GetDatasetByID(id string) (*models.Dataset, error) {
+	s.LoadAllDatasets()
+	for _, dataset := range s.cache {
+		if dataset.ID == id {
+			return dataset, nil
+		}
+	}
+	return nil, errors.New("Dataset not found")
+}
+
+func (s *DatasetService) DeleteDataset(id string) error {
+	resp, err := s.restService.Delete(s.dataSetServiceBaseUrl + "/datasets/" + id)
+	if err != nil {
+		return err
+	}
+	apires := &models.APIResponse[interface{}]{}
+	if err := json.Unmarshal(resp.Body(), apires); err != nil {
+		return errors.New(err.Error())
+	}
+	if !apires.Success {
+		return errors.New(apires.Message)
+	}
+	s.LoadAllDatasets()
+	return nil
 }

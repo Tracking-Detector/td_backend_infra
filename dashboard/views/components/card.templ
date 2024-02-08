@@ -1,22 +1,65 @@
 package components
-import  "github.com/Tracking-Detector/td_backend_infra/dashboard/models"
+
+import "github.com/Tracking-Detector/td_backend_infra/dashboard/models"
+import "fmt"
 
 templ StatusCard (service *models.ServiceStatus) {
-    <div class="rounded-lg border  bg-white text-card-foreground shadow-sm" data-v0-t="card">
-        <div class="p-6 flex flex-row items-center justify-between pb-2 space-y-0">
-          <h3 class="whitespace-nowrap tracking-tight text-sm font-medium text-gray-600">{service.ServiceName}</h3>
-          switch service.Status {
-            case models.HEALTHY:
-                @OkIcon()
-            case models.WARNING:
-                @AlertIcon()
-            case models.ERROR:
-                @ErrorIcon()
-          }
-        </div>
-        <div class="p-6">
-          <div class="text-lg font-bold">{service.Status}</div>
-          <p class="text-xs text-gray-500 dark:text-gray-400">{service.StatusSubtitle}</p>
-        </div>
-      </div>
+	<div class="rounded-lg border  bg-white text-card-foreground shadow-sm">
+		<div class="p-6 flex flex-row items-center justify-between pb-2 space-y-0">
+			<h3 class="whitespace-nowrap tracking-tight text-sm font-medium text-gray-600">{ service.ServiceName }</h3>
+			switch service.Status {
+				case models.HEALTHY:
+					@OkIcon()
+				case models.WARNING:
+					@AlertIcon()
+				case models.ERROR:
+					@ErrorIcon()
+			}
+		</div>
+		<div class="p-6">
+			<div class="text-lg font-bold">{ service.Status }</div>
+			<p class="text-xs text-gray-500 dark:text-gray-400">{ service.StatusSubtitle }</p>
+		</div>
+	</div>
+}
+
+templ DatasetCard (dataset *models.Dataset) {
+	<div class="rounded-lg border bg-white shadow-sm w-full h-full ">
+		<div class="flex justify-between w-full p-3">
+			<div class="flex flex-col space-y-1.5 ">
+				<h3 class="text-2xl font-semibold whitespace-nowrap leading-none tracking-tight">{ dataset.Name }</h3>
+				<p class="text-sm text-muted-foreground">{ dataset.Description }</p>
+			</div>
+			@IconButton(TrashIcon(), templ.Attributes{
+				"hx-get":     fmt.Sprintf("/datasets/delete/%s", dataset.ID),
+				"hx-trigger": "click",
+				"hx-target":  "#popup",
+			})
+		</div>
+		<div class="p-3 grid grid-cols-2 gap-4">
+			if dataset.Metrics != nil {
+				<div class="rounded-lg border bg-gray-100 text-card-foreground shadow-sm">
+					<div class="p-3">
+						<div class="text-lg font-bold">Total Number of Requests:</div>
+						<p class="text-xs text-gray-500 dark:text-gray-400">Total: { fmt.Sprintf("%d",dataset.Metrics.Total) }</p>
+					</div>
+				</div>
+				for _, metric := range dataset.Metrics.ReducerMetric {
+					<div class="rounded-lg border bg-gray-100 text-card-foreground shadow-sm">
+						<div class="p-3">
+							<div class="text-lg font-bold">Reducer: { metric.Reducer }</div>
+							<p class="text-xs text-gray-500 dark:text-gray-400">Tracker: { fmt.Sprintf("%d",metric.Tracker) } | Non-Tracker: { fmt.Sprintf("%d",metric.NonTracker) } | Total: { fmt.Sprintf("%d",metric.Total) } </p>
+						</div>
+					</div>
+				}
+			} else {
+				<div class="rounded-lg border bg-gray-100 text-card-foreground shadow-sm">
+					<div class="p-3">
+						<div class="text-lg font-bold">No Metrics Available.</div>
+						<p class="text-xs text-gray-500 dark:text-gray-400">Please wait for the next job run.</p>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
 }

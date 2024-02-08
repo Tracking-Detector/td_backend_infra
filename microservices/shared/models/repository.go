@@ -34,6 +34,7 @@ type RequestRepository interface {
 	StreamByDataset(ctx context.Context, dataset string) (<-chan *RequestData, <-chan error)
 	CountByUrlLike(ctx context.Context, url string) (int64, error)
 	FindAllByUrlLikePaged(ctx context.Context, url string, page, pageSize int) ([]*RequestData, error)
+	DeleteAllByLabel(ctx context.Context, label string) error
 }
 
 type TrainingRunRepository interface {

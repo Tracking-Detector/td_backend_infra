@@ -2,6 +2,7 @@ package acceptance
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"testing"
@@ -35,7 +36,7 @@ func (suite *DatasetControllerAcceptanceTest) SetupSuite() {
 	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.AcceptanceTest.ctx)))
 	suite.requestService = service.NewRequestService(suite.requestRepo)
 	suite.datasetRepo = repository.NewMongoDatasetRepository(configs.GetDatabase(configs.ConnectDB(suite.AcceptanceTest.ctx)))
-	suite.datasetService = service.NewDatasetService(suite.datasetRepo)
+	suite.datasetService = service.NewDatasetService(suite.datasetRepo, suite.requestRepo)
 	suite.datasetController = controller.NewDatasetController(suite.datasetService)
 	go func() {
 		suite.datasetController.Start()
@@ -50,6 +51,21 @@ func (suite *DatasetControllerAcceptanceTest) SetupTest() {
 func (suite *DatasetControllerAcceptanceTest) TearDownSuite() {
 	suite.datasetController.Stop()
 	suite.teardownIntegration()
+}
+
+func (suite *DatasetControllerAcceptanceTest) Test_FindByID() {
+	// given
+	dataset := &models.Dataset{
+		Name:        "test",
+		Description: "test",
+		Label:       "test",
+	}
+	dataset, err := suite.datasetRepo.Save(suite.AcceptanceTest.ctx, dataset)
+	// when
+	newDataSet, err := suite.datasetRepo.FindByID(suite.AcceptanceTest.ctx, dataset.ID)
+	// then
+	fmt.Println(newDataSet, err)
+
 }
 
 func (suite *DatasetControllerAcceptanceTest) TestHealth_Success() {

@@ -43,7 +43,7 @@ func (suite *ExportConsumerAcceptanceTest) SetupSuite() {
 	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.exportRunRepo = repository.NewMongoExportRunRunRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.datasetRepo = repository.NewMongoDatasetRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
-	suite.datasetService = service.NewDatasetService(suite.datasetRepo)
+	suite.datasetService = service.NewDatasetService(suite.datasetRepo, suite.requestRepo)
 	suite.exportRunService = service.NewExportRunService(suite.exportRunRepo)
 	minioClient := configs.ConnectMinio()
 	rabbitMqChannel := configs.ConnectRabbitMQ()

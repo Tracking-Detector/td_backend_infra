@@ -31,7 +31,7 @@ func (suite *DatasetCalculationJobAcceptanceTest) SetupTest() {
 	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.datasetRepo = repository.NewMongoDatasetRepository(configs.GetDatabase(configs.ConnectDB(suite.ctx)))
 	suite.requestService = service.NewRequestService(suite.requestRepo)
-	suite.datasetService = service.NewDatasetService(suite.datasetRepo)
+	suite.datasetService = service.NewDatasetService(suite.datasetRepo, suite.requestRepo)
 	suite.datasetMetricJob = *job.NewDatasetMetricJob(suite.datasetService, suite.requestService)
 	suite.requestRepo.DeleteAll(suite.ctx)
 	suite.datasetRepo.DeleteAll(suite.ctx)

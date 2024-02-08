@@ -27,7 +27,7 @@ func main() {
 	exporterRepo := repository.NewMongoExporterRepository(db)
 	exporterService := service.NewExporterService(exporterRepo)
 	datasetRepo := repository.NewMongoDatasetRepository(db)
-	datasetService := service.NewDatasetService(datasetRepo)
+	datasetService := service.NewDatasetService(datasetRepo, requestRepo)
 	exportRunRepo := repository.NewMongoExportRunRunRepository(db)
 	exportRunService := service.NewExportRunService(exportRunRepo)
 	internalExportJob := job.NewInternalExportJob(requestRepo, storageService)

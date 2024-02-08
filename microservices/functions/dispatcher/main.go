@@ -21,6 +21,7 @@ func main() {
 	channelAdapter := queue.NewRabbitMQChannelAdapter(rabbitCh)
 	exporterRepo := repository.NewMongoExporterRepository(db)
 	modelRepo := repository.NewMongoModelRepository(db)
+	requestRepo := repository.NewMongoRequestRepository(db)
 	trainingRunRepo := repository.NewMongoTrainingRunRepository(db)
 	exportRunRepo := repository.NewMongoExportRunRunRepository(db)
 	datasetRepo := repository.NewMongoDatasetRepository(db)
@@ -28,7 +29,7 @@ func main() {
 	trainingRunService := service.NewTraingingrunService(trainingRunRepo)
 	exporterService := service.NewExporterService(exporterRepo)
 	exportRunService := service.NewExportRunService(exportRunRepo)
-	datasetService := service.NewDatasetService(datasetRepo)
+	datasetService := service.NewDatasetService(datasetRepo, requestRepo)
 	modelService := service.NewModelService(modelRepo, trainingRunService)
 	publisherService := service.NewPublishService(channelAdapter)
 

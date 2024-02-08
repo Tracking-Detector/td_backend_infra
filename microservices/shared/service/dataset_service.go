@@ -15,17 +15,20 @@ type IDatasetService interface {
 	ReloadCache(ctx context.Context)
 	IsValidDataset(ctx context.Context, id string) bool
 	GetDatasetByID(ctx context.Context, id string) (*models.Dataset, error)
+	DeleteDataset(ctx context.Context, id string) error
 	IsLabelValid(label string) bool
 }
 
 type DatasetService struct {
 	datasetRepo  models.DatasetRepository
+	requestRepo  models.RequestRepository
 	datasetCache []*models.Dataset
 }
 
-func NewDatasetService(datasetRepo models.DatasetRepository) *DatasetService {
+func NewDatasetService(datasetRepo models.DatasetRepository, requestRepo models.RequestRepository) *DatasetService {
 	service := &DatasetService{
 		datasetRepo: datasetRepo,
+		requestRepo: requestRepo,
 	}
 	service.ReloadCache(context.Background())
 	return service
@@ -43,7 +46,7 @@ func (s *DatasetService) CreateDataset(ctx context.Context, datasetPayload *payl
 		Description: datasetPayload.Description,
 		Label:       datasetPayload.Label,
 	}
-	return s.datasetRepo.Save(ctx, dataset)
+	return s.Save(ctx, dataset)
 }
 
 func (s *DatasetService) Save(ctx context.Context, dataset *models.Dataset) (*models.Dataset, error) {
@@ -66,6 +69,23 @@ func (s *DatasetService) IsValidDataset(ctx context.Context, id string) bool {
 		return false
 	}
 	return dataset != nil
+}
+
+func (s *DatasetService) DeleteDataset(ctx context.Context, id string) error {
+
+	dataset, err := s.datasetRepo.FindByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if dataset.Label != "" {
+		if err := s.requestRepo.DeleteAllByLabel(ctx, dataset.Label); err != nil {
+			return err
+		}
+	}
+	err = s.datasetRepo.DeleteByID(ctx, id)
+
+	s.ReloadCache(ctx)
+	return err
 }
 
 func (s *DatasetService) ReloadCache(ctx context.Context) {

@@ -88,6 +88,24 @@ func (_m *RequestRepository) DeleteAll(ctx context.Context) error {
 	return r0
 }
 
+// DeleteAllByLabel provides a mock function with given fields: ctx, label
+func (_m *RequestRepository) DeleteAllByLabel(ctx context.Context, label string) error {
+	ret := _m.Called(ctx, label)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAllByLabel")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, label)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteByID provides a mock function with given fields: ctx, id
 func (_m *RequestRepository) DeleteByID(ctx context.Context, id string) error {
 	ret := _m.Called(ctx, id)

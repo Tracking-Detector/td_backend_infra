@@ -29,6 +29,7 @@ type DispatchControllerAcceptanceTest struct {
 	exportRunService   service.IExportRunService
 	publishService     service.IPublishService
 	exporterRepo       models.ExporterRepository
+	requestRepo        models.RequestRepository
 	exportRunRepo      models.ExportRunRepository
 	trainingRunRepo    models.TrainingRunRepository
 	modelRepo          models.ModelRepository
@@ -45,6 +46,7 @@ func (suite *DispatchControllerAcceptanceTest) SetupSuite() {
 	suite.setupIntegration()
 	mongoClient := configs.ConnectDB(suite.ctx)
 	suite.rabbitMq = configs.ConnectRabbitMQ()
+	suite.requestRepo = repository.NewMongoRequestRepository(configs.GetDatabase(mongoClient))
 	suite.queueAdapter = queue.NewRabbitMQChannelAdapter(suite.rabbitMq)
 	suite.exporterRepo = repository.NewMongoExporterRepository(configs.GetDatabase(mongoClient))
 	suite.exportRunRepo = repository.NewMongoExportRunRunRepository(configs.GetDatabase(mongoClient))
@@ -53,7 +55,7 @@ func (suite *DispatchControllerAcceptanceTest) SetupSuite() {
 	suite.datasetRepo = repository.NewMongoDatasetRepository(configs.GetDatabase(mongoClient))
 
 	suite.trainingRunService = service.NewTraingingrunService(suite.trainingRunRepo)
-	suite.datasetService = service.NewDatasetService(suite.datasetRepo)
+	suite.datasetService = service.NewDatasetService(suite.datasetRepo, suite.requestRepo)
 	suite.exportRunService = service.NewExportRunService(suite.exportRunRepo)
 	suite.exporterService = service.NewExporterService(suite.exporterRepo)
 	suite.modelService = service.NewModelService(suite.modelRepo, suite.trainingRunService)

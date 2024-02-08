@@ -105,6 +105,12 @@ func (r *MongoRequestRepository) DeleteAll(ctx context.Context) error {
 	return mongostore.DeleteAll(ctx, r.coll)
 }
 
+func (r *MongoRequestRepository) DeleteAllByLabel(ctx context.Context, label string) error {
+	return mongostore.DeleteAllBy(ctx, r.coll, bson.M{
+		"dataset": label,
+	})
+}
+
 func (r *MongoRequestRepository) InTransaction(ctx context.Context, fn func(context.Context) error) error {
 	return mongostore.InTransaction(ctx, r.db, fn)
 }

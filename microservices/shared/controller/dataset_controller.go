@@ -42,11 +42,21 @@ func (dc *DatasetController) CreateDataset(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response.NewSuccessResponse(dataset))
 }
 
+func (dc *DatasetController) DeleteDataset(c *fiber.Ctx) error {
+	id := c.Params("id")
+	err := dc.datasetService.DeleteDataset(c.Context(), id)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(response.NewErrorResponse(err.Error()))
+	}
+	return c.Status(fiber.StatusOK).JSON(response.NewSuccessResponse(nil))
+}
+
 func (dc *DatasetController) Start() {
 	dc.app = fiber.New()
 	dc.app.Use(cors.New())
 	dc.app.Use(logger.New())
 	dc.app.Get("/datasets/health", utils.GetHealth)
+	dc.app.Delete("/datasets/:id", dc.DeleteDataset)
 	dc.app.Get("/datasets", dc.GetAllDatasets)
 	dc.app.Post("/datasets", dc.CreateDataset)
 	dc.app.Listen(":8081")

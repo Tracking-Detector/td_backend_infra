@@ -25,7 +25,7 @@ func main() {
 	requestRepo := repository.NewMongoRequestRepository(db)
 	requestService := service.NewRequestService(requestRepo)
 	datasetRepo := repository.NewMongoDatasetRepository(db)
-	datasetService := service.NewDatasetService(datasetRepo)
+	datasetService := service.NewDatasetService(datasetRepo, requestRepo)
 
 	datasetCalculationJob := job.NewDatasetMetricJob(datasetService, requestService)
 	datasetController := controller.NewDatasetController(datasetService)

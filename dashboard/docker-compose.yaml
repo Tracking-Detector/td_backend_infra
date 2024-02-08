@@ -31,9 +31,27 @@ services:
       - '--log.level=DEBUG'
     networks:
       - web
+  mongo-express:
+    container_name: mongo-express
+    restart: unless-stopped
+    image: mongo-express:latest
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://db:27017/tracking-detector
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+      - ME_CONFIG_BASICAUTH=false
+      - ME_CONFIG_SITE_BASEURL=/mongo
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.mongo-express.rule=(Host(`dashboard.${DOMAIN}`) && PathPrefix(`/mongo`))' 
+      - "traefik.http.services.mongo-express.loadbalancer.server.port=8081"
+      - "traefik.http.routers.mongo-express.entrypoints=web"
+    depends_on:
+      - db
+    networks:
+      - web
   # infra
   db:
-    image: mongo:4.4.18
+    image: mongo:latest
     restart: unless-stopped
     container_name: db
     environment:
